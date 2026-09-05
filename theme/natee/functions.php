@@ -11,6 +11,8 @@ define( 'NATEE_VERSION', '1.0.0' );
 
 require_once get_template_directory() . '/inc/defaults.php';
 require_once get_template_directory() . '/inc/helpers.php';
+require_once get_template_directory() . '/inc/i18n.php';
+require_once get_template_directory() . '/inc/admin-role.php';
 require_once get_template_directory() . '/inc/settings.php';
 require_once get_template_directory() . '/inc/seo.php';
 require_once get_template_directory() . '/inc/contact-form.php';
@@ -50,6 +52,22 @@ add_action( 'wp_head', 'natee_preconnect_fonts', 1 );
 function natee_preconnect_fonts() {
 	echo '<link rel="preconnect" href="https://fonts.googleapis.com">' . "\n";
 	echo '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>' . "\n";
+}
+
+/**
+ * ไอคอนบนแท็บเบราว์เซอร์และหน้าจอโฮมของมือถือ
+ * ถ้าเจ้าของเว็บตั้งไอคอนไว้ในหน้าปรับแต่งของ WordPress แล้ว จะใช้ของนั้นแทน
+ */
+add_action( 'wp_head', 'natee_site_icons', 3 );
+function natee_site_icons() {
+	if ( function_exists( 'has_site_icon' ) && has_site_icon() ) {
+		return;
+	}
+
+	$dir = get_template_directory_uri() . '/assets/images';
+
+	printf( '<link rel="icon" type="image/png" sizes="32x32" href="%s">' . "\n", esc_url( $dir . '/icon-32.png' ) );
+	printf( '<link rel="apple-touch-icon" sizes="180x180" href="%s">' . "\n", esc_url( $dir . '/icon-180.png' ) );
 }
 
 /**
@@ -97,7 +115,7 @@ function natee_contact_buttons( $context = 'hero' ) {
 			<a class="natee-btn natee-btn-call" href="<?php echo esc_attr( natee_tel_href( $phones[0] ) ); ?>" data-natee-call="<?php echo esc_attr( $context ); ?>">
 				<?php echo natee_icon( 'phone' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 				<span class="natee-btn-label">
-					<span class="natee-btn-small">โทรสั่งน้ำ</span>
+					<span class="natee-btn-small"><?php echo esc_html( natee_ui( 'call_label' ) ); ?></span>
 					<span class="natee-nowrap"><?php echo esc_html( $phones[0] ); ?></span>
 				</span>
 			</a>
@@ -107,8 +125,8 @@ function natee_contact_buttons( $context = 'hero' ) {
 			<a class="natee-btn natee-btn-line" href="<?php echo esc_url( $line ); ?>" target="_blank" rel="noopener" data-natee-line="<?php echo esc_attr( $context ); ?>">
 				<?php echo natee_icon( 'line' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 				<span class="natee-btn-label">
-					<span class="natee-btn-small">ทักไลน์</span>
-					<span class="natee-nowrap"><?php echo esc_html( natee_opt( 'line_id', 'สอบถามทางไลน์' ) ); ?></span>
+					<span class="natee-btn-small"><?php echo esc_html( natee_ui( 'line_label' ) ); ?></span>
+					<span class="natee-nowrap"><?php echo esc_html( natee_opt( 'line_id', natee_ui( 'line_default' ) ) ); ?></span>
 				</span>
 			</a>
 		<?php endif; ?>
@@ -132,18 +150,18 @@ function natee_sticky_bar() {
 		return;
 	}
 	?>
-	<div class="natee-sticky" role="complementary" aria-label="ช่องทางติดต่อด่วน">
+	<div class="natee-sticky" role="complementary" aria-label="<?php echo esc_attr( natee_ui( 'contact_title' ) ); ?>">
 		<?php if ( ! empty( $phones ) ) : ?>
 			<a class="natee-sticky-item natee-sticky-call" href="<?php echo esc_attr( natee_tel_href( $phones[0] ) ); ?>">
 				<?php echo natee_icon( 'phone' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-				<span>โทรสั่งน้ำ</span>
+				<span><?php echo esc_html( natee_ui( 'call_label' ) ); ?></span>
 			</a>
 		<?php endif; ?>
 
 		<?php if ( $line ) : ?>
 			<a class="natee-sticky-item natee-sticky-line" href="<?php echo esc_url( $line ); ?>" target="_blank" rel="noopener">
 				<?php echo natee_icon( 'line' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-				<span>ทักไลน์</span>
+				<span><?php echo esc_html( natee_ui( 'line_label' ) ); ?></span>
 			</a>
 		<?php endif; ?>
 	</div>

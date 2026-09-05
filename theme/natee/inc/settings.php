@@ -18,6 +18,7 @@ function natee_settings_tabs() {
 		'gallery' => 'แกลเลอรี',
 		'faq'     => 'คำถามที่พบบ่อย',
 		'seo'     => 'ชื่อเว็บบน Google',
+		'admin'   => 'ผู้ดูแลระบบ',
 	);
 }
 
@@ -26,7 +27,7 @@ function natee_settings_menu() {
 	add_menu_page(
 		'ตั้งค่าเว็บไซต์',
 		'ตั้งค่าเว็บไซต์',
-		'manage_options',
+		NATEE_CAP,
 		'natee-settings',
 		'natee_settings_page',
 		'dashicons-admin-customizer',
@@ -93,6 +94,10 @@ function natee_sanitize_options( $input ) {
 		if ( isset( $input[ $key ] ) ) {
 			$out[ $key ] = sanitize_text_field( wp_unslash( $input[ $key ] ) );
 		}
+
+		if ( isset( $input[ $key . '_en' ] ) ) {
+			$out[ $key . '_en' ] = sanitize_text_field( wp_unslash( $input[ $key . '_en' ] ) );
+		}
 	}
 
 	$multi_line = array(
@@ -106,6 +111,10 @@ function natee_sanitize_options( $input ) {
 	foreach ( $multi_line as $key ) {
 		if ( isset( $input[ $key ] ) ) {
 			$out[ $key ] = sanitize_textarea_field( wp_unslash( $input[ $key ] ) );
+		}
+
+		if ( isset( $input[ $key . '_en' ] ) ) {
+			$out[ $key . '_en' ] = sanitize_textarea_field( wp_unslash( $input[ $key . '_en' ] ) );
 		}
 	}
 
@@ -141,60 +150,80 @@ function natee_sanitize_options( $input ) {
 	$out['highlights'] = natee_sanitize_rows(
 		isset( $input['highlights'] ) ? $input['highlights'] : array(),
 		array(
-			'icon'  => 'key',
-			'title' => 'text',
-			'text'  => 'textarea',
+			'icon'     => 'key',
+			'title'    => 'text',
+			'text'     => 'textarea',
+			'title_en' => 'text',
+			'text_en'  => 'textarea',
 		)
 	);
 
 	$out['services'] = natee_sanitize_rows(
 		isset( $input['services'] ) ? $input['services'] : array(),
 		array(
-			'icon'  => 'key',
-			'title' => 'text',
-			'text'  => 'textarea',
-			'image' => 'image',
+			'icon'     => 'key',
+			'title'    => 'text',
+			'text'     => 'textarea',
+			'image'    => 'image',
+			'title_en' => 'text',
+			'text_en'  => 'textarea',
 		)
 	);
 
 	$out['fleet'] = natee_sanitize_rows(
 		isset( $input['fleet'] ) ? $input['fleet'] : array(),
 		array(
-			'name'     => 'text',
-			'capacity' => 'text',
-			'text'     => 'textarea',
-			'image'    => 'image',
+			'name'        => 'text',
+			'capacity'    => 'text',
+			'text'        => 'textarea',
+			'image'       => 'image',
+			'name_en'     => 'text',
+			'capacity_en' => 'text',
+			'text_en'     => 'textarea',
 		)
 	);
 
 	$out['pricing'] = natee_sanitize_rows(
 		isset( $input['pricing'] ) ? $input['pricing'] : array(),
 		array(
-			'name'   => 'text',
-			'detail' => 'text',
-			'price'  => 'text',
+			'name'        => 'text',
+			'detail'      => 'text',
+			'price'       => 'text',
+			'includes'    => 'textarea',
+			'name_en'     => 'text',
+			'detail_en'   => 'text',
+			'price_en'    => 'text',
+			'includes_en' => 'textarea',
 		)
 	);
 
 	$out['steps'] = natee_sanitize_rows(
 		isset( $input['steps'] ) ? $input['steps'] : array(),
 		array(
-			'title' => 'text',
-			'text'  => 'textarea',
+			'title'    => 'text',
+			'text'     => 'textarea',
+			'title_en' => 'text',
+			'text_en'  => 'textarea',
 		)
 	);
 
 	$out['faq'] = natee_sanitize_rows(
 		isset( $input['faq'] ) ? $input['faq'] : array(),
 		array(
-			'q' => 'text',
-			'a' => 'textarea',
+			'q'    => 'text',
+			'a'    => 'textarea',
+			'q_en' => 'text',
+			'a_en' => 'textarea',
 		)
 	);
 
 	// พื้นที่ให้บริการ กรอกบรรทัดละหนึ่งพื้นที่
-	if ( isset( $input['areas'] ) ) {
-		$lines = preg_split( '/\r\n|\r|\n/', (string) wp_unslash( $input['areas'] ) );
+	foreach ( array( 'areas', 'areas_en' ) as $area_key ) {
+		if ( ! isset( $input[ $area_key ] ) ) {
+			continue;
+		}
+
+		$lines = preg_split( '/\r\n|\r|\n/', (string) wp_unslash( $input[ $area_key ] ) );
 		$areas = array();
 
 		foreach ( $lines as $line ) {
@@ -205,7 +234,7 @@ function natee_sanitize_options( $input ) {
 			}
 		}
 
-		$out['areas'] = $areas;
+		$out[ $area_key ] = $areas;
 	}
 
 	// แกลเลอรี เก็บเป็นรายการรหัสรูปภาพ
@@ -329,6 +358,8 @@ function natee_settings_assets( $hook ) {
 function natee_field_text( $key, $label, $help = '', $type = 'text' ) {
 	$options = natee_options();
 	$value   = isset( $options[ $key ] ) ? $options[ $key ] : '';
+	$has_en  = in_array( $key, natee_translatable_keys(), true );
+	$value_en = isset( $options[ $key . '_en' ] ) ? $options[ $key . '_en' ] : '';
 	?>
 	<div class="natee-field">
 		<label for="natee-<?php echo esc_attr( $key ); ?>"><?php echo esc_html( $label ); ?></label>
@@ -339,6 +370,18 @@ function natee_field_text( $key, $label, $help = '', $type = 'text' ) {
 		<?php if ( $help ) : ?>
 			<p class="natee-help"><?php echo esc_html( $help ); ?></p>
 		<?php endif; ?>
+
+		<?php if ( $has_en ) : ?>
+			<div class="natee-en-field">
+				<label for="natee-<?php echo esc_attr( $key ); ?>-en">
+					<span class="natee-en-chip">EN</span> <?php echo esc_html( $label ); ?> ภาษาอังกฤษ
+				</label>
+				<input type="<?php echo esc_attr( $type ); ?>"
+					id="natee-<?php echo esc_attr( $key ); ?>-en"
+					name="natee_options[<?php echo esc_attr( $key ); ?>_en]"
+					value="<?php echo esc_attr( $value_en ); ?>" />
+			</div>
+		<?php endif; ?>
 	</div>
 	<?php
 }
@@ -346,9 +389,11 @@ function natee_field_text( $key, $label, $help = '', $type = 'text' ) {
 /**
  * ช่องกรอกข้อความหลายบรรทัด
  */
-function natee_field_textarea( $key, $label, $help = '', $rows = 3, $raw_value = null ) {
-	$options = natee_options();
-	$value   = null !== $raw_value ? $raw_value : ( isset( $options[ $key ] ) ? $options[ $key ] : '' );
+function natee_field_textarea( $key, $label, $help = '', $rows = 3, $raw_value = null, $raw_value_en = null ) {
+	$options  = natee_options();
+	$value    = null !== $raw_value ? $raw_value : ( isset( $options[ $key ] ) ? $options[ $key ] : '' );
+	$has_en   = in_array( $key, natee_translatable_keys(), true ) || null !== $raw_value_en;
+	$value_en = null !== $raw_value_en ? $raw_value_en : ( isset( $options[ $key . '_en' ] ) ? $options[ $key . '_en' ] : '' );
 	?>
 	<div class="natee-field">
 		<label for="natee-<?php echo esc_attr( $key ); ?>"><?php echo esc_html( $label ); ?></label>
@@ -357,6 +402,17 @@ function natee_field_textarea( $key, $label, $help = '', $rows = 3, $raw_value =
 			name="natee_options[<?php echo esc_attr( $key ); ?>]"><?php echo esc_textarea( $value ); ?></textarea>
 		<?php if ( $help ) : ?>
 			<p class="natee-help"><?php echo esc_html( $help ); ?></p>
+		<?php endif; ?>
+
+		<?php if ( $has_en ) : ?>
+			<div class="natee-en-field">
+				<label for="natee-<?php echo esc_attr( $key ); ?>-en">
+					<span class="natee-en-chip">EN</span> <?php echo esc_html( $label ); ?> ภาษาอังกฤษ
+				</label>
+				<textarea id="natee-<?php echo esc_attr( $key ); ?>-en"
+					rows="<?php echo absint( $rows ); ?>"
+					name="natee_options[<?php echo esc_attr( $key ); ?>_en]"><?php echo esc_textarea( $value_en ); ?></textarea>
+			</div>
 		<?php endif; ?>
 	</div>
 	<?php
@@ -411,8 +467,9 @@ function natee_repeater_row( $group, $index, $row, $schema, $is_template = false
 					continue;
 				}
 
-				$name  = sprintf( 'natee_options[%s][%s][%s]', $group, $index_attr, $key );
-				$value = isset( $row[ $key ] ) ? $row[ $key ] : '';
+				$name    = sprintf( 'natee_options[%s][%s][%s]', $group, $index_attr, $key );
+				$value   = isset( $row[ $key ] ) ? $row[ $key ] : '';
+				$en_attr = ! empty( $field['en'] ) ? ' natee-field-en' : '';
 
 				if ( 'image' === $field['type'] ) {
 					natee_field_image( $name, $value, $field['label'], isset( $field['help'] ) ? $field['help'] : '' );
@@ -437,17 +494,23 @@ function natee_repeater_row( $group, $index, $row, $schema, $is_template = false
 
 				if ( 'textarea' === $field['type'] ) {
 					?>
-					<div class="natee-field">
+					<div class="natee-field<?php echo esc_attr( $en_attr ); ?>">
 						<label><?php echo esc_html( $field['label'] ); ?></label>
 						<textarea rows="3" name="<?php echo esc_attr( $name ); ?>"><?php echo esc_textarea( $value ); ?></textarea>
+						<?php if ( ! empty( $field['help'] ) ) : ?>
+							<p class="natee-help"><?php echo esc_html( $field['help'] ); ?></p>
+						<?php endif; ?>
 					</div>
 					<?php
 					continue;
 				}
 				?>
-				<div class="natee-field">
+				<div class="natee-field<?php echo esc_attr( $en_attr ); ?>">
 					<label><?php echo esc_html( $field['label'] ); ?></label>
 					<input type="text" name="<?php echo esc_attr( $name ); ?>" value="<?php echo esc_attr( $value ); ?>" />
+					<?php if ( ! empty( $field['help'] ) ) : ?>
+						<p class="natee-help"><?php echo esc_html( $field['help'] ); ?></p>
+					<?php endif; ?>
 				</div>
 				<?php
 			}
@@ -482,7 +545,7 @@ function natee_repeater( $group, $schema, $add_label ) {
  * หน้าตั้งค่าทั้งหมด
  */
 function natee_settings_page() {
-	if ( ! current_user_can( 'manage_options' ) ) {
+	if ( ! current_user_can( NATEE_CAP ) ) {
 		return;
 	}
 
@@ -495,6 +558,12 @@ function natee_settings_page() {
 			แก้ข้อความและรูปในหน้านี้ได้ทุกจุด กด "บันทึกการตั้งค่า" ด้านล่างเมื่อแก้เสร็จ
 			แล้วเปิดหน้าเว็บเพื่อดูผลได้ทันที
 		</p>
+		<div class="natee-note-box">
+			<strong>เว็บไซต์นี้มีสองภาษา</strong>
+			ช่องพื้นสีฟ้าที่มีป้าย EN คือข้อความภาษาอังกฤษของช่องที่อยู่ด้านบน
+			ถ้าเว้นว่างไว้ ระบบจะแสดงข้อความภาษาไทยแทนโดยอัตโนมัติ
+			ผู้เข้าชมสลับภาษาได้จากปุ่ม ไทย และ EN บนหัวเว็บ
+		</div>
 
 		<form method="post" action="options.php" class="natee-form">
 			<?php settings_fields( 'natee_settings_group' ); ?>
@@ -596,6 +665,16 @@ function natee_settings_page() {
 							'type'  => 'textarea',
 							'label' => 'คำอธิบาย',
 						),
+						'title_en'  => array(
+							'type'  => 'text',
+							'label' => 'หัวข้อ ภาษาอังกฤษ',
+							'en'    => true,
+						),
+						'text_en'   => array(
+							'type'  => 'textarea',
+							'label' => 'คำอธิบาย ภาษาอังกฤษ',
+							'en'    => true,
+						),
 					),
 					'เพิ่มจุดเด่น'
 				);
@@ -615,6 +694,16 @@ function natee_settings_page() {
 						'text'      => array(
 							'type'  => 'textarea',
 							'label' => 'คำอธิบาย',
+						),
+						'title_en'  => array(
+							'type'  => 'text',
+							'label' => 'ชื่อขั้นตอน ภาษาอังกฤษ',
+							'en'    => true,
+						),
+						'text_en'   => array(
+							'type'  => 'textarea',
+							'label' => 'คำอธิบาย ภาษาอังกฤษ',
+							'en'    => true,
 						),
 					),
 					'เพิ่มขั้นตอน'
@@ -664,7 +753,17 @@ function natee_settings_page() {
 						'image'     => array(
 							'type'  => 'image',
 							'label' => 'รูปประกอบ',
-							'help'  => 'ไม่ใส่ก็ได้ ระบบจะแสดงเป็นกล่องสีพื้นแทน',
+							'help'  => 'ไม่ใส่ก็ได้ ระบบจะแสดงไอคอนแทน',
+						),
+						'title_en'  => array(
+							'type'  => 'text',
+							'label' => 'ชื่อบริการ ภาษาอังกฤษ',
+							'en'    => true,
+						),
+						'text_en'   => array(
+							'type'  => 'textarea',
+							'label' => 'คำอธิบาย ภาษาอังกฤษ',
+							'en'    => true,
 						),
 					),
 					'เพิ่มบริการ'
@@ -691,9 +790,24 @@ function natee_settings_page() {
 							'type'  => 'textarea',
 							'label' => 'คำอธิบาย',
 						),
-						'image'     => array(
+						'image'       => array(
 							'type'  => 'image',
 							'label' => 'รูปรถ',
+						),
+						'name_en'     => array(
+							'type'  => 'text',
+							'label' => 'ชื่อรถ ภาษาอังกฤษ',
+							'en'    => true,
+						),
+						'capacity_en' => array(
+							'type'  => 'text',
+							'label' => 'ความจุหรือจุดเด่น ภาษาอังกฤษ',
+							'en'    => true,
+						),
+						'text_en'     => array(
+							'type'  => 'textarea',
+							'label' => 'คำอธิบาย ภาษาอังกฤษ',
+							'en'    => true,
 						),
 					),
 					'เพิ่มประเภทรถ'
@@ -718,9 +832,35 @@ function natee_settings_page() {
 							'type'  => 'text',
 							'label' => 'รายละเอียด',
 						),
-						'price'     => array(
+						'price'       => array(
 							'type'  => 'text',
 							'label' => 'ราคา',
+							'help'  => 'ใส่ตัวเลขจริง หรือคำว่า สอบถามราคา ก็ได้',
+						),
+						'includes'    => array(
+							'type'  => 'textarea',
+							'label' => 'สิ่งที่ได้รับ',
+							'help'  => 'กรอกบรรทัดละหนึ่งข้อ จะแสดงเมื่อลูกค้ากดเปิดรายการนี้',
+						),
+						'name_en'     => array(
+							'type'  => 'text',
+							'label' => 'ชื่อรายการ ภาษาอังกฤษ',
+							'en'    => true,
+						),
+						'detail_en'   => array(
+							'type'  => 'text',
+							'label' => 'รายละเอียด ภาษาอังกฤษ',
+							'en'    => true,
+						),
+						'price_en'    => array(
+							'type'  => 'text',
+							'label' => 'ราคา ภาษาอังกฤษ',
+							'en'    => true,
+						),
+						'includes_en' => array(
+							'type'  => 'textarea',
+							'label' => 'สิ่งที่ได้รับ ภาษาอังกฤษ',
+							'en'    => true,
 						),
 					),
 					'เพิ่มรายการราคา'
@@ -739,7 +879,8 @@ function natee_settings_page() {
 					'รายชื่อพื้นที่',
 					'กรอกบรรทัดละหนึ่งพื้นที่ เช่น อำเภอเมืองเชียงใหม่',
 					12,
-					implode( "\n", (array) $options['areas'] )
+					implode( "\n", (array) $options['areas'] ),
+					implode( "\n", (array) $options['areas_en'] )
 				);
 				?>
 			</section>
@@ -788,6 +929,16 @@ function natee_settings_page() {
 							'type'  => 'textarea',
 							'label' => 'คำตอบ',
 						),
+						'q_en'      => array(
+							'type'  => 'text',
+							'label' => 'คำถาม ภาษาอังกฤษ',
+							'en'    => true,
+						),
+						'a_en'      => array(
+							'type'  => 'textarea',
+							'label' => 'คำตอบ ภาษาอังกฤษ',
+							'en'    => true,
+						),
 					),
 					'เพิ่มคำถาม'
 				);
@@ -801,6 +952,56 @@ function natee_settings_page() {
 				natee_field_textarea( 'seo_description', 'คำอธิบายบน Google', 'ความยาวที่เหมาะสมประมาณ 150 ตัวอักษร', 3 );
 				natee_field_image( 'natee_options[seo_image]', $options['seo_image'], 'รูปที่แสดงเวลาแชร์ลิงก์', 'ถ้าไม่เลือก ระบบจะใช้ภาพแบนเนอร์ธารนทีที่ติดมากับธีม แนะนำขนาด 1200 x 630 พิกเซล' );
 				?>
+			</section>
+
+			<section class="natee-panel" data-panel="admin">
+				<h2>ระบบผู้ดูแลเว็บไซต์แบบแยกส่วน</h2>
+				<div class="natee-note-box">
+					<strong>บทบาท ผู้ดูแลเว็บไซต์ธารนที</strong>
+					ผู้ใช้ที่ได้รับบทบาทนี้จะเห็นเฉพาะหน้าตั้งค่าเว็บไซต์และคลังไฟล์สื่อ
+					ไม่เห็นเมนูอื่นของ WordPress และเมื่อเข้าสู่ระบบจะเข้าหน้าตั้งค่านี้ทันที
+					เหมาะกับพนักงานที่ต้องแก้ข้อความหรือเปลี่ยนรูปเป็นประจำ
+				</div>
+
+				<h2>วิธีเพิ่มผู้ดูแลเว็บไซต์</h2>
+				<ol class="natee-steps-list">
+					<li>ไปที่เมนู <strong>สมาชิก</strong> แล้วกด <strong>เพิ่มสมาชิกใหม่</strong></li>
+					<li>กรอกชื่อผู้ใช้และอีเมล</li>
+					<li>ที่ช่อง <strong>บทบาท</strong> เลือก <strong>ผู้ดูแลเว็บไซต์ธารนที</strong></li>
+					<li>กด <strong>เพิ่มสมาชิกใหม่</strong> แล้วส่งรหัสผ่านให้ผู้ใช้คนนั้น</li>
+				</ol>
+
+				<h2>รายชื่อผู้ดูแลเว็บไซต์ในระบบ</h2>
+				<?php $natee_managers = function_exists( 'natee_site_managers' ) ? natee_site_managers() : array(); ?>
+				<?php if ( empty( $natee_managers ) ) : ?>
+					<p class="natee-help">ยังไม่มีผู้ใช้ที่ได้รับบทบาทนี้ ขณะนี้มีเพียงผู้ดูแลระบบเท่านั้นที่แก้ไขเว็บไซต์ได้</p>
+				<?php else : ?>
+					<table class="natee-user-table">
+						<thead>
+							<tr>
+								<th>ชื่อผู้ใช้</th>
+								<th>ชื่อที่แสดง</th>
+								<th>อีเมล</th>
+							</tr>
+						</thead>
+						<tbody>
+							<?php foreach ( $natee_managers as $natee_manager ) : ?>
+								<tr>
+									<td><?php echo esc_html( $natee_manager->user_login ); ?></td>
+									<td><?php echo esc_html( $natee_manager->display_name ); ?></td>
+									<td><?php echo esc_html( $natee_manager->user_email ); ?></td>
+								</tr>
+							<?php endforeach; ?>
+						</tbody>
+					</table>
+				<?php endif; ?>
+
+				<h2>ความปลอดภัย</h2>
+				<ul class="natee-steps-list">
+					<li>เปลี่ยนรหัสผ่านผู้ดูแลระบบทันทีหลังรับมอบงาน</li>
+					<li>ให้พนักงานใช้บทบาทผู้ดูแลเว็บไซต์ ไม่ต้องให้สิทธิ์ผู้ดูแลระบบเต็ม</li>
+					<li>ถ้าพนักงานลาออก ให้ลบผู้ใช้นั้นออกจากเมนูสมาชิกทันที</li>
+				</ul>
 			</section>
 
 			<?php submit_button( 'บันทึกการตั้งค่า' ); ?>

@@ -16,9 +16,9 @@ if ( empty( $fleet ) ) {
 <section class="natee-section natee-fleet" id="natee-fleet">
 	<div class="natee-container">
 		<header class="natee-section-head">
-			<h2 class="natee-section-title"><?php echo esc_html( natee_opt( 'fleet_title', 'ประเภทรถให้บริการ' ) ); ?></h2>
-			<?php if ( natee_opt( 'fleet_subtitle', '' ) ) : ?>
-				<p class="natee-section-subtitle"><?php echo esc_html( natee_opt( 'fleet_subtitle', '' ) ); ?></p>
+			<h2 class="natee-section-title"><?php echo esc_html( natee_text( 'fleet_title', 'ประเภทรถให้บริการ' ) ); ?></h2>
+			<?php if ( natee_text( 'fleet_subtitle', '' ) ) : ?>
+				<p class="natee-section-subtitle"><?php echo esc_html( natee_text( 'fleet_subtitle', '' ) ); ?></p>
 			<?php endif; ?>
 		</header>
 
@@ -28,7 +28,7 @@ if ( empty( $fleet ) ) {
 
 			foreach ( $fleet as $index => $truck ) :
 				$fallback = isset( $bundled['fleet'][ $index ] ) ? $bundled['fleet'][ $index ] : '';
-				$tag      = natee_media_tag( $truck['image'], $fallback, 'large', 'natee-fleet-image', $truck['name'] );
+				$tag      = natee_media_tag( $truck['image'], $fallback, 'large', 'natee-fleet-image', natee_row_text( $truck, 'name' ) );
 				?>
 				<article class="natee-fleet-item">
 					<div class="natee-fleet-media <?php echo $tag ? '' : 'is-empty'; ?>">
@@ -39,11 +39,11 @@ if ( empty( $fleet ) ) {
 						<?php endif; ?>
 					</div>
 					<div class="natee-fleet-body">
-						<h3 class="natee-fleet-name"><?php echo esc_html( $truck['name'] ); ?></h3>
-						<?php if ( ! empty( $truck['capacity'] ) ) : ?>
-							<p class="natee-fleet-capacity"><?php echo esc_html( $truck['capacity'] ); ?></p>
+						<h3 class="natee-fleet-name"><?php echo esc_html( natee_row_text( $truck, 'name' ) ); ?></h3>
+						<?php if ( '' !== natee_row_text( $truck, 'capacity' ) ) : ?>
+							<p class="natee-fleet-capacity"><?php echo esc_html( natee_row_text( $truck, 'capacity' ) ); ?></p>
 						<?php endif; ?>
-						<p class="natee-fleet-text"><?php echo esc_html( $truck['text'] ); ?></p>
+						<p class="natee-fleet-text"><?php echo esc_html( natee_row_text( $truck, 'text' ) ); ?></p>
 					</div>
 				</article>
 			<?php endforeach; ?>

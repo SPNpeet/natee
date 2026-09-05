@@ -11,6 +11,19 @@ if ( ! defined( 'ABSPATH' ) ) {
  * ลิงก์จริงของหน้าที่กำลังเปิดอยู่ ใช้ทั้ง canonical และ og:url ให้ตรงกันเสมอ
  */
 function natee_current_url() {
+	$url = natee_current_url_base();
+
+	if ( natee_is_en() ) {
+		return add_query_arg( 'lang', 'en', $url );
+	}
+
+	return $url;
+}
+
+/**
+ * ลิงก์ของหน้าปัจจุบันโดยยังไม่รวมพารามิเตอร์ภาษา
+ */
+function natee_current_url_base() {
 	if ( is_front_page() ) {
 		return home_url( '/' );
 	}
@@ -41,14 +54,14 @@ function natee_current_url() {
  */
 function natee_seo_meta() {
 	if ( is_front_page() ) {
-		$title = natee_opt( 'seo_title', natee_site_name() );
-		$desc  = natee_opt( 'seo_description', natee_opt( 'hero_subtitle', '' ) );
+		$title = natee_text( 'seo_title', natee_site_name() );
+		$desc  = natee_text( 'seo_description', natee_text( 'hero_subtitle', '' ) );
 	} elseif ( is_singular() ) {
 		$title = wp_get_document_title();
-		$desc  = has_excerpt() ? get_the_excerpt() : natee_opt( 'seo_description', '' );
+		$desc  = has_excerpt() ? get_the_excerpt() : natee_text( 'seo_description', '' );
 	} else {
 		$title = wp_get_document_title();
-		$desc  = natee_opt( 'seo_description', '' );
+		$desc  = natee_text( 'seo_description', '' );
 	}
 
 	return array(
@@ -60,7 +73,7 @@ function natee_seo_meta() {
 add_filter( 'document_title_parts', 'natee_document_title' );
 function natee_document_title( $parts ) {
 	if ( is_front_page() ) {
-		$title = trim( (string) natee_opt( 'seo_title', '' ) );
+		$title = trim( (string) natee_text( 'seo_title', '' ) );
 
 		if ( '' !== $title ) {
 			$parts['title']   = $title;
@@ -99,14 +112,41 @@ function natee_head_meta() {
 	printf( '<meta property="og:site_name" content="%s">' . "\n", esc_attr( natee_site_name() ) );
 	printf( '<meta property="og:title" content="%s">' . "\n", esc_attr( $meta['title'] ) );
 	printf( '<meta property="og:url" content="%s">' . "\n", esc_url( $url ) );
-	printf( '<meta property="og:locale" content="%s">' . "\n", 'th_TH' );
+	printf( '<meta property="og:locale" content="%s">' . "\n", natee_is_en() ? 'en_US' : 'th_TH' );
+	printf( '<meta property="og:locale:alternate" content="%s">' . "\n", natee_is_en() ? 'th_TH' : 'en_US' );
+
+	$base = natee_current_url_base();
+
+	printf( '<link rel="alternate" hreflang="th" href="%s">' . "\n", esc_url( $base ) );
+	printf( '<link rel="alternate" hreflang="en" href="%s">' . "\n", esc_url( add_query_arg( 'lang', 'en', $base ) ) );
+	printf( '<link rel="alternate" hreflang="x-default" href="%s">' . "\n", esc_url( $base ) );
 
 	if ( $meta['description'] ) {
 		printf( '<meta property="og:description" content="%s">' . "\n", esc_attr( $meta['description'] ) );
 	}
 
 	if ( $image ) {
+		$bundled_sizes = natee_bundled_image_sizes();
+		$dimensions    = null;
+
+		if ( $image_id ) {
+			$src = wp_get_attachment_image_src( $image_id, 'full' );
+
+			if ( $src ) {
+				$dimensions = array( (int) $src[1], (int) $src[2] );
+			}
+		} elseif ( isset( $bundled_sizes[ $bundled['seo'] ] ) ) {
+			$dimensions = $bundled_sizes[ $bundled['seo'] ];
+		}
+
 		printf( '<meta property="og:image" content="%s">' . "\n", esc_url( $image ) );
+
+		if ( $dimensions ) {
+			printf( '<meta property="og:image:width" content="%d">' . "\n", $dimensions[0] );
+			printf( '<meta property="og:image:height" content="%d">' . "\n", $dimensions[1] );
+		}
+
+		printf( '<meta property="og:image:alt" content="%s">' . "\n", esc_attr( natee_site_name() ) );
 		printf( '<meta name="twitter:card" content="%s">' . "\n", 'summary_large_image' );
 	}
 
@@ -134,13 +174,27 @@ function natee_schema_json_ld() {
 		'@context'    => 'https://schema.org',
 		'@type'       => 'LocalBusiness',
 		'name'        => natee_site_name(),
-		'description' => natee_opt( 'seo_description', '' ),
+		'description' => natee_text( 'seo_description', '' ),
 		'url'         => home_url( '/' ),
-		'areaServed'  => array_values( (array) natee_opt( 'areas', array() ) ),
+		'areaServed'  => natee_areas_list(),
 	);
 
 	if ( ! empty( $phones ) ) {
 		$business['telephone'] = $phones[0];
+
+		$contact_points = array();
+
+		foreach ( $phones as $phone ) {
+			$contact_points[] = array(
+				'@type'             => 'ContactPoint',
+				'telephone'         => $phone,
+				'contactType'       => 'customer service',
+				'areaServed'        => 'TH',
+				'availableLanguage' => 'th',
+			);
+		}
+
+		$business['contactPoint'] = $contact_points;
 	}
 
 	$image_url = natee_media_url( $image, $bundled['seo'], 'full' );
@@ -159,7 +213,7 @@ function natee_schema_json_ld() {
 		$business['email'] = natee_opt( 'email', '' );
 	}
 
-	$address = trim( (string) natee_opt( 'address', '' ) );
+	$address = trim( (string) natee_text( 'address', '' ) );
 
 	if ( '' !== $address ) {
 		$business['address'] = array(
@@ -170,10 +224,17 @@ function natee_schema_json_ld() {
 		);
 	}
 
-	$hours = trim( (string) natee_opt( 'open_hours', '' ) );
+	$hours = trim( (string) natee_text( 'open_hours', '' ) );
 
 	if ( '' !== $hours ) {
-		$business['openingHours'] = 'Mo-Su 00:00-23:59';
+		$business['openingHoursSpecification'] = array(
+			array(
+				'@type'     => 'OpeningHoursSpecification',
+				'dayOfWeek' => array( 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday' ),
+				'opens'     => '00:00',
+				'closes'    => '23:59',
+			),
+		);
 	}
 
 	$profiles = array_filter( array( natee_opt( 'facebook_url', '' ), natee_line_href() ) );
@@ -190,16 +251,19 @@ function natee_schema_json_ld() {
 		$questions = array();
 
 		foreach ( $faq as $item ) {
-			if ( empty( $item['q'] ) || empty( $item['a'] ) ) {
+			$question = natee_row_text( $item, 'q' );
+			$answer   = natee_row_text( $item, 'a' );
+
+			if ( '' === $question || '' === $answer ) {
 				continue;
 			}
 
 			$questions[] = array(
 				'@type'          => 'Question',
-				'name'           => $item['q'],
+				'name'           => $question,
 				'acceptedAnswer' => array(
 					'@type' => 'Answer',
-					'text'  => $item['a'],
+					'text'  => $answer,
 				),
 			);
 		}
@@ -219,4 +283,16 @@ function natee_schema_json_ld() {
 			wp_json_encode( $node, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES )
 		);
 	}
+}
+
+/**
+ * ตั้งค่าภาษาของเอกสารตามภาษาที่ผู้เข้าชมเลือก
+ */
+add_filter( 'language_attributes', 'natee_language_attributes' );
+function natee_language_attributes( $output ) {
+	if ( ! natee_is_en() ) {
+		return $output;
+	}
+
+	return preg_replace( '/lang="[^"]*"/', 'lang="en"', $output );
 }

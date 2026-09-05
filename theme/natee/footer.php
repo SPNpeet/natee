@@ -11,7 +11,7 @@ $natee_phones   = natee_phones();
 $natee_line     = natee_line_href();
 $natee_facebook = trim( (string) natee_opt( 'facebook_url', '' ) );
 $natee_email    = trim( (string) natee_opt( 'email', '' ) );
-$natee_areas    = array_slice( (array) natee_opt( 'areas', array() ), 0, 8 );
+$natee_areas    = array_slice( natee_areas_list(), 0, 8 );
 ?>
 </main>
 
@@ -26,18 +26,18 @@ $natee_areas    = array_slice( (array) natee_opt( 'areas', array() ), 0, 8 );
 				<?php echo $natee_logo_tag; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 			<?php endif; ?>
 			<p class="natee-footer-name"><?php echo esc_html( natee_site_name() ); ?></p>
-			<p class="natee-footer-text"><?php echo esc_html( natee_opt( 'business_tagline', '' ) ); ?></p>
-			<?php if ( natee_opt( 'address', '' ) ) : ?>
-				<p class="natee-footer-text"><?php echo esc_html( natee_opt( 'address', '' ) ); ?></p>
+			<p class="natee-footer-text"><?php echo esc_html( natee_text( 'business_tagline', '' ) ); ?></p>
+			<?php if ( natee_text( 'address', '' ) ) : ?>
+				<p class="natee-footer-text"><?php echo esc_html( natee_text( 'address', '' ) ); ?></p>
 			<?php endif; ?>
-			<?php if ( natee_opt( 'open_hours', '' ) ) : ?>
-				<p class="natee-footer-text"><?php echo esc_html( natee_opt( 'open_hours', '' ) ); ?></p>
+			<?php if ( natee_text( 'open_hours', '' ) ) : ?>
+				<p class="natee-footer-text"><?php echo esc_html( natee_text( 'open_hours', '' ) ); ?></p>
 			<?php endif; ?>
 		</div>
 
 		<div class="natee-footer-col">
-			<p class="natee-footer-heading">ติดต่อเรา</p>
-			<ul class="natee-footer-list">
+			<p class="natee-footer-heading"><?php echo esc_html( natee_ui( 'footer_contact' ) ); ?></p>
+			<ul class="natee-footer-list" role="list">
 				<?php foreach ( $natee_phones as $natee_phone ) : ?>
 					<li>
 						<a href="<?php echo esc_attr( natee_tel_href( $natee_phone ) ); ?>">
@@ -51,7 +51,7 @@ $natee_areas    = array_slice( (array) natee_opt( 'areas', array() ), 0, 8 );
 					<li>
 						<a href="<?php echo esc_url( $natee_line ); ?>" target="_blank" rel="noopener">
 							<?php echo natee_icon( 'line' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-							<span><?php echo esc_html( natee_opt( 'line_id', 'ทักไลน์' ) ); ?></span>
+							<span><?php echo esc_html( natee_opt( 'line_id', natee_ui( 'line_label' ) ) ); ?></span>
 						</a>
 					</li>
 				<?php endif; ?>
@@ -60,7 +60,7 @@ $natee_areas    = array_slice( (array) natee_opt( 'areas', array() ), 0, 8 );
 					<li>
 						<a href="<?php echo esc_url( $natee_facebook ); ?>" target="_blank" rel="noopener">
 							<?php echo natee_icon( 'facebook' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-							<span>เพจ Facebook</span>
+							<span><?php echo esc_html( natee_ui( 'label_facebook' ) ); ?></span>
 						</a>
 					</li>
 				<?php endif; ?>
@@ -78,8 +78,8 @@ $natee_areas    = array_slice( (array) natee_opt( 'areas', array() ), 0, 8 );
 
 		<?php if ( ! empty( $natee_areas ) ) : ?>
 			<div class="natee-footer-col">
-				<p class="natee-footer-heading">พื้นที่ให้บริการ</p>
-				<ul class="natee-footer-areas">
+				<p class="natee-footer-heading"><?php echo esc_html( natee_ui( 'footer_areas' ) ); ?></p>
+				<ul class="natee-footer-areas" role="list">
 					<?php foreach ( $natee_areas as $natee_area ) : ?>
 						<li><?php echo esc_html( $natee_area ); ?></li>
 					<?php endforeach; ?>
@@ -92,14 +92,15 @@ $natee_areas    = array_slice( (array) natee_opt( 'areas', array() ), 0, 8 );
 		<p>
 			<?php
 			printf(
-				'สงวนลิขสิทธิ์ %s %s',
+				'%s %s %s',
+				esc_html( natee_site_name() ),
 				esc_html( wp_date( 'Y' ) ),
-				esc_html( natee_site_name() )
+				esc_html( natee_ui( 'footer_rights' ) )
 			);
 			?>
 		</p>
-		<?php if ( natee_opt( 'footer_note', '' ) ) : ?>
-			<p><?php echo esc_html( natee_opt( 'footer_note', '' ) ); ?></p>
+		<?php if ( natee_text( 'footer_note', '' ) ) : ?>
+			<p><?php echo esc_html( natee_text( 'footer_note', '' ) ); ?></p>
 		<?php endif; ?>
 	</div>
 </footer>

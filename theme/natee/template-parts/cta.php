@@ -7,7 +7,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-$title = natee_opt( 'cta_title', '' );
+$title = natee_text( 'cta_title', '' );
 
 if ( ! $title ) {
 	return;
@@ -17,8 +17,8 @@ if ( ! $title ) {
 	<div class="natee-container natee-cta-inner">
 		<div class="natee-cta-text">
 			<h2 class="natee-cta-title"><?php echo esc_html( $title ); ?></h2>
-			<?php if ( natee_opt( 'cta_subtitle', '' ) ) : ?>
-				<p class="natee-cta-subtitle"><?php echo esc_html( natee_opt( 'cta_subtitle', '' ) ); ?></p>
+			<?php if ( natee_text( 'cta_subtitle', '' ) ) : ?>
+				<p class="natee-cta-subtitle"><?php echo esc_html( natee_text( 'cta_subtitle', '' ) ); ?></p>
 			<?php endif; ?>
 		</div>
 		<?php natee_contact_buttons( 'cta' ); ?>

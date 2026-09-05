@@ -189,13 +189,53 @@ function natee_media_url( $attachment_id, $fallback_file = '', $size = 'large' )
 }
 
 /**
- * แท็กรูปของช่องที่ระบุ รองรับทั้งรูปที่ลูกค้าเลือกเองและรูปที่ติดมากับธีม
+ * ชุดรูปหลายขนาดของไฟล์ที่ติดมากับธีม
+ * เบราว์เซอร์บนมือถือจะเลือกไฟล์เล็กเอง ทำให้โหลดไวขึ้นและประหยัดเน็ตของลูกค้า
  */
-function natee_media_tag( $attachment_id, $fallback_file = '', $size = 'large', $class = '', $alt = '' ) {
-	$tag = natee_image( $attachment_id, $size, $class, $alt );
+function natee_bundled_srcset( $file ) {
+	$small = preg_replace( '/\.(jpg|jpeg|png)$/i', '-sm.$1', $file );
 
-	if ( $tag ) {
-		return $tag;
+	if ( $small === $file ) {
+		return array( '', '' );
+	}
+
+	$sizes = natee_bundled_image_sizes();
+
+	if ( ! isset( $sizes[ $small ], $sizes[ $file ] ) ) {
+		return array( '', '' );
+	}
+
+	$srcset = sprintf(
+		'%s %dw, %s %dw',
+		natee_bundled_url( $small ),
+		$sizes[ $small ][0],
+		natee_bundled_url( $file ),
+		$sizes[ $file ][0]
+	);
+
+	return array( $srcset, '(max-width: 719px) 92vw, (max-width: 999px) 46vw, 560px' );
+}
+
+/**
+ * แท็กรูปของช่องที่ระบุ รองรับทั้งรูปที่ลูกค้าเลือกเองและรูปที่ติดมากับธีม
+ * ส่ง $priority เป็น true สำหรับรูปที่อยู่ในหน้าจอแรก เพื่อให้เบราว์เซอร์โหลดก่อน
+ */
+function natee_media_tag( $attachment_id, $fallback_file = '', $size = 'large', $class = '', $alt = '', $priority = false ) {
+	$attachment_id = absint( $attachment_id );
+
+	if ( $attachment_id && wp_get_attachment_image_url( $attachment_id, $size ) ) {
+		return wp_get_attachment_image(
+			$attachment_id,
+			$size,
+			false,
+			array(
+				'class'         => $class,
+				'alt'           => $alt,
+				'loading'       => $priority ? 'eager' : 'lazy',
+				'decoding'      => 'async',
+				'fetchpriority' => $priority ? 'high' : 'auto',
+			)
+		);
 	}
 
 	$url = natee_bundled_url( $fallback_file );
@@ -204,11 +244,20 @@ function natee_media_tag( $attachment_id, $fallback_file = '', $size = 'large', 
 		return '';
 	}
 
+	$sizes = natee_bundled_image_sizes();
+	$dim   = isset( $sizes[ $fallback_file ] ) ? $sizes[ $fallback_file ] : null;
+
+	list( $srcset, $sizes_attr ) = natee_bundled_srcset( $fallback_file );
+
 	return sprintf(
-		'<img src="%s" class="%s" alt="%s" loading="lazy" decoding="async" />',
+		'<img src="%s"%s class="%s" alt="%s"%s loading="%s" decoding="async"%s />',
 		esc_url( $url ),
+		$srcset ? sprintf( ' srcset="%s" sizes="%s"', esc_attr( $srcset ), esc_attr( $sizes_attr ) ) : '',
 		esc_attr( $class ),
-		esc_attr( $alt )
+		esc_attr( $alt ),
+		$dim ? sprintf( ' width="%d" height="%d"', $dim[0], $dim[1] ) : '',
+		$priority ? 'eager' : 'lazy',
+		$priority ? ' fetchpriority="high"' : ''
 	);
 }
 
@@ -217,6 +266,21 @@ function natee_media_tag( $attachment_id, $fallback_file = '', $size = 'large', 
  */
 function natee_has_media( $attachment_id, $fallback_file = '' ) {
 	return (bool) natee_media_url( $attachment_id, $fallback_file, 'thumbnail' );
+}
+
+/**
+ * รายชื่อพื้นที่ให้บริการตามภาษาที่กำลังแสดง
+ */
+function natee_areas_list() {
+	if ( natee_is_en() ) {
+		$english = array_filter( (array) natee_opt( 'areas_en', array() ) );
+
+		if ( ! empty( $english ) ) {
+			return array_values( $english );
+		}
+	}
+
+	return array_values( array_filter( (array) natee_opt( 'areas', array() ) ) );
 }
 
 /**
@@ -233,11 +297,15 @@ function natee_gallery_items() {
 			continue;
 		}
 
+		$meta = wp_get_attachment_image_src( $id, 'medium_large' );
+
 		$items[] = array(
-			'id'    => $id,
-			'thumb' => wp_get_attachment_image_url( $id, 'medium_large' ),
-			'full'  => $full,
-			'alt'   => get_post_meta( $id, '_wp_attachment_image_alt', true ),
+			'id'     => $id,
+			'thumb'  => $meta ? $meta[0] : $full,
+			'full'   => $full,
+			'width'  => $meta ? (int) $meta[1] : 0,
+			'height' => $meta ? (int) $meta[2] : 0,
+			'alt'    => get_post_meta( $id, '_wp_attachment_image_alt', true ),
 		);
 	}
 
@@ -246,15 +314,19 @@ function natee_gallery_items() {
 	}
 
 	$bundled = natee_bundled_images();
+	$sizes   = natee_bundled_image_sizes();
 
 	foreach ( $bundled['gallery'] as $file ) {
 		$url = natee_bundled_url( $file );
+		$dim = isset( $sizes[ $file ] ) ? $sizes[ $file ] : array( 0, 0 );
 
 		$items[] = array(
-			'id'    => 0,
-			'thumb' => $url,
-			'full'  => $url,
-			'alt'   => '',
+			'id'     => 0,
+			'thumb'  => $url,
+			'full'   => $url,
+			'width'  => $dim[0],
+			'height' => $dim[1],
+			'alt'    => '',
 		);
 	}
 

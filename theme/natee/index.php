@@ -16,11 +16,11 @@ get_header();
 			<h1 class="natee-section-title">
 				<?php
 				if ( is_search() ) {
-					printf( 'ผลการค้นหา: %s', esc_html( get_search_query() ) );
+					printf( '%s: %s', esc_html( natee_ui( 'search_results' ) ), esc_html( get_search_query() ) );
 				} elseif ( is_archive() ) {
 					echo esc_html( wp_strip_all_tags( get_the_archive_title() ) );
 				} else {
-					echo 'บทความทั้งหมด';
+					echo esc_html( natee_ui( 'posts_title' ) );
 				}
 				?>
 			</h1>
@@ -47,7 +47,7 @@ get_header();
 				<?php the_posts_pagination( array( 'mid_size' => 1 ) ); ?>
 			</div>
 		<?php else : ?>
-			<p>ยังไม่มีเนื้อหาในส่วนนี้</p>
+			<p><?php echo esc_html( natee_ui( 'no_content' ) ); ?></p>
 		<?php endif; ?>
 	</div>
 </section>

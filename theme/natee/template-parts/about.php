@@ -7,15 +7,15 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-$title = trim( (string) natee_opt( 'about_title', '' ) );
-$text  = trim( (string) natee_opt( 'about_text', '' ) );
+$title = trim( (string) natee_text( 'about_title', '' ) );
+$text  = trim( (string) natee_text( 'about_text', '' ) );
 
 if ( '' === $title && '' === $text ) {
 	return;
 }
 
 $image   = absint( natee_opt( 'about_image', 0 ) );
-$quote   = trim( (string) natee_opt( 'about_quote', '' ) );
+$quote   = trim( (string) natee_text( 'about_quote', '' ) );
 $bundled = natee_bundled_images();
 $tag     = natee_media_tag( $image, $bundled['about'], 'large', 'natee-about-image', $title );
 ?>

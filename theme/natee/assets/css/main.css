@@ -74,6 +74,34 @@ ol {
 	white-space: nowrap;
 }
 
+/* กันข้อความยาวผิดปกติดันเลย์เอาต์จนล้นจอ */
+h1,
+h2,
+h3,
+p,
+li,
+a,
+summary {
+	overflow-wrap: break-word;
+}
+
+/* กรอบโฟกัสสำหรับคนที่ใช้แป้นพิมพ์ */
+a:focus-visible,
+button:focus-visible,
+summary:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+[tabindex]:focus-visible {
+	outline: 3px solid var(--natee-brand);
+	outline-offset: 2px;
+	border-radius: 6px;
+}
+
+.natee-cta a:focus-visible,
+.natee-sticky a:focus-visible {
+	outline-color: #fff;
+}
+
 .natee-screen-reader {
 	position: absolute;
 	width: 1px;
@@ -179,8 +207,9 @@ ol {
 }
 
 .natee-brand-logo {
-	max-height: 46px;
+	height: 46px;
 	width: auto;
+	flex: 0 0 auto;
 }
 
 .natee-brand-text {
@@ -196,16 +225,15 @@ ol {
 }
 
 .natee-brand-tagline {
+	display: none;
 	font-size: 12px;
 	color: var(--natee-muted);
 	line-height: 1.4;
-	overflow: hidden;
-	text-overflow: ellipsis;
 	white-space: nowrap;
-	max-width: 46vw;
 }
 
 .natee-nav-toggle {
+	order: 3;
 	width: 44px;
 	height: 44px;
 	border: 1px solid var(--natee-line);
@@ -303,6 +331,7 @@ ol {
 	padding: 9px 16px;
 	border-radius: 999px;
 	font-weight: 600;
+	min-height: 46px;
 }
 
 .natee-header-call-text {
@@ -319,6 +348,53 @@ ol {
 
 .natee-header-call-number {
 	font-size: 15px;
+}
+
+
+/* ตัวเลือกภาษา */
+.natee-lang {
+	order: 2;
+	display: inline-flex;
+	align-items: center;
+	gap: 2px;
+	padding: 3px;
+	border: 1px solid var(--natee-line);
+	border-radius: 999px;
+	background: #fff;
+	flex: 0 0 auto;
+}
+
+.natee-lang-item {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 44px;
+	min-height: 40px;
+	padding: 0 10px;
+	border-radius: 999px;
+	font-size: 13px;
+	font-weight: 600;
+	color: var(--natee-muted);
+	text-decoration: none;
+	line-height: 1;
+}
+
+.natee-lang-item:hover {
+	color: var(--natee-brand-dark);
+	background: var(--natee-brand-soft);
+}
+
+.natee-lang-item.is-active {
+	background: var(--natee-brand);
+	color: #fff;
+}
+
+.natee-lang-nav {
+	display: none;
+}
+
+.natee-lang-header {
+	display: inline-flex;
 }
 
 /* ปุ่ม */
@@ -422,9 +498,15 @@ ol {
 }
 
 .natee-hero-second-phone {
-	margin-top: 12px;
+	margin-top: 10px;
 	color: var(--natee-muted);
 	font-size: 15px;
+}
+
+.natee-hero-second-phone a {
+	display: inline-block;
+	padding: 9px 4px;
+	font-weight: 600;
 }
 
 .natee-hero-note {
@@ -689,15 +771,36 @@ ol {
 	gap: 12px;
 }
 
-.natee-price-row {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	gap: 16px;
+.natee-price-card {
 	background: #fff;
 	border: 1px solid var(--natee-line);
 	border-radius: var(--natee-radius);
+	overflow: hidden;
+	transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.natee-price-card[open] {
+	border-color: var(--natee-brand);
+	box-shadow: var(--natee-shadow);
+}
+
+.natee-price-summary {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 14px;
 	padding: 16px 20px;
+	cursor: pointer;
+	list-style: none;
+	min-height: 68px;
+}
+
+.natee-price-summary::-webkit-details-marker {
+	display: none;
+}
+
+.natee-price-summary:hover {
+	background: var(--natee-brand-soft);
 }
 
 .natee-price-info {
@@ -716,11 +819,68 @@ ol {
 	font-size: 14px;
 }
 
+.natee-price-side {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	flex: 0 0 auto;
+}
+
 .natee-price-value {
 	font-weight: 700;
-	font-size: 17px;
+	font-size: 16px;
 	color: var(--natee-brand-dark);
-	text-align: right;
+	background: var(--natee-brand-soft);
+	padding: 6px 14px;
+	border-radius: 999px;
+	white-space: nowrap;
+}
+
+.natee-price-chevron {
+	color: var(--natee-muted);
+	transition: transform 0.2s ease;
+}
+
+.natee-price-card[open] .natee-price-chevron {
+	transform: rotate(180deg);
+}
+
+.natee-price-body {
+	padding: 0 20px 20px;
+	border-top: 1px solid var(--natee-line);
+	margin-top: -1px;
+	padding-top: 16px;
+}
+
+.natee-price-includes {
+	display: grid;
+	gap: 8px;
+	margin-bottom: 16px;
+}
+
+.natee-price-includes li {
+	display: flex;
+	align-items: flex-start;
+	gap: 8px;
+	font-size: 15px;
+	color: var(--natee-muted);
+}
+
+.natee-price-includes .natee-icon {
+	color: var(--natee-brand);
+	top: 4px;
+}
+
+.natee-price-actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 10px;
+}
+
+.natee-btn-sm {
+	padding: 10px 18px;
+	min-height: 46px;
+	font-size: 15px;
 }
 
 .natee-price-note {
@@ -1016,10 +1176,29 @@ a.natee-contact-item:hover {
 	padding: 22px 20px 26px;
 }
 
+.natee-form-heading {
+	font-size: 18px;
+	font-weight: 600;
+	margin-bottom: 14px;
+}
+
 .natee-form-row {
 	display: flex;
 	flex-direction: column;
 	margin-bottom: 14px;
+}
+
+.natee-required {
+	font-size: 12px;
+	font-weight: 500;
+	color: #b3261e;
+	margin-left: 4px;
+}
+
+.natee-form-note {
+	margin-top: 6px;
+	font-size: 13px;
+	color: var(--natee-muted);
 }
 
 .natee-form-row label {
@@ -1112,19 +1291,22 @@ a.natee-contact-item:hover {
 }
 
 .natee-footer-logo {
-	width: 72px;
+	width: 56px;
 	height: auto;
 	margin-bottom: 12px;
-	padding: 8px;
+	padding: 10px;
 	background: #fff;
-	border-radius: 14px;
+	border-radius: 16px;
+	box-sizing: content-box;
 }
 
 .natee-map-link {
 	display: inline-flex;
 	align-items: center;
 	gap: 8px;
-	margin-top: 10px;
+	margin-top: 6px;
+	padding: 10px 2px;
+	min-height: 44px;
 	font-size: 15px;
 	font-weight: 600;
 	color: var(--natee-brand-dark);
@@ -1156,7 +1338,7 @@ a.natee-contact-item:hover {
 
 .natee-footer-list {
 	display: grid;
-	gap: 10px;
+	gap: 2px;
 }
 
 .natee-footer-list a {
@@ -1166,6 +1348,8 @@ a.natee-contact-item:hover {
 	color: #cfd9e6;
 	text-decoration: none;
 	font-size: 15px;
+	min-height: 44px;
+	padding: 4px 0;
 }
 
 .natee-footer-list a:hover {
@@ -1298,6 +1482,72 @@ a.natee-contact-item:hover {
 	justify-content: center;
 }
 
+/* จอแคบมาก เช่น มือถือรุ่นเล็ก */
+@media (max-width: 380px) {
+	.natee-container {
+		padding: 0 16px;
+	}
+
+	.natee-lang-item {
+		min-width: 40px;
+		min-height: 40px;
+		padding: 0 6px;
+		font-size: 12px;
+	}
+
+	.natee-header-inner {
+		gap: 8px;
+	}
+
+	.natee-actions {
+		flex-direction: column;
+		align-items: stretch;
+	}
+
+	.natee-btn {
+		justify-content: center;
+	}
+
+	.natee-btn-label {
+		align-items: center;
+	}
+
+	.natee-hero-title {
+		font-size: 26px;
+	}
+
+	.natee-section-title {
+		font-size: 22px;
+	}
+
+	.natee-qr {
+		flex-direction: column;
+		align-items: flex-start;
+	}
+
+	.natee-price-summary {
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 10px;
+		padding: 16px;
+	}
+
+	.natee-price-side {
+		width: 100%;
+		justify-content: space-between;
+	}
+
+	.natee-price-body {
+		padding-left: 16px;
+		padding-right: 16px;
+	}
+
+	.natee-price-actions .natee-btn {
+		width: 100%;
+		justify-content: center;
+	}
+}
+
 /* จอกลาง */
 @media (min-width: 720px) {
 	.natee-hero {
@@ -1382,15 +1632,17 @@ a.natee-contact-item:hover {
 
 	.natee-nav-list {
 		display: flex;
-		gap: 4px;
+		gap: 2px;
 		padding: 0;
+		align-items: center;
 	}
 
 	.natee-nav-list a {
 		border: none;
-		padding: 8px 12px;
+		padding: 8px 10px;
 		border-radius: 8px;
 		font-size: 15px;
+		white-space: nowrap;
 	}
 
 	.natee-nav-list a:hover {
@@ -1400,7 +1652,18 @@ a.natee-contact-item:hover {
 
 	.natee-header-call {
 		display: flex;
+		order: 3;
 	}
+
+	.natee-lang {
+		order: 2;
+	}
+
+	.natee-nav {
+		order: 1;
+	}
+
+
 
 	.natee-hero-inner {
 		grid-template-columns: 1.05fr 0.95fr;
@@ -1436,5 +1699,44 @@ a.natee-contact-item:hover {
 
 	* {
 		transition: none !important;
+	}
+}
+
+/* จอเดสก์ท็อปแคบ บีบส่วนหัวให้ทุกอย่างอยู่บรรทัดเดียว */
+@media (min-width: 1000px) and (max-width: 1399px) {
+	.natee-nav-list a {
+		font-size: 14px;
+		padding: 8px 7px;
+	}
+
+	.natee-header-call {
+		padding: 8px 14px;
+		min-height: 44px;
+	}
+
+	.natee-header-call-label {
+		display: none;
+	}
+
+	.natee-lang-item {
+		min-width: 40px;
+		min-height: 40px;
+		font-size: 12px;
+		padding: 0 8px;
+	}
+}
+
+/* จอกว้างมาก ให้ส่วนหัวหายใจได้ */
+@media (min-width: 1400px) {
+	.natee-nav-list a {
+		padding: 8px 12px;
+	}
+
+	.natee-brand {
+		flex: 0 0 auto;
+	}
+
+	.natee-brand-tagline {
+		display: block;
 	}
 }

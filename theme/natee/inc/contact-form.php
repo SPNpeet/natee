@@ -94,11 +94,11 @@ function natee_contact_notice() {
 	$code = sanitize_key( wp_unslash( $_GET['natee_contact'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
 	$messages = array(
-		'sent'    => array( 'ok', 'ส่งข้อความเรียบร้อยแล้ว ทีมงานจะติดต่อกลับโดยเร็วที่สุด หากเร่งด่วนกรุณาโทรหาเราโดยตรง' ),
-		'missing' => array( 'warn', 'กรุณากรอกชื่อและเบอร์โทรให้ครบก่อนกดส่ง' ),
-		'phone'   => array( 'warn', 'เบอร์โทรไม่ถูกต้อง กรุณาตรวจสอบอีกครั้ง' ),
-		'toofast' => array( 'warn', 'ระบบได้รับข้อความของท่านแล้ว กรุณารอสักครู่ก่อนส่งใหม่' ),
-		'error'   => array( 'warn', 'ส่งข้อความไม่สำเร็จ กรุณาโทรหาเราโดยตรงเพื่อความรวดเร็ว' ),
+		'sent'    => array( 'ok', natee_ui( 'notice_sent' ) ),
+		'missing' => array( 'warn', natee_ui( 'notice_missing' ) ),
+		'phone'   => array( 'warn', natee_ui( 'notice_phone' ) ),
+		'toofast' => array( 'warn', natee_ui( 'notice_toofast' ) ),
+		'error'   => array( 'warn', natee_ui( 'notice_error' ) ),
 	);
 
 	if ( ! isset( $messages[ $code ] ) ) {

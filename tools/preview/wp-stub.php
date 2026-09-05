@@ -255,7 +255,7 @@ function get_post_meta( $id, $key, $single = true ) {
 
 /* หน้าเว็บ */
 function language_attributes() {
-	echo 'lang="th"';
+	echo apply_filters( 'language_attributes', 'lang="th"' );
 }
 
 function body_class( $class = '' ) {
@@ -332,6 +332,96 @@ function get_the_excerpt() {
 
 function wp_get_document_title() {
 	return natee_opt( 'seo_title', 'ธารนที' );
+}
+
+function add_query_arg( $key, $value = null, $url = '' ) {
+	if ( is_array( $key ) ) {
+		$args = $key;
+		$url  = null === $value ? '' : $value;
+	} else {
+		$args = array( $key => $value );
+	}
+
+	if ( '' === $url ) {
+		$url = home_url( '/' );
+	}
+
+	$parts = explode( '#', $url, 2 );
+	$hash  = isset( $parts[1] ) ? '#' . $parts[1] : '';
+	$url   = $parts[0];
+	$query = '';
+
+	if ( false !== strpos( $url, '?' ) ) {
+		list( $url, $query ) = explode( '?', $url, 2 );
+	}
+
+	parse_str( $query, $current );
+
+	foreach ( $args as $k => $v ) {
+		$current[ $k ] = $v;
+	}
+
+	$query = http_build_query( $current );
+
+	return $url . ( $query ? '?' . $query : '' ) . $hash;
+}
+
+function remove_query_arg( $key, $url = '' ) {
+	if ( '' === $url ) {
+		$url = home_url( '/' );
+	}
+
+	$query = '';
+
+	if ( false !== strpos( $url, '?' ) ) {
+		list( $url, $query ) = explode( '?', $url, 2 );
+	}
+
+	parse_str( $query, $current );
+	unset( $current[ $key ] );
+	$query = http_build_query( $current );
+
+	return $url . ( $query ? '?' . $query : '' );
+}
+
+function has_site_icon() {
+	return false;
+}
+
+function wp_get_attachment_image_src( $id, $size = 'large' ) {
+	$url = natee_preview_image_url( $id, $size );
+
+	return $url ? array( $url, 800, 600 ) : false;
+}
+
+function get_role( $name ) {
+	return null;
+}
+
+function add_role( $name, $label, $caps ) {}
+
+function wp_get_current_user() {
+	return null;
+}
+
+function user_can() {
+	return true;
+}
+
+function get_users( $args = array() ) {
+	return array();
+}
+
+function wp_doing_ajax() {
+	return false;
+}
+
+function remove_menu_page() {}
+
+function wp_safe_redirect() {}
+
+function is_wp_error( $thing ) {
+	return false;
 }
 
 function wp_enqueue_style() {}
