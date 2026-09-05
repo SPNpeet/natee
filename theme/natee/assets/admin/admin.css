@@ -1,0 +1,277 @@
+/* หน้าตั้งค่าเว็บไซต์ ธารนที */
+
+.natee-settings {
+	max-width: 980px;
+}
+
+.natee-settings .natee-intro {
+	max-width: 60ch;
+	color: #50575e;
+	font-size: 14px;
+}
+
+.natee-tabs {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+	margin: 18px 0 0;
+	border-bottom: 1px solid #dcdcde;
+	padding-bottom: 0;
+}
+
+.natee-tab {
+	appearance: none;
+	background: #f0f0f1;
+	border: 1px solid #dcdcde;
+	border-bottom: none;
+	border-radius: 6px 6px 0 0;
+	padding: 10px 16px;
+	font-size: 14px;
+	font-weight: 500;
+	color: #3c434a;
+	cursor: pointer;
+	margin-bottom: -1px;
+}
+
+.natee-tab:hover {
+	background: #fff;
+	color: #135e96;
+}
+
+.natee-tab.is-active {
+	background: #fff;
+	color: #135e96;
+	border-bottom: 1px solid #fff;
+	font-weight: 600;
+}
+
+.natee-panel {
+	display: none;
+	background: #fff;
+	border: 1px solid #dcdcde;
+	border-top: none;
+	padding: 24px 28px 28px;
+}
+
+.natee-panel.is-active {
+	display: block;
+}
+
+.natee-panel h2 {
+	font-size: 17px;
+	margin: 28px 0 4px;
+	padding-top: 20px;
+	border-top: 1px solid #f0f0f1;
+}
+
+.natee-panel h2:first-of-type {
+	margin-top: 4px;
+	padding-top: 0;
+	border-top: none;
+}
+
+.natee-field {
+	margin: 16px 0;
+	max-width: 640px;
+}
+
+.natee-field label {
+	display: block;
+	font-weight: 600;
+	font-size: 14px;
+	margin-bottom: 6px;
+	color: #1d2327;
+}
+
+.natee-field input[type="text"],
+.natee-field input[type="url"],
+.natee-field input[type="email"],
+.natee-field select,
+.natee-field textarea {
+	width: 100%;
+	max-width: 640px;
+	padding: 8px 10px;
+	border: 1px solid #8c8f94;
+	border-radius: 4px;
+	font-size: 14px;
+	line-height: 1.6;
+}
+
+.natee-field input[type="color"] {
+	width: 64px;
+	height: 40px;
+	padding: 2px;
+	border: 1px solid #8c8f94;
+	border-radius: 4px;
+	background: #fff;
+}
+
+.natee-field-check label {
+	font-weight: 500;
+}
+
+.natee-help {
+	margin: 6px 0 0;
+	font-size: 13px;
+	color: #646970;
+	line-height: 1.6;
+}
+
+/* รูปเดี่ยว */
+.natee-image-box {
+	display: flex;
+	align-items: center;
+	gap: 14px;
+	padding: 12px;
+	border: 1px dashed #c3c4c7;
+	border-radius: 8px;
+	background: #fafafa;
+}
+
+.natee-image-box.has-image {
+	border-style: solid;
+	background: #fff;
+}
+
+.natee-image-preview {
+	width: 120px;
+	height: 84px;
+	flex: 0 0 120px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background: #f0f0f1;
+	border-radius: 6px;
+	overflow: hidden;
+}
+
+.natee-image-preview img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	display: block;
+}
+
+.natee-image-empty {
+	font-size: 12px;
+	color: #8c8f94;
+	text-align: center;
+	padding: 0 8px;
+}
+
+.natee-image-actions {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 8px;
+}
+
+.natee-image-clear {
+	color: #b32d2e;
+}
+
+/* รายการที่เพิ่มลบได้ */
+.natee-repeater {
+	margin: 12px 0 24px;
+}
+
+.natee-row {
+	border: 1px solid #dcdcde;
+	border-radius: 8px;
+	margin-bottom: 12px;
+	background: #fff;
+	overflow: hidden;
+}
+
+.natee-row-head {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	padding: 10px 14px;
+	background: #f6f7f7;
+	border-bottom: 1px solid #dcdcde;
+}
+
+.natee-row-handle {
+	width: 10px;
+	height: 10px;
+	border-radius: 50%;
+	background: #2271b1;
+	flex: 0 0 auto;
+}
+
+.natee-row-title {
+	font-size: 13px;
+	color: #3c434a;
+	flex: 1 1 auto;
+}
+
+.natee-row-remove {
+	color: #b32d2e;
+	font-size: 13px;
+}
+
+.natee-row-body {
+	padding: 6px 16px 16px;
+}
+
+.natee-row-body .natee-field {
+	margin: 12px 0;
+}
+
+.natee-row-template {
+	display: none;
+}
+
+/* แกลเลอรี */
+.natee-gallery-list {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 10px;
+	margin-bottom: 12px;
+}
+
+.natee-gallery-item {
+	position: relative;
+	width: 110px;
+	height: 84px;
+	border-radius: 6px;
+	overflow: hidden;
+	border: 1px solid #dcdcde;
+}
+
+.natee-gallery-item img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	display: block;
+}
+
+.natee-gallery-remove {
+	position: absolute;
+	top: 4px;
+	right: 4px;
+	border: none;
+	background: rgba(0, 0, 0, 0.65);
+	color: #fff;
+	font-size: 11px;
+	line-height: 1;
+	padding: 4px 6px;
+	border-radius: 4px;
+	cursor: pointer;
+}
+
+.natee-gallery-remove:hover {
+	background: #b32d2e;
+}
+
+@media screen and (max-width: 782px) {
+	.natee-panel {
+		padding: 18px 16px 22px;
+	}
+
+	.natee-image-box {
+		flex-direction: column;
+		align-items: flex-start;
+	}
+}
