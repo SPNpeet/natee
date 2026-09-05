@@ -275,7 +275,11 @@ function wp_head() {
 		filemtime( get_template_directory() . '/assets/css/main.css' )
 	);
 	echo '<style>' . natee_inline_brand_css() . '</style>' . "\n";
-	printf( '<script defer src="%s"></script>' . "\n", '/theme-assets/assets/js/main.js' );
+	printf(
+		'<script defer src="%s?v=%s"></script>' . "\n",
+		'/theme-assets/assets/js/main.js',
+		filemtime( get_template_directory() . '/assets/js/main.js' )
+	);
 }
 
 function wp_footer() {
