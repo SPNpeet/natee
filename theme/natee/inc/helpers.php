@@ -125,7 +125,7 @@ function natee_icon( $name, $class = 'natee-icon' ) {
 	);
 
 	if ( ! isset( $paths[ $name ] ) ) {
-		return '';
+		$name = 'drop';
 	}
 
 	return sprintf(

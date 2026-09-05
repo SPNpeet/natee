@@ -31,7 +31,9 @@ function natee_current_url() {
 		}
 	}
 
-	return home_url( add_query_arg( array(), $GLOBALS['wp']->request ? '/' . $GLOBALS['wp']->request . '/' : '/' ) );
+	$request = isset( $GLOBALS['wp'] ) && ! empty( $GLOBALS['wp']->request ) ? $GLOBALS['wp']->request : '';
+
+	return home_url( '' !== $request ? '/' . $request . '/' : '/' );
 }
 
 /**
