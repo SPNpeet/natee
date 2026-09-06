@@ -2114,11 +2114,13 @@ a.natee-contact-item:hover {
 	.natee-nav-list a {
 		padding: 8px 12px;
 	}
+}
 
-	.natee-brand {
-		flex: 0 0 auto;
-	}
-
+/*
+ * คำโปรยใต้ชื่อร้านแสดงเฉพาะจอที่กว้างพอจริง ๆ
+ * ถ้าแสดงเร็วกว่านี้ ส่วนหัวจะยาวเกินกรอบเนื้อหาแล้วดันปุ่มโทรล้นออกนอกจอ
+ */
+@media (min-width: 1560px) {
 	.natee-brand-tagline {
 		display: block;
 	}
