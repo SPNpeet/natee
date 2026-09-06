@@ -1,0 +1,2162 @@
+/**
+ * ธารนที รถส่งน้ำประปาเชียงใหม่
+ * ฟอนต์โฮสต์เองเพื่อไม่ต้องรอเซิร์ฟเวอร์ภายนอกตอนเปิดหน้าเว็บ
+ */
+@font-face { font-family: 'IBM Plex Sans Thai'; font-style: normal; font-weight: 400; font-display: swap; src: url('/fonts/ibm-plex-sans-thai-400-thai.woff2') format('woff2'); unicode-range: U+02D7, U+0303, U+0331, U+0E01-0E5B, U+200C-200D, U+25CC; }
+@font-face { font-family: 'IBM Plex Sans Thai'; font-style: normal; font-weight: 400; font-display: swap; src: url('/fonts/ibm-plex-sans-thai-400-latin.woff2') format('woff2'); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+@font-face { font-family: 'IBM Plex Sans Thai'; font-style: normal; font-weight: 600; font-display: swap; src: url('/fonts/ibm-plex-sans-thai-600-thai.woff2') format('woff2'); unicode-range: U+02D7, U+0303, U+0331, U+0E01-0E5B, U+200C-200D, U+25CC; }
+@font-face { font-family: 'IBM Plex Sans Thai'; font-style: normal; font-weight: 600; font-display: swap; src: url('/fonts/ibm-plex-sans-thai-600-latin.woff2') format('woff2'); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+@font-face { font-family: 'IBM Plex Sans Thai'; font-style: normal; font-weight: 700; font-display: swap; src: url('/fonts/ibm-plex-sans-thai-700-thai.woff2') format('woff2'); unicode-range: U+02D7, U+0303, U+0331, U+0E01-0E5B, U+200C-200D, U+25CC; }
+@font-face { font-family: 'IBM Plex Sans Thai'; font-style: normal; font-weight: 700; font-display: swap; src: url('/fonts/ibm-plex-sans-thai-700-latin.woff2') format('woff2'); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+
+:root {
+	--natee-brand: #0f6fbf;
+	--natee-brand-dark: #0b5290;
+	--natee-brand-soft: rgba(15, 111, 191, 0.09);
+	--natee-ink: #0f1c2e;
+	--natee-muted: #55657c;
+	--natee-line: #e3e9f0;
+	--natee-bg: #ffffff;
+	--natee-bg-soft: #f4f8fc;
+	/* เขียวไลน์ปรับให้เข้มพอที่ตัวอักษรสีขาวอ่านได้ตามมาตรฐาน WCAG AA คือ 4.75 ต่อ 1 */
+	--natee-line-green: #048539;
+	--natee-line-green-dark: #036b2d;
+	--natee-radius: 14px;
+	--natee-shadow: 0 1px 2px rgba(15, 28, 46, 0.05), 0 8px 24px rgba(15, 28, 46, 0.06);
+	--natee-max: 1140px;
+}
+
+*,
+*::before,
+*::after {
+	box-sizing: border-box;
+}
+
+html {
+	scroll-behavior: smooth;
+	scroll-padding-top: 84px;
+	-webkit-text-size-adjust: 100%;
+}
+
+body {
+	margin: 0;
+	background: var(--natee-bg);
+	color: var(--natee-ink);
+	font-family: "IBM Plex Sans Thai", "Noto Sans Thai", "Sarabun", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+	font-size: 17px;
+	line-height: 1.75;
+	-webkit-font-smoothing: antialiased;
+}
+
+img {
+	max-width: 100%;
+	height: auto;
+	display: block;
+}
+
+a {
+	color: var(--natee-brand-dark);
+}
+
+h1,
+h2,
+h3 {
+	line-height: 1.35;
+	margin: 0;
+	font-weight: 600;
+	letter-spacing: -0.01em;
+}
+
+p {
+	margin: 0;
+}
+
+ul,
+ol {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.natee-nowrap {
+	white-space: nowrap;
+}
+
+/* กันข้อความยาวผิดปกติดันเลย์เอาต์จนล้นจอ */
+h1,
+h2,
+h3,
+p,
+li,
+a,
+summary {
+	overflow-wrap: break-word;
+}
+
+/* กรอบโฟกัสสำหรับคนที่ใช้แป้นพิมพ์ */
+a:focus-visible,
+button:focus-visible,
+summary:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+[tabindex]:focus-visible {
+	outline: 3px solid var(--natee-brand);
+	outline-offset: 2px;
+	border-radius: 6px;
+}
+
+.natee-cta a:focus-visible,
+.natee-sticky a:focus-visible {
+	outline-color: #fff;
+}
+
+.natee-screen-reader {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	overflow: hidden;
+	clip: rect(0 0 0 0);
+	clip-path: inset(50%);
+	white-space: nowrap;
+}
+
+.natee-skip {
+	position: absolute;
+	left: -9999px;
+	top: 0;
+	background: var(--natee-brand);
+	color: #fff;
+	padding: 10px 16px;
+	z-index: 200;
+	border-radius: 0 0 8px 0;
+}
+
+.natee-skip:focus {
+	left: 0;
+}
+
+.natee-container {
+	width: 100%;
+	max-width: var(--natee-max);
+	margin: 0 auto;
+	padding: 0 20px;
+}
+
+.natee-narrow {
+	max-width: 760px;
+}
+
+.natee-icon {
+	width: 20px;
+	height: 20px;
+	fill: currentColor;
+	flex: 0 0 auto;
+}
+
+.natee-icon-inline {
+	width: 18px;
+	height: 18px;
+	position: relative;
+	top: 3px;
+}
+
+.natee-icon-lg {
+	width: 34px;
+	height: 34px;
+}
+
+.natee-icon-xl {
+	width: 58px;
+	height: 58px;
+}
+
+/* ส่วนหัว */
+.natee-header {
+	position: sticky;
+	top: 0;
+	z-index: 100;
+	background: rgba(255, 255, 255, 0.96);
+	backdrop-filter: saturate(1.6) blur(8px);
+	border-bottom: 1px solid var(--natee-line);
+}
+
+.natee-header-inner {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	min-height: 68px;
+}
+
+.natee-brand {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	text-decoration: none;
+	color: inherit;
+	margin-right: auto;
+	min-width: 0;
+}
+
+.natee-brand-mark {
+	width: 42px;
+	height: 42px;
+	border-radius: 12px;
+	background: var(--natee-brand);
+	color: #fff;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex: 0 0 auto;
+}
+
+.natee-brand-icon {
+	width: 24px;
+	height: 24px;
+}
+
+.natee-brand-logo {
+	height: 46px;
+	width: auto;
+	flex: 0 0 auto;
+}
+
+.natee-brand-text {
+	display: flex;
+	flex-direction: column;
+	min-width: 0;
+}
+
+.natee-brand-name {
+	font-weight: 600;
+	font-size: 19px;
+	line-height: 1.3;
+}
+
+.natee-brand-tagline {
+	display: none;
+	font-size: 14px;
+	color: var(--natee-muted);
+	line-height: 1.4;
+	white-space: nowrap;
+}
+
+.natee-nav-toggle {
+	order: 3;
+	width: 44px;
+	height: 44px;
+	border: 1px solid var(--natee-line);
+	border-radius: 10px;
+	background: #fff;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	cursor: pointer;
+	flex: 0 0 auto;
+	padding: 0;
+}
+
+.natee-nav-toggle-bar,
+.natee-nav-toggle-bar::before,
+.natee-nav-toggle-bar::after {
+	display: block;
+	width: 20px;
+	height: 2px;
+	background: var(--natee-ink);
+	border-radius: 2px;
+	transition: transform 0.18s ease, opacity 0.18s ease;
+}
+
+.natee-nav-toggle-bar {
+	position: relative;
+}
+
+.natee-nav-toggle-bar::before,
+.natee-nav-toggle-bar::after {
+	content: "";
+	position: absolute;
+	left: 0;
+}
+
+.natee-nav-toggle-bar::before {
+	top: -6px;
+}
+
+.natee-nav-toggle-bar::after {
+	top: 6px;
+}
+
+.natee-nav-toggle[aria-expanded="true"] .natee-nav-toggle-bar {
+	background: transparent;
+}
+
+.natee-nav-toggle[aria-expanded="true"] .natee-nav-toggle-bar::before {
+	transform: translateY(6px) rotate(45deg);
+}
+
+.natee-nav-toggle[aria-expanded="true"] .natee-nav-toggle-bar::after {
+	transform: translateY(-6px) rotate(-45deg);
+}
+
+.natee-nav {
+	display: none;
+	position: absolute;
+	top: 100%;
+	left: 0;
+	right: 0;
+	background: #fff;
+	border-bottom: 1px solid var(--natee-line);
+	box-shadow: var(--natee-shadow);
+}
+
+.natee-nav.is-open {
+	display: block;
+}
+
+.natee-nav-list {
+	padding: 8px 20px 16px;
+}
+
+.natee-nav-list a {
+	display: block;
+	padding: 12px 4px;
+	text-decoration: none;
+	color: var(--natee-ink);
+	font-weight: 500;
+	border-bottom: 1px solid var(--natee-line);
+}
+
+.natee-nav-list li:last-child a {
+	border-bottom: none;
+}
+
+.natee-header-call {
+	display: none;
+	align-items: center;
+	gap: 8px;
+	text-decoration: none;
+	color: #fff;
+	background: var(--natee-brand);
+	padding: 9px 16px;
+	border-radius: 999px;
+	font-weight: 600;
+	min-height: 46px;
+}
+
+.natee-header-call-text {
+	display: flex;
+	flex-direction: column;
+	line-height: 1.25;
+}
+
+.natee-header-call-label {
+	font-size: 14px;
+	font-weight: 500;
+	opacity: 0.9;
+}
+
+.natee-header-call-number {
+	font-size: 17px;
+}
+
+
+/* ตัวเลือกภาษา */
+.natee-lang {
+	order: 2;
+	display: inline-flex;
+	align-items: center;
+	gap: 2px;
+	padding: 3px;
+	border: 1px solid var(--natee-line);
+	border-radius: 999px;
+	background: #fff;
+	flex: 0 0 auto;
+}
+
+.natee-lang-item {
+	appearance: none;
+	border: 0;
+	background: transparent;
+	font: inherit;
+	cursor: pointer;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 44px;
+	min-height: 40px;
+	padding: 0 10px;
+	border-radius: 999px;
+	font-size: 15px;
+	font-weight: 600;
+	color: var(--natee-muted);
+	text-decoration: none;
+	line-height: 1;
+}
+
+.natee-lang-item:hover {
+	color: var(--natee-brand-dark);
+	background: var(--natee-brand-soft);
+}
+
+.natee-lang-item.is-active {
+	background: var(--natee-brand);
+	color: #fff;
+}
+
+.natee-lang-nav {
+	display: none;
+}
+
+.natee-lang-header {
+	display: inline-flex;
+}
+
+/* ปุ่ม */
+.natee-actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 12px;
+	margin-top: 22px;
+}
+
+.natee-btn {
+	display: inline-flex;
+	align-items: center;
+	gap: 10px;
+	padding: 13px 22px;
+	border-radius: 999px;
+	text-decoration: none;
+	font-weight: 600;
+	font-size: 17px;
+	border: 1px solid transparent;
+	min-height: 52px;
+	transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+}
+
+.natee-btn:hover {
+	transform: translateY(-1px);
+}
+
+.natee-btn-call {
+	background: var(--natee-brand);
+	color: #fff;
+	box-shadow: 0 6px 18px rgba(15, 111, 191, 0.25);
+}
+
+.natee-btn-call:hover {
+	background: var(--natee-brand-dark);
+}
+
+.natee-btn-line {
+	background: var(--natee-line-green);
+	color: #fff;
+	box-shadow: 0 6px 18px rgba(6, 199, 85, 0.22);
+}
+
+.natee-btn-line:hover {
+	background: var(--natee-line-green-dark);
+}
+
+.natee-btn-line-outline {
+	background: #fff;
+	color: var(--natee-brand-dark);
+	border-color: var(--natee-line);
+}
+
+.natee-btn-label {
+	display: flex;
+	flex-direction: column;
+	line-height: 1.25;
+	align-items: flex-start;
+}
+
+.natee-btn-small {
+	font-size: 14px;
+	font-weight: 500;
+	opacity: 0.92;
+}
+
+/* ส่วนหัวหน้าแรก */
+.natee-hero {
+	background: linear-gradient(180deg, var(--natee-bg-soft) 0%, #ffffff 100%);
+	padding: 36px 0 44px;
+}
+
+.natee-hero-inner {
+	display: grid;
+	gap: 28px;
+}
+
+.natee-eyebrow {
+	display: inline-block;
+	background: var(--natee-brand-soft);
+	color: var(--natee-brand-dark);
+	font-size: 15px;
+	font-weight: 600;
+	padding: 6px 14px;
+	border-radius: 999px;
+	margin-bottom: 14px;
+}
+
+.natee-hero-title {
+	font-size: 30px;
+	font-weight: 700;
+	letter-spacing: -0.02em;
+}
+
+.natee-hero-subtitle {
+	margin-top: 14px;
+	font-size: 18px;
+	color: var(--natee-muted);
+	max-width: 54ch;
+}
+
+.natee-hero-second-phone {
+	margin-top: 10px;
+	color: var(--natee-muted);
+	font-size: 16px;
+}
+
+.natee-hero-second-phone a {
+	display: inline-block;
+	padding: 9px 4px;
+	font-weight: 600;
+}
+
+.natee-hero-note {
+	margin-top: 18px;
+	display: flex;
+	gap: 8px;
+	align-items: flex-start;
+	font-size: 16px;
+	color: var(--natee-muted);
+	background: #fff;
+	border: 1px solid var(--natee-line);
+	border-radius: var(--natee-radius);
+	padding: 12px 16px;
+}
+
+.natee-hero-note .natee-icon {
+	color: var(--natee-brand);
+	top: 4px;
+}
+
+.natee-hero-media {
+	border-radius: 18px;
+	overflow: hidden;
+	box-shadow: var(--natee-shadow);
+	background: #fff;
+}
+
+.natee-hero-media.is-empty {
+	box-shadow: none;
+}
+
+.natee-hero-image {
+	width: 100%;
+	aspect-ratio: 4 / 3;
+	object-fit: cover;
+}
+
+.natee-hero-placeholder {
+	aspect-ratio: 4 / 3;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background: var(--natee-brand-soft);
+	color: var(--natee-brand);
+	border: 1px dashed rgba(15, 111, 191, 0.3);
+	border-radius: 18px;
+}
+
+/* ส่วนเนื้อหาทั่วไป */
+.natee-section {
+	padding: 44px 0;
+}
+
+.natee-section-head {
+	max-width: 62ch;
+	margin-bottom: 26px;
+}
+
+.natee-section-title {
+	font-size: 27px;
+	font-weight: 700;
+}
+
+.natee-section-subtitle {
+	margin-top: 10px;
+	color: var(--natee-muted);
+	font-size: 17px;
+}
+
+/* จุดเด่น */
+.natee-highlights {
+	padding-top: 0;
+}
+
+.natee-highlight-grid {
+	display: grid;
+	gap: 14px;
+}
+
+.natee-highlight {
+	position: relative;
+	background: #fff;
+	border: 1px solid var(--natee-line);
+	border-radius: var(--natee-radius);
+	padding: 24px 22px 22px;
+	overflow: hidden;
+	transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.natee-highlight::before {
+	content: "";
+	position: absolute;
+	inset: 0 0 auto 0;
+	height: 3px;
+	background: var(--natee-brand);
+}
+
+.natee-highlight:hover {
+	transform: translateY(-3px);
+	box-shadow: var(--natee-shadow);
+}
+
+.natee-highlight-icon {
+	width: 44px;
+	height: 44px;
+	border-radius: 12px;
+	background: var(--natee-brand-soft);
+	color: var(--natee-brand);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	margin-bottom: 12px;
+}
+
+.natee-highlight-title {
+	font-size: 18px;
+}
+
+.natee-highlight-text {
+	margin-top: 6px;
+	color: var(--natee-muted);
+	font-size: 16px;
+}
+
+/* แนะนำร้าน */
+.natee-about-inner {
+	display: grid;
+	gap: 24px;
+	align-items: center;
+}
+
+.natee-about-media {
+	border-radius: 18px;
+	overflow: hidden;
+	box-shadow: var(--natee-shadow);
+}
+
+.natee-about-image {
+	width: 100%;
+	aspect-ratio: 4 / 3;
+	object-fit: cover;
+}
+
+.natee-about-body {
+	margin-top: 12px;
+	color: var(--natee-muted);
+	font-size: 17px;
+	max-width: 62ch;
+}
+
+.natee-about-quote {
+	margin: 18px 0 0;
+	padding: 14px 18px;
+	border-left: 4px solid var(--natee-brand);
+	background: var(--natee-brand-soft);
+	border-radius: 0 12px 12px 0;
+	font-size: 18px;
+	font-weight: 600;
+	color: var(--natee-brand-dark);
+}
+
+/* การ์ดบริการ */
+.natee-services {
+	background: var(--natee-bg-soft);
+}
+
+.natee-card-grid {
+	display: grid;
+	gap: 16px;
+}
+
+.natee-card {
+	background: #fff;
+	border: 1px solid var(--natee-line);
+	border-radius: var(--natee-radius);
+	overflow: hidden;
+	display: flex;
+	flex-direction: column;
+	transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+}
+
+.natee-card:hover {
+	transform: translateY(-3px);
+	border-color: #cfdcea;
+	box-shadow: var(--natee-shadow);
+}
+
+.natee-card-media {
+	aspect-ratio: 16 / 10;
+	background: var(--natee-brand-soft);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: var(--natee-brand);
+}
+
+.natee-card-icon {
+	width: 56px;
+	height: 56px;
+	margin: 20px 20px 0;
+	border-radius: 14px;
+	background: var(--natee-brand-soft);
+	color: var(--natee-brand);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.natee-card-image {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+}
+
+.natee-card-body {
+	padding: 18px 20px 22px;
+}
+
+.natee-card-title {
+	font-size: 19px;
+}
+
+.natee-card-text {
+	margin-top: 8px;
+	color: var(--natee-muted);
+	font-size: 16px;
+}
+
+/* ประเภทรถ */
+.natee-fleet-grid {
+	display: grid;
+	gap: 18px;
+}
+
+.natee-fleet-item {
+	background: #fff;
+	border: 1px solid var(--natee-line);
+	border-radius: var(--natee-radius);
+	overflow: hidden;
+	transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.natee-fleet-item:hover {
+	transform: translateY(-3px);
+	box-shadow: var(--natee-shadow);
+}
+
+.natee-fleet-media {
+	aspect-ratio: 16 / 9;
+	background: #fff;
+	color: var(--natee-brand);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border-bottom: 1px solid var(--natee-line);
+}
+
+.natee-fleet-media.is-empty {
+	background: var(--natee-brand-soft);
+}
+
+.natee-fleet-image {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+}
+
+.natee-fleet-body {
+	padding: 20px;
+}
+
+.natee-fleet-name {
+	font-size: 20px;
+}
+
+.natee-fleet-capacity {
+	margin-top: 4px;
+	color: var(--natee-brand-dark);
+	font-weight: 600;
+	font-size: 15px;
+}
+
+.natee-fleet-text {
+	margin-top: 8px;
+	color: var(--natee-muted);
+	font-size: 16px;
+}
+
+/* ราคา */
+.natee-pricing {
+	background: var(--natee-bg-soft);
+}
+
+.natee-price-list {
+	display: grid;
+	gap: 12px;
+}
+
+.natee-price-card {
+	background: #fff;
+	border: 1px solid var(--natee-line);
+	border-radius: var(--natee-radius);
+	overflow: hidden;
+	transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.natee-price-card[open] {
+	border-color: var(--natee-brand);
+	box-shadow: var(--natee-shadow);
+}
+
+.natee-price-summary {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 14px;
+	padding: 16px 20px;
+	cursor: pointer;
+	list-style: none;
+	min-height: 68px;
+}
+
+.natee-price-summary::-webkit-details-marker {
+	display: none;
+}
+
+.natee-price-summary:hover {
+	background: var(--natee-brand-soft);
+}
+
+.natee-price-info {
+	display: flex;
+	flex-direction: column;
+	min-width: 0;
+}
+
+.natee-price-name {
+	font-weight: 600;
+	font-size: 18px;
+}
+
+.natee-price-detail {
+	color: var(--natee-muted);
+	font-size: 15px;
+}
+
+.natee-price-side {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	flex: 0 0 auto;
+}
+
+.natee-price-value {
+	font-weight: 700;
+	font-size: 17px;
+	color: var(--natee-brand-dark);
+	background: var(--natee-brand-soft);
+	padding: 6px 14px;
+	border-radius: 999px;
+	white-space: nowrap;
+}
+
+.natee-price-chevron {
+	color: var(--natee-muted);
+	transition: transform 0.2s ease;
+}
+
+.natee-price-card[open] .natee-price-chevron {
+	transform: rotate(180deg);
+}
+
+.natee-price-body {
+	padding: 0 20px 20px;
+	border-top: 1px solid var(--natee-line);
+	margin-top: -1px;
+	padding-top: 16px;
+}
+
+.natee-price-includes {
+	display: grid;
+	gap: 8px;
+	margin-bottom: 16px;
+}
+
+.natee-price-includes li {
+	display: flex;
+	align-items: flex-start;
+	gap: 8px;
+	font-size: 16px;
+	color: var(--natee-muted);
+}
+
+.natee-price-includes .natee-icon {
+	color: var(--natee-brand);
+	top: 4px;
+}
+
+.natee-price-actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 10px;
+}
+
+.natee-btn-sm {
+	padding: 10px 18px;
+	min-height: 46px;
+	font-size: 16px;
+}
+
+.natee-price-note {
+	margin-top: 16px;
+	color: var(--natee-muted);
+	font-size: 15px;
+	max-width: 70ch;
+}
+
+/* ขั้นตอน */
+.natee-step-list {
+	display: grid;
+	gap: 16px;
+	counter-reset: natee-step;
+}
+
+.natee-step {
+	position: relative;
+	padding: 22px 20px 22px 68px;
+	border: 1px solid var(--natee-line);
+	border-radius: var(--natee-radius);
+	background: #fff;
+}
+
+.natee-step-number {
+	position: absolute;
+	left: 20px;
+	top: 22px;
+	width: 34px;
+	height: 34px;
+	border-radius: 50%;
+	background: var(--natee-brand);
+	color: #fff;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-weight: 700;
+	font-size: 17px;
+}
+
+.natee-step-title {
+	font-size: 19px;
+}
+
+.natee-step-text {
+	margin-top: 6px;
+	color: var(--natee-muted);
+	font-size: 16px;
+}
+
+/* พื้นที่ให้บริการ */
+.natee-areas {
+	background: var(--natee-bg-soft);
+}
+
+.natee-area-list {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 10px;
+}
+
+.natee-area {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	flex: 0 1 auto;
+	background: #fff;
+	border: 1px solid var(--natee-line);
+	border-radius: 10px;
+	padding: 12px 16px;
+	font-size: 16px;
+	transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.natee-area:hover {
+	border-color: var(--natee-brand);
+	box-shadow: 0 2px 10px rgba(15, 111, 191, 0.12);
+}
+
+.natee-area .natee-icon {
+	color: var(--natee-brand);
+	top: 4px;
+}
+
+/* แกลเลอรี */
+.natee-gallery-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+	gap: 12px;
+}
+
+/* แถวคลิปหน้างาน แนวตั้งแบบเดียวกับคลิปในมือถือ */
+.natee-video-row {
+	display: grid;
+	grid-template-columns: repeat(2, 1fr);
+	gap: 12px;
+	margin-bottom: 16px;
+}
+
+.natee-video-cell {
+	min-width: 0;
+}
+
+.natee-video-link {
+	position: relative;
+	display: block;
+	border-radius: 12px;
+	overflow: hidden;
+	background: #0d1b2c;
+	aspect-ratio: 9 / 16;
+	cursor: pointer;
+}
+
+.natee-video-poster {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	transition: transform 0.3s ease;
+}
+
+.natee-video-link:hover .natee-video-poster,
+.natee-video-link:focus-visible .natee-video-poster {
+	transform: scale(1.04);
+}
+
+.natee-video-play {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	width: 52px;
+	height: 52px;
+	border-radius: 50%;
+	background: rgba(255, 255, 255, 0.92);
+	color: var(--natee-brand-dark);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	box-shadow: 0 6px 18px rgba(8, 16, 28, 0.35);
+	transition: transform 0.2s ease;
+}
+
+.natee-video-play .natee-icon {
+	width: 22px;
+	height: 22px;
+	margin-left: 3px;
+}
+
+.natee-video-link:hover .natee-video-play {
+	transform: translate(-50%, -50%) scale(1.08);
+}
+
+.natee-video-caption {
+	position: absolute;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	padding: 26px 12px 10px;
+	color: #fff;
+	font-size: 15px;
+	line-height: 1.45;
+	font-weight: 500;
+	background: linear-gradient(to top, rgba(8, 16, 28, 0.86), rgba(8, 16, 28, 0));
+}
+
+.natee-gallery-cell {
+	border-radius: 12px;
+	overflow: hidden;
+	border: 1px solid var(--natee-line);
+	background: var(--natee-bg-soft);
+}
+
+.natee-gallery-link {
+	position: relative;
+	display: block;
+	cursor: zoom-in;
+}
+
+.natee-gallery-image {
+	width: 100%;
+	aspect-ratio: 4 / 3;
+	object-fit: cover;
+	transition: transform 0.25s ease;
+}
+
+.natee-gallery-link:hover .natee-gallery-image,
+.natee-gallery-link:focus-visible .natee-gallery-image {
+	transform: scale(1.05);
+}
+
+.natee-gallery-zoom {
+	position: absolute;
+	right: 8px;
+	bottom: 8px;
+	width: 34px;
+	height: 34px;
+	border-radius: 50%;
+	background: rgba(15, 28, 46, 0.62);
+	color: #fff;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	opacity: 0;
+	transform: translateY(4px);
+	transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.natee-gallery-link:hover .natee-gallery-zoom,
+.natee-gallery-link:focus-visible .natee-gallery-zoom {
+	opacity: 1;
+	transform: translateY(0);
+}
+
+@media (hover: none) {
+	.natee-gallery-zoom {
+		opacity: 1;
+		transform: none;
+	}
+}
+
+/* ตัวดูรูปแบบเต็มจอ */
+body.natee-no-scroll {
+	overflow: hidden;
+}
+
+.natee-lightbox {
+	position: fixed;
+	inset: 0;
+	z-index: 300;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	opacity: 1;
+}
+
+/*
+ * ตัวดูรูปแสดงทันทีที่เปิด ไม่ผูกการมองเห็นไว้กับแอนิเมชันใด ๆ
+ * ส่วนที่เป็นลูกเล่นคือการซูมของรูปเท่านั้น ถ้าเบราว์เซอร์ไม่รัน รูปก็ยังแสดงครบ
+ */
+.natee-lightbox.is-open .natee-lightbox-image {
+	animation: natee-lightbox-zoom 0.18s ease;
+}
+
+@keyframes natee-lightbox-zoom {
+	from {
+		transform: scale(0.97);
+	}
+
+	to {
+		transform: scale(1);
+	}
+}
+
+.natee-lightbox-backdrop {
+	position: absolute;
+	inset: 0;
+	background: #070e19;
+	cursor: zoom-out;
+}
+
+.natee-lightbox-inner {
+	position: relative;
+	width: 100%;
+	height: 100%;
+	display: flex;
+	flex-direction: column;
+	padding: 10px 10px calc(10px + env(safe-area-inset-bottom));
+	gap: 8px;
+}
+
+.natee-lightbox-bar {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	flex: 0 0 auto;
+}
+
+.natee-lightbox-counter {
+	color: #dbe6f2;
+	font-size: 16px;
+	font-weight: 600;
+	padding-left: 6px;
+	white-space: nowrap;
+}
+
+.natee-lightbox-btn {
+	width: 48px;
+	height: 48px;
+	border: none;
+	border-radius: 50%;
+	background: rgba(255, 255, 255, 0.14);
+	color: #fff;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	cursor: pointer;
+	flex: 0 0 auto;
+	padding: 0;
+	transition: background-color 0.15s ease, transform 0.15s ease;
+}
+
+.natee-lightbox-btn:hover {
+	background: rgba(255, 255, 255, 0.28);
+}
+
+.natee-lightbox-btn:active {
+	transform: scale(0.94);
+}
+
+.natee-lightbox-btn .natee-icon {
+	width: 24px;
+	height: 24px;
+}
+
+.natee-lightbox-next .natee-icon {
+	transform: rotate(180deg);
+}
+
+.natee-lightbox-stage {
+	position: relative;
+	flex: 1 1 auto;
+	min-height: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.natee-lightbox-figure {
+	margin: 0;
+	flex: 1 1 auto;
+	min-width: 0;
+	width: 100%;
+	height: 100%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+/* บนมือถือ ปุ่มลูกศรลอยทับขอบรูป รูปจึงใช้ความกว้างได้เต็มจอ */
+.natee-lightbox-prev,
+.natee-lightbox-next {
+	position: absolute;
+	top: 50%;
+	transform: translateY(-50%);
+	z-index: 2;
+	background: rgba(10, 20, 34, 0.72);
+}
+
+.natee-lightbox-prev {
+	left: 2px;
+}
+
+.natee-lightbox-next {
+	right: 2px;
+}
+
+.natee-lightbox-btn:active {
+	transform: translateY(-50%) scale(0.94);
+}
+
+.natee-lightbox-close:active {
+	transform: scale(0.94);
+}
+
+.natee-lightbox-image,
+.natee-lightbox-video {
+	max-width: 100%;
+	max-height: 100%;
+	width: auto;
+	height: auto;
+	border-radius: 10px;
+	box-shadow: 0 18px 50px rgba(0, 0, 0, 0.45);
+	background: #0d1b2c;
+}
+
+.natee-lightbox-video {
+	display: block;
+}
+
+.natee-lightbox-caption {
+	flex: 0 0 auto;
+	text-align: center;
+	color: #e6eef7;
+	font-size: 16px;
+	font-weight: 500;
+	padding: 0 8px;
+	min-height: 22px;
+}
+
+.natee-lightbox.is-loading .natee-lightbox-image {
+	opacity: 0.55;
+}
+
+.natee-lightbox-hint {
+	flex: 0 0 auto;
+	text-align: center;
+	color: #9fb3c8;
+	font-size: 14px;
+}
+
+@media (min-width: 720px) {
+	.natee-video-row {
+		grid-template-columns: repeat(4, 1fr);
+		gap: 16px;
+		margin-bottom: 20px;
+	}
+
+	.natee-video-caption {
+		font-size: 14px;
+		padding: 30px 14px 12px;
+	}
+
+	.natee-lightbox-inner {
+		padding: 18px 18px 22px;
+		gap: 12px;
+	}
+
+	.natee-lightbox-stage {
+		gap: 18px;
+	}
+
+	.natee-lightbox-prev,
+	.natee-lightbox-next {
+		position: static;
+		transform: none;
+		background: rgba(255, 255, 255, 0.14);
+	}
+
+	.natee-lightbox-btn:active {
+		transform: scale(0.94);
+	}
+
+	.natee-lightbox-btn {
+		width: 54px;
+		height: 54px;
+	}
+
+	.natee-lightbox-hint {
+		display: none;
+	}
+}
+
+@media (min-width: 1000px) {
+	.natee-lightbox-inner {
+		padding: 24px 32px 28px;
+	}
+}
+
+/* คำถามที่พบบ่อย */
+.natee-faq-list {
+	display: grid;
+	gap: 10px;
+}
+
+.natee-faq-item {
+	border: 1px solid var(--natee-line);
+	border-radius: var(--natee-radius);
+	background: #fff;
+	overflow: hidden;
+}
+
+.natee-faq-question {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	padding: 16px 18px;
+	font-weight: 600;
+	cursor: pointer;
+	list-style: none;
+	min-height: 56px;
+}
+
+.natee-faq-question::-webkit-details-marker {
+	display: none;
+}
+
+.natee-faq-chevron {
+	color: var(--natee-muted);
+	transition: transform 0.2s ease;
+}
+
+.natee-faq-item[open] .natee-faq-chevron {
+	transform: rotate(180deg);
+}
+
+.natee-faq-answer {
+	padding: 0 18px 18px;
+	color: var(--natee-muted);
+	font-size: 16px;
+}
+
+/* แถบชวนโทร */
+.natee-cta {
+	background: var(--natee-brand);
+	color: #fff;
+	padding: 36px 0;
+}
+
+.natee-cta-inner {
+	display: grid;
+	gap: 18px;
+}
+
+.natee-cta-title {
+	font-size: 26px;
+	font-weight: 700;
+}
+
+.natee-cta-subtitle {
+	margin-top: 8px;
+	opacity: 0.92;
+}
+
+.natee-cta .natee-actions {
+	margin-top: 0;
+}
+
+.natee-cta .natee-btn-call {
+	background: #fff;
+	color: var(--natee-brand-dark);
+	box-shadow: none;
+}
+
+.natee-cta .natee-btn-call:hover {
+	background: #f2f7fc;
+}
+
+/* ติดต่อ */
+.natee-contact-grid {
+	display: grid;
+	gap: 24px;
+}
+
+.natee-contact-list {
+	display: grid;
+	gap: 10px;
+}
+
+.natee-contact-item {
+	display: flex;
+	align-items: center;
+	gap: 14px;
+	padding: 14px 16px;
+	border: 1px solid var(--natee-line);
+	border-radius: var(--natee-radius);
+	background: #fff;
+	text-decoration: none;
+	color: inherit;
+	min-height: 64px;
+}
+
+a.natee-contact-item:hover {
+	border-color: var(--natee-brand);
+	background: var(--natee-brand-soft);
+}
+
+.natee-contact-icon {
+	width: 42px;
+	height: 42px;
+	border-radius: 12px;
+	background: var(--natee-brand-soft);
+	color: var(--natee-brand);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex: 0 0 auto;
+}
+
+.natee-contact-label {
+	display: block;
+	font-size: 14px;
+	color: var(--natee-muted);
+	line-height: 1.4;
+}
+
+.natee-contact-value {
+	display: block;
+	font-weight: 600;
+	font-size: 17px;
+	line-height: 1.4;
+}
+
+.natee-qr {
+	margin-top: 16px;
+	display: flex;
+	align-items: center;
+	gap: 16px;
+	padding: 16px;
+	border: 1px solid var(--natee-line);
+	border-radius: var(--natee-radius);
+	background: #fff;
+}
+
+.natee-qr img {
+	width: 118px;
+	height: 118px;
+	border-radius: 10px;
+	flex: 0 0 auto;
+}
+
+.natee-qr-title {
+	font-weight: 600;
+	font-size: 17px;
+}
+
+.natee-qr-note {
+	margin-top: 4px;
+	color: var(--natee-muted);
+	font-size: 15px;
+}
+
+.natee-qr-id {
+	margin-top: 6px;
+	font-weight: 600;
+	color: var(--natee-line-green);
+	font-size: 16px;
+}
+
+.natee-map {
+	margin-top: 16px;
+	border-radius: var(--natee-radius);
+	overflow: hidden;
+	border: 1px solid var(--natee-line);
+}
+
+.natee-map iframe {
+	display: block;
+	width: 100%;
+	height: 260px;
+	border: 0;
+}
+
+/* ฟอร์ม */
+.natee-btn-submit {
+	width: 100%;
+	justify-content: center;
+	background: var(--natee-brand);
+	color: #fff;
+	cursor: pointer;
+	font-family: inherit;
+}
+
+.natee-btn-submit:hover {
+	background: var(--natee-brand-dark);
+}
+
+/* ท้ายเว็บ */
+.natee-footer {
+	background: #0d1b2c;
+	color: #cfd9e6;
+	padding: 40px 0 100px;
+	margin-top: 8px;
+}
+
+.natee-footer-grid {
+	display: grid;
+	gap: 26px;
+}
+
+.natee-footer-logo {
+	width: 56px;
+	height: auto;
+	margin-bottom: 12px;
+	padding: 10px;
+	background: #fff;
+	border-radius: 16px;
+	box-sizing: content-box;
+}
+
+.natee-map-link {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	margin-top: 6px;
+	padding: 10px 2px;
+	min-height: 44px;
+	font-size: 16px;
+	font-weight: 600;
+	color: var(--natee-brand-dark);
+	text-decoration: none;
+}
+
+.natee-map-link:hover {
+	text-decoration: underline;
+}
+
+.natee-footer-name {
+	font-size: 20px;
+	font-weight: 600;
+	color: #fff;
+}
+
+.natee-footer-text {
+	margin-top: 6px;
+	font-size: 16px;
+	color: #a8b6c8;
+}
+
+.natee-footer-heading {
+	font-size: 16px;
+	font-weight: 600;
+	color: #fff;
+	margin-bottom: 10px;
+}
+
+.natee-footer-list {
+	display: grid;
+	gap: 2px;
+}
+
+.natee-footer-list a {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	color: #cfd9e6;
+	text-decoration: none;
+	font-size: 16px;
+	min-height: 44px;
+	padding: 4px 0;
+}
+
+.natee-footer-list a:hover {
+	color: #fff;
+}
+
+.natee-footer-areas {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 6px 14px;
+	font-size: 15px;
+	color: #a8b6c8;
+}
+
+.natee-footer-bottom {
+	margin-top: 28px;
+	padding-top: 18px;
+	border-top: 1px solid rgba(255, 255, 255, 0.1);
+	font-size: 14px;
+	color: #8b9ab0;
+	display: grid;
+	gap: 4px;
+}
+
+/* แถบติดต่อค้างล่างจอ */
+.natee-sticky {
+	position: fixed;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	z-index: 120;
+	display: grid;
+	grid-auto-flow: column;
+	grid-auto-columns: 1fr;
+	background: #fff;
+	border-top: 1px solid var(--natee-line);
+	box-shadow: 0 -4px 18px rgba(15, 28, 46, 0.09);
+	padding-bottom: env(safe-area-inset-bottom);
+}
+
+.natee-sticky-item {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	min-height: 58px;
+	text-decoration: none;
+	font-weight: 600;
+	font-size: 16px;
+	color: #fff;
+}
+
+.natee-sticky-call {
+	background: var(--natee-brand);
+}
+
+.natee-sticky-line {
+	background: var(--natee-line-green);
+}
+
+/* เนื้อหาบทความ */
+.natee-content p,
+.natee-content ul,
+.natee-content ol {
+	margin-bottom: 18px;
+}
+
+.natee-content ul,
+.natee-content ol {
+	padding-left: 22px;
+	list-style: revert;
+}
+
+.natee-content h2,
+.natee-content h3 {
+	margin: 26px 0 10px;
+}
+
+.natee-page-thumb {
+	margin: 18px 0 24px;
+	border-radius: var(--natee-radius);
+	overflow: hidden;
+}
+
+.natee-post-list {
+	display: grid;
+	gap: 18px;
+}
+
+.natee-post-item {
+	border-bottom: 1px solid var(--natee-line);
+	padding-bottom: 18px;
+}
+
+.natee-post-title {
+	font-size: 20px;
+}
+
+.natee-post-title a {
+	text-decoration: none;
+	color: inherit;
+}
+
+.natee-post-excerpt,
+.natee-post-meta {
+	margin-top: 8px;
+	color: var(--natee-muted);
+	font-size: 15px;
+}
+
+.natee-pagination {
+	margin-top: 24px;
+}
+
+.natee-pagination .page-numbers {
+	display: inline-block;
+	padding: 8px 14px;
+	border: 1px solid var(--natee-line);
+	border-radius: 8px;
+	margin-right: 6px;
+	text-decoration: none;
+}
+
+.natee-404 {
+	text-align: center;
+	padding: 40px 0;
+}
+
+.natee-404 .natee-actions {
+	justify-content: center;
+}
+
+/* จอแคบมาก เช่น มือถือรุ่นเล็ก */
+@media (max-width: 380px) {
+	.natee-container {
+		padding: 0 16px;
+	}
+
+	.natee-lang-item {
+		min-width: 40px;
+		min-height: 40px;
+		padding: 0 6px;
+		font-size: 14px;
+	}
+
+	.natee-header-inner {
+		gap: 8px;
+	}
+
+	.natee-actions {
+		flex-direction: column;
+		align-items: stretch;
+	}
+
+	.natee-btn {
+		justify-content: center;
+	}
+
+	.natee-btn-label {
+		align-items: center;
+	}
+
+	.natee-hero-title {
+		font-size: 26px;
+	}
+
+	.natee-section-title {
+		font-size: 22px;
+	}
+
+	.natee-qr {
+		flex-direction: column;
+		align-items: flex-start;
+	}
+
+	.natee-price-summary {
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 10px;
+		padding: 16px;
+	}
+
+	.natee-price-side {
+		width: 100%;
+		justify-content: space-between;
+	}
+
+	.natee-price-body {
+		padding-left: 16px;
+		padding-right: 16px;
+	}
+
+	.natee-price-actions .natee-btn {
+		width: 100%;
+		justify-content: center;
+	}
+}
+
+/* จอกลาง */
+@media (min-width: 720px) {
+	.natee-hero {
+		padding: 56px 0 64px;
+	}
+
+	.natee-hero-title {
+		font-size: 40px;
+	}
+
+	.natee-section {
+		padding: 62px 0;
+	}
+
+	.natee-section-title {
+		font-size: 30px;
+	}
+
+	.natee-highlight-grid {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+
+	.natee-card-grid {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+
+	.natee-fleet-grid {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+
+	.natee-about-inner {
+		grid-template-columns: 0.9fr 1.1fr;
+		gap: 34px;
+	}
+
+	.natee-about-inner.is-single {
+		grid-template-columns: minmax(0, 1fr);
+	}
+
+	.natee-step-list {
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+	}
+
+	.natee-cta-inner {
+		grid-template-columns: 1fr auto;
+		align-items: center;
+	}
+
+	.natee-contact-grid {
+		grid-template-columns: 1fr 1fr;
+		align-items: start;
+	}
+
+	.natee-footer-grid {
+		grid-template-columns: 1.4fr 1fr 1fr;
+	}
+
+	.natee-footer-bottom {
+		grid-auto-flow: column;
+		justify-content: space-between;
+	}
+}
+
+/* จอใหญ่ */
+@media (min-width: 1000px) {
+	html {
+		scroll-padding-top: 96px;
+	}
+
+	.natee-nav-toggle {
+		display: none;
+	}
+
+	.natee-nav {
+		display: block;
+		position: static;
+		border: none;
+		box-shadow: none;
+		background: transparent;
+		margin-right: 8px;
+	}
+
+	.natee-nav-list {
+		display: flex;
+		gap: 2px;
+		padding: 0;
+		align-items: center;
+	}
+
+	.natee-nav-list a {
+		border: none;
+		padding: 8px 10px;
+		border-radius: 8px;
+		font-size: 16px;
+		white-space: nowrap;
+	}
+
+	.natee-nav-list a:hover {
+		background: var(--natee-brand-soft);
+		color: var(--natee-brand-dark);
+	}
+
+	.natee-header-call {
+		display: flex;
+		order: 3;
+	}
+
+	.natee-lang {
+		order: 2;
+	}
+
+	.natee-nav {
+		order: 1;
+	}
+
+
+
+	.natee-hero-inner {
+		grid-template-columns: 1.05fr 0.95fr;
+		align-items: center;
+		gap: 44px;
+	}
+
+	.natee-hero-title {
+		font-size: 46px;
+	}
+
+	.natee-highlight-grid {
+		grid-template-columns: repeat(4, minmax(0, 1fr));
+	}
+
+	.natee-card-grid {
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+	}
+
+	.natee-sticky {
+		display: none;
+	}
+
+	.natee-footer {
+		padding-bottom: 40px;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	html {
+		scroll-behavior: auto;
+	}
+
+	* {
+		transition: none !important;
+	}
+}
+
+/* จอเดสก์ท็อปแคบ บีบส่วนหัวให้ทุกอย่างอยู่บรรทัดเดียว */
+@media (min-width: 1000px) and (max-width: 1399px) {
+	.natee-nav-list a {
+		font-size: 15px;
+		padding: 8px 7px;
+	}
+
+	.natee-header-call {
+		padding: 8px 14px;
+		min-height: 44px;
+	}
+
+	.natee-header-call-label {
+		display: none;
+	}
+
+	.natee-lang-item {
+		min-width: 40px;
+		min-height: 40px;
+		font-size: 14px;
+		padding: 0 8px;
+	}
+}
+
+/* จอกว้างมาก ให้ส่วนหัวหายใจได้ */
+@media (min-width: 1400px) {
+	.natee-nav-list a {
+		padding: 8px 12px;
+	}
+
+	.natee-brand {
+		flex: 0 0 auto;
+	}
+
+	.natee-brand-tagline {
+		display: block;
+	}
+}
+
+/* จอใหญ่ คุมความสูงแถวคลิปไม่ให้กินพื้นที่มากเกินไป */
+@media (min-width: 1000px) {
+	.natee-video-row {
+		max-width: 920px;
+		margin-left: auto;
+		margin-right: auto;
+		margin-bottom: 24px;
+	}
+}
+
+
+/* ปุ่มที่ทำหน้าที่เป็นแถบกดเปิดปิด ต้องล้างสไตล์ปุ่มเริ่มต้นของเบราว์เซอร์ */
+.natee-price-summary,
+.natee-faq-question,
+.natee-media-link {
+	appearance: none;
+	border: 0;
+	background: transparent;
+	font: inherit;
+	color: inherit;
+	text-align: left;
+	width: 100%;
+	padding: 0;
+	cursor: pointer;
+}
+
+.natee-price-summary {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 14px;
+	padding: 16px 20px;
+	min-height: 68px;
+}
+
+.natee-price-card.is-open {
+	border-color: var(--natee-brand);
+	box-shadow: var(--natee-shadow);
+}
+
+.natee-price-card.is-open .natee-price-chevron {
+	transform: rotate(180deg);
+}
+
+.natee-faq-question {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 14px;
+	padding: 18px 20px;
+	font-weight: 600;
+	font-size: 17px;
+	min-height: 64px;
+}
+
+.natee-faq-item.is-open .natee-faq-chevron {
+	transform: rotate(180deg);
+}
+
+.natee-media-link {
+	display: block;
+}
+
+/* ปุ่มคัดลอกเบอร์โทร */
+.natee-contact-list li {
+	position: relative;
+}
+
+.natee-copy {
+	position: absolute;
+	right: 12px;
+	top: 50%;
+	transform: translateY(-50%);
+	appearance: none;
+	border: 1px solid var(--natee-line);
+	background: #fff;
+	color: var(--natee-brand-dark);
+	border-radius: 999px;
+	padding: 8px 14px;
+	font: inherit;
+	font-size: 14px;
+	font-weight: 600;
+	min-height: 40px;
+	cursor: pointer;
+}
+
+.natee-copy:hover {
+	border-color: var(--natee-brand);
+	background: var(--natee-brand-soft);
+}
+
+/* ข้อความแจ้งผลชั่วคราว */
+.natee-toast {
+	position: fixed;
+	left: 50%;
+	bottom: 96px;
+	transform: translateX(-50%);
+	z-index: 320;
+	background: var(--natee-ink);
+	color: #fff;
+	padding: 12px 20px;
+	border-radius: 999px;
+	font-size: 15px;
+	font-weight: 500;
+	box-shadow: 0 10px 30px rgba(15, 28, 46, 0.25);
+	max-width: calc(100vw - 32px);
+	text-align: center;
+}
+
+/* แผนที่ในส่วนติดต่อ */
+.natee-contact-map {
+	display: flex;
+	flex-direction: column;
+}
+
+@media (min-width: 1000px) {
+	.natee-toast {
+		bottom: 32px;
+	}
+}
