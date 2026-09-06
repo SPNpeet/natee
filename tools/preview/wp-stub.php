@@ -309,6 +309,8 @@ function wp_body_open() {
 }
 
 function wp_head() {
+	printf( "<title>%s</title>
+", esc_html( wp_get_document_title() ) );
 	do_action( 'wp_head' );
 	echo '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&display=swap">' . "\n";
 	printf(
@@ -377,7 +379,19 @@ function get_the_excerpt() {
 }
 
 function wp_get_document_title() {
-	return natee_opt( 'seo_title', 'ธารนที' );
+	// ให้ผ่านตัวกรองเดียวกับที่ธีมใช้บน WordPress จริง
+	$parts = apply_filters(
+		'document_title_parts',
+		array(
+			'title'   => get_bloginfo( 'name' ),
+			'tagline' => natee_opt( 'business_tagline', '' ),
+			'site'    => get_bloginfo( 'name' ),
+		)
+	);
+
+	$parts = array_filter( (array) $parts );
+
+	return implode( ' - ', $parts );
 }
 
 function add_query_arg( $key, $value = null, $url = '' ) {
