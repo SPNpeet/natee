@@ -192,6 +192,12 @@ function natee_media_url( $attachment_id, $fallback_file = '', $size = 'large' )
 }
 
 /**
+ * ขนาดที่รูปในแกลเลอรีถูกแสดงจริงในแต่ละความกว้างจอ
+ * ใช้บอกเบราว์เซอร์ว่าควรเลือกไฟล์ขนาดไหน
+ */
+define( 'NATEE_GALLERY_SIZES', '(max-width: 719px) 45vw, (max-width: 999px) 30vw, 180px' );
+
+/**
  * ชุดรูปหลายขนาดของไฟล์ที่ติดมากับธีม
  * เบราว์เซอร์บนมือถือจะเลือกไฟล์เล็กเอง ทำให้โหลดไวขึ้นและประหยัดเน็ตของลูกค้า
  */
@@ -308,6 +314,8 @@ function natee_gallery_items() {
 			'full'   => $full,
 			'width'  => $meta ? (int) $meta[1] : 0,
 			'height' => $meta ? (int) $meta[2] : 0,
+			'srcset' => function_exists( 'wp_get_attachment_image_srcset' ) ? (string) wp_get_attachment_image_srcset( $id, 'medium_large' ) : '',
+			'sizes'  => NATEE_GALLERY_SIZES,
 			'alt'    => get_post_meta( $id, '_wp_attachment_image_alt', true ),
 		);
 	}
@@ -320,15 +328,23 @@ function natee_gallery_items() {
 	$sizes   = natee_bundled_image_sizes();
 
 	foreach ( $bundled['gallery'] as $file ) {
-		$url = natee_bundled_url( $file );
-		$dim = isset( $sizes[ $file ] ) ? $sizes[ $file ] : array( 0, 0 );
+		$small = preg_replace( '/\.(jpg|jpeg|png)$/i', '-sm.$1', $file );
+		$has   = isset( $sizes[ $small ] );
+
+		// รูปย่อยใช้เป็นภาพหน้าปกในตาราง ส่วนไฟล์เต็มไว้เปิดดูขนาดจริง
+		$thumb = $has ? natee_bundled_url( $small ) : natee_bundled_url( $file );
+		$dim   = $has ? $sizes[ $small ] : ( isset( $sizes[ $file ] ) ? $sizes[ $file ] : array( 0, 0 ) );
+
+		list( $srcset ) = natee_bundled_srcset( $file );
 
 		$items[] = array(
 			'id'     => 0,
-			'thumb'  => $url,
-			'full'   => $url,
+			'thumb'  => $thumb,
+			'full'   => natee_bundled_url( $file ),
 			'width'  => $dim[0],
 			'height' => $dim[1],
+			'srcset' => $srcset,
+			'sizes'  => NATEE_GALLERY_SIZES,
 			'alt'    => '',
 		);
 	}

@@ -45,6 +45,10 @@ $total = count( $gallery );
 						aria-label="<?php echo esc_attr( sprintf( '%s %d %s %d', natee_ui( 'gallery_open' ), $index + 1, natee_ui( 'lightbox_of' ), $total ) ); ?>">
 						<img class="natee-gallery-image"
 							src="<?php echo esc_url( $item['thumb'] ); ?>"
+							<?php if ( ! empty( $item['srcset'] ) ) : ?>
+								srcset="<?php echo esc_attr( $item['srcset'] ); ?>"
+								sizes="<?php echo esc_attr( $item['sizes'] ); ?>"
+							<?php endif; ?>
 							alt="<?php echo esc_attr( $alt ); ?>"
 							<?php if ( ! empty( $item['width'] ) ) : ?>
 								width="<?php echo absint( $item['width'] ); ?>"

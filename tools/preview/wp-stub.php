@@ -130,7 +130,26 @@ function esc_url( $url ) {
 }
 
 function esc_url_raw( $url ) {
-	return trim( (string) $url );
+	$url = trim( (string) $url );
+
+	if ( '' === $url ) {
+		return '';
+	}
+
+	// อนุญาตเฉพาะโพรโทคอลที่ WordPress ยอมรับ เพื่อให้ตัวจำลองกรองเหมือนของจริง
+	$allowed = array( 'http://', 'https://', 'mailto:', 'tel:' );
+
+	foreach ( $allowed as $prefix ) {
+		if ( 0 === stripos( $url, $prefix ) ) {
+			return $url;
+		}
+	}
+
+	if ( 0 === strpos( $url, '/' ) || 0 === strpos( $url, '#' ) ) {
+		return $url;
+	}
+
+	return '';
 }
 
 function sanitize_text_field( $text ) {
@@ -142,7 +161,9 @@ function sanitize_textarea_field( $text ) {
 }
 
 function sanitize_email( $text ) {
-	return filter_var( (string) $text, FILTER_SANITIZE_EMAIL );
+	$text = filter_var( (string) $text, FILTER_SANITIZE_EMAIL );
+
+	return filter_var( $text, FILTER_VALIDATE_EMAIL ) ? $text : '';
 }
 
 function sanitize_key( $text ) {

@@ -372,6 +372,22 @@ function natee_bundled_image_sizes() {
 		'work-10.jpg'      => array( 1100, 825 ),
 		'work-11.jpg'      => array( 960, 720 ),
 		'work-12.jpg'      => array( 1100, 825 ),
+
+		// ไฟล์ย่อสำหรับมือถือ เบราว์เซอร์เลือกใช้เองผ่าน srcset
+		'truck-6wheel-sm.jpg' => array( 560, 374 ),
+		'truck-4wheel-sm.jpg' => array( 560, 372 ),
+		'work-01-sm.jpg'      => array( 560, 420 ),
+		'work-02-sm.jpg'      => array( 560, 420 ),
+		'work-03-sm.jpg'      => array( 560, 420 ),
+		'work-04-sm.jpg'      => array( 560, 420 ),
+		'work-05-sm.jpg'      => array( 560, 421 ),
+		'work-06-sm.jpg'      => array( 560, 420 ),
+		'work-07-sm.jpg'      => array( 560, 420 ),
+		'work-08-sm.jpg'      => array( 560, 420 ),
+		'work-09-sm.jpg'      => array( 560, 420 ),
+		'work-10-sm.jpg'      => array( 560, 420 ),
+		'work-11-sm.jpg'      => array( 560, 420 ),
+		'work-12-sm.jpg'      => array( 560, 420 ),
 	);
 }
 
