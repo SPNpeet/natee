@@ -115,6 +115,7 @@ function natee_icon( $name, $class = 'natee-icon' ) {
 		'chevron'  => '<path d="m8.1 9.3 3.9 3.9 3.9-3.9 1.4 1.4-5.3 5.3-5.3-5.3z"/>',
 		'arrow'    => '<path d="M15.4 4.6 13.9 3.2 5.1 12l8.8 8.8 1.5-1.4L8.1 12z"/>',
 		'close'    => '<path d="M18.3 7.1 16.9 5.7 12 10.6 7.1 5.7 5.7 7.1l4.9 4.9-4.9 4.9 1.4 1.4 4.9-4.9 4.9 4.9 1.4-1.4-4.9-4.9z"/>',
+		'play'     => '<path d="M8 5.1v13.8c0 .8.9 1.3 1.5.8l10.4-6.9c.6-.4.6-1.3 0-1.7L9.5 4.3c-.7-.4-1.5 0-1.5.8z"/>',
 		'zoom'     => '<path d="M10.5 3a7.5 7.5 0 1 0 4.55 13.46l4.24 4.25 1.42-1.42-4.25-4.24A7.5 7.5 0 0 0 10.5 3zm0 2a5.5 5.5 0 1 1 0 11 5.5 5.5 0 0 1 0-11zm-.9 2.4v2.2H7.4v1.8h2.2v2.2h1.8v-2.2h2.2V9.6h-2.2V7.4z"/>',
 		'mail'     => '<path d="M3 5.8h18c.6 0 1 .4 1 1v10.4c0 .6-.4 1-1 1H3c-.6 0-1-.4-1-1V6.8c0-.6.4-1 1-1zm9 7.1 7.4-4.6H4.6z"/>',
 		'tank'     => '<path d="M8.5 2h7a1.1 1.1 0 0 1 0 2.2h-7a1.1 1.1 0 0 1 0-2.2z"/><path d="M6.6 5.4h10.8c.9 0 1.6.7 1.6 1.6v11.6c0 1.3-1.1 2.4-2.4 2.4H7.4A2.4 2.4 0 0 1 5 18.6V7c0-.9.7-1.6 1.6-1.6z"/>',
@@ -290,6 +291,47 @@ function natee_areas_list() {
 	}
 
 	return array_values( array_filter( (array) natee_opt( 'areas', array() ) ) );
+}
+
+/**
+ * รายการคลิปหน้างาน
+ * ถ้าเจ้าของเว็บเลือกคลิปเองไว้จะใช้ของนั้น ถ้ายังไม่ได้เลือกจะใช้คลิปที่ติดมากับธีม
+ */
+function natee_video_items() {
+	$items = array();
+	$ids   = array_filter( array_map( 'absint', (array) natee_opt( 'videos', array() ) ) );
+
+	foreach ( $ids as $id ) {
+		$url = wp_get_attachment_url( $id );
+
+		if ( ! $url ) {
+			continue;
+		}
+
+		$poster_id = (int) get_post_thumbnail_id( $id );
+		$poster     = $poster_id ? wp_get_attachment_image_url( $poster_id, 'large' ) : '';
+		$attachment = get_post( $id );
+
+		$items[] = array(
+			'src'     => $url,
+			'poster'  => $poster,
+			'caption' => $attachment ? $attachment->post_title : '',
+		);
+	}
+
+	if ( ! empty( $items ) ) {
+		return $items;
+	}
+
+	foreach ( natee_bundled_videos() as $video ) {
+		$items[] = array(
+			'src'     => get_template_directory_uri() . '/assets/videos/' . $video['file'],
+			'poster'  => natee_bundled_url( $video['poster'] ),
+			'caption' => natee_row_text( $video, 'caption' ),
+		);
+	}
+
+	return $items;
 }
 
 /**

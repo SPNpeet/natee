@@ -63,7 +63,7 @@
 			return;
 		}
 
-		var links = Array.prototype.slice.call( grid.querySelectorAll( '.natee-gallery-link' ) );
+		var links = Array.prototype.slice.call( grid.querySelectorAll( '.natee-media-link' ) );
 
 		if ( ! links.length ) {
 			return;
@@ -80,7 +80,9 @@
 
 		var slides = links.map( function ( link ) {
 			return {
+				type: link.getAttribute( 'data-type' ) === 'video' ? 'video' : 'image',
 				src: link.getAttribute( 'href' ),
+				poster: link.getAttribute( 'data-poster' ) || '',
 				alt: link.getAttribute( 'data-alt' ) || ''
 			};
 		} );
@@ -89,6 +91,8 @@
 		var lastFocus = null;
 		var box = null;
 		var image = null;
+		var video = null;
+		var caption = null;
 		var counter = null;
 		var prevButton = null;
 		var nextButton = null;
@@ -126,17 +130,21 @@
 						'</button>' +
 						'<figure class="natee-lightbox-figure">' +
 							'<img class="natee-lightbox-image" src="" alt="" decoding="async" />' +
+							'<video class="natee-lightbox-video" controls playsinline preload="metadata" hidden></video>' +
 						'</figure>' +
 						'<button type="button" class="natee-lightbox-btn natee-lightbox-next" data-next>' +
 							icon( 'arrow' ) + '<span class="natee-screen-reader">' + text.next + '</span>' +
 						'</button>' +
 					'</div>' +
+					'<p class="natee-lightbox-caption"></p>' +
 					( text.hint ? '<p class="natee-lightbox-hint">' + text.hint + '</p>' : '' ) +
 				'</div>';
 
 			document.body.appendChild( box );
 
 			image = box.querySelector( '.natee-lightbox-image' );
+			video = box.querySelector( '.natee-lightbox-video' );
+			caption = box.querySelector( '.natee-lightbox-caption' );
 			counter = box.querySelector( '.natee-lightbox-counter' );
 			prevButton = box.querySelector( '[data-prev]' );
 			nextButton = box.querySelector( '[data-next]' );
@@ -168,8 +176,9 @@
 				return;
 			}
 
+			// โหลดล่วงหน้าเฉพาะรูป ส่วนคลิปปล่อยให้โหลดตอนกดเล่นเพื่อไม่เปลืองเน็ตของลูกค้า
 			var img = new Image();
-			img.src = slide.src;
+			img.src = 'video' === slide.type ? slide.poster : slide.src;
 		}
 
 		function show( index ) {
@@ -178,21 +187,44 @@
 
 			var slide = slides[ current ];
 
-			box.classList.add( 'is-loading' );
+			stopVideo();
 
-			image.onload = function () {
+			caption.textContent = slide.alt || '';
+
+			if ( 'video' === slide.type ) {
 				box.classList.remove( 'is-loading' );
-			};
+				box.classList.add( 'is-video' );
 
-			image.onerror = function () {
-				box.classList.remove( 'is-loading' );
-			};
+				image.hidden = true;
+				image.src = '';
 
-			image.src = slide.src;
-			image.alt = slide.alt;
+				video.hidden = false;
+				video.poster = slide.poster;
+				video.src = slide.src;
+				video.setAttribute( 'aria-label', slide.alt || '' );
+			} else {
+				box.classList.remove( 'is-video' );
+				box.classList.add( 'is-loading' );
 
-			if ( image.complete ) {
-				box.classList.remove( 'is-loading' );
+				video.hidden = true;
+				video.removeAttribute( 'src' );
+
+				image.hidden = false;
+
+				image.onload = function () {
+					box.classList.remove( 'is-loading' );
+				};
+
+				image.onerror = function () {
+					box.classList.remove( 'is-loading' );
+				};
+
+				image.src = slide.src;
+				image.alt = slide.alt;
+
+				if ( image.complete ) {
+					box.classList.remove( 'is-loading' );
+				}
 			}
 
 			counter.textContent = ( current + 1 ) + ' ' + text.of + ' ' + total;
@@ -203,6 +235,15 @@
 
 			preload( current + 1 );
 			preload( current - 1 );
+		}
+
+		function stopVideo() {
+			if ( ! video || video.hidden ) {
+				return;
+			}
+
+			video.pause();
+			video.currentTime = 0;
 		}
 
 		function open( index ) {
@@ -235,9 +276,12 @@
 				return;
 			}
 
+			stopVideo();
+
 			box.classList.remove( 'is-open' );
 			box.hidden = true;
 			image.src = '';
+			video.removeAttribute( 'src' );
 			document.body.classList.remove( 'natee-no-scroll' );
 			document.body.style.paddingRight = '';
 
@@ -261,7 +305,7 @@
 			var stage = box.querySelector( '.natee-lightbox-stage' );
 
 			stage.addEventListener( 'touchstart', function ( event ) {
-				if ( 1 !== event.touches.length ) {
+				if ( 1 !== event.touches.length || event.target.closest( 'video' ) ) {
 					return;
 				}
 
@@ -290,7 +334,7 @@
 		}
 
 		grid.addEventListener( 'click', function ( event ) {
-			var link = event.target.closest( '.natee-gallery-link' );
+			var link = event.target.closest( '.natee-media-link' );
 
 			if ( ! link || event.metaKey || event.ctrlKey || event.shiftKey || 1 === event.button ) {
 				return;
@@ -311,13 +355,16 @@
 				return;
 			}
 
-			if ( 'ArrowLeft' === event.key ) {
+			// ระหว่างโฟกัสอยู่ที่ตัวเล่นวิดีโอ ปล่อยให้ลูกศรควบคุมการเล่นตามปกติ
+			var onVideo = document.activeElement === video;
+
+			if ( 'ArrowLeft' === event.key && ! onVideo ) {
 				event.preventDefault();
 				show( current - 1 );
 				return;
 			}
 
-			if ( 'ArrowRight' === event.key ) {
+			if ( 'ArrowRight' === event.key && ! onVideo ) {
 				event.preventDefault();
 				show( current + 1 );
 				return;
@@ -326,7 +373,7 @@
 			// วนโฟกัสอยู่ภายในตัวดูรูปเท่านั้น
 			if ( 'Tab' === event.key ) {
 				var focusable = Array.prototype.slice.call(
-					box.querySelectorAll( 'button:not([hidden])' )
+					box.querySelectorAll( 'button:not([hidden]), video:not([hidden])' )
 				);
 
 				if ( ! focusable.length ) {

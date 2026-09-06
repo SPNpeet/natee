@@ -259,6 +259,7 @@ function natee_default_options() {
 		'gallery_title'    => 'ผลงานของเรา',
 		'gallery_subtitle' => 'ตัวอย่างงานจัดส่งน้ำประปาที่ผ่านมา ทั้งงานอีเวนต์ ร้านอาหาร โรงแรม ไซต์ก่อสร้าง และงานล้างสถานที่',
 		'gallery'          => array(),
+		'videos'           => array(),
 
 		// คำถามที่พบบ่อย
 		'faq_title' => 'คำถามที่พบบ่อย',
@@ -373,6 +374,12 @@ function natee_bundled_image_sizes() {
 		'work-11.jpg'      => array( 960, 720 ),
 		'work-12.jpg'      => array( 1100, 825 ),
 
+		// ภาพหน้าปกของคลิปหน้างาน แนวตั้ง
+		'work-video-01-poster.jpg' => array( 432, 768 ),
+		'work-video-02-poster.jpg' => array( 432, 768 ),
+		'work-video-03-poster.jpg' => array( 432, 768 ),
+		'work-video-04-poster.jpg' => array( 432, 768 ),
+
 		// ไฟล์ย่อสำหรับมือถือ เบราว์เซอร์เลือกใช้เองผ่าน srcset
 		'truck-6wheel-sm.jpg' => array( 560, 374 ),
 		'truck-4wheel-sm.jpg' => array( 560, 372 ),
@@ -388,6 +395,39 @@ function natee_bundled_image_sizes() {
 		'work-10-sm.jpg'      => array( 560, 420 ),
 		'work-11-sm.jpg'      => array( 560, 420 ),
 		'work-12-sm.jpg'      => array( 560, 420 ),
+	);
+}
+
+/**
+ * คลิปหน้างานที่ติดมากับธีม ใช้เมื่อยังไม่ได้เลือกคลิปเองในหน้าตั้งค่า
+ * ทุกคลิปเป็นแนวตั้ง 432x768 ความยาวประมาณ 15 วินาที
+ */
+function natee_bundled_videos() {
+	return array(
+		array(
+			'file'       => 'work-video-01.mp4',
+			'poster'     => 'work-video-01-poster.jpg',
+			'caption'    => 'เติมน้ำให้ร้านค้าและคาเฟ่',
+			'caption_en' => 'Filling tanks for shops and cafes',
+		),
+		array(
+			'file'       => 'work-video-02.mp4',
+			'poster'     => 'work-video-02-poster.jpg',
+			'caption'    => 'เติมแท็งก์น้ำบ้านพักอาศัย',
+			'caption_en' => 'Filling a home water tank',
+		),
+		array(
+			'file'       => 'work-video-03.mp4',
+			'poster'     => 'work-video-03-poster.jpg',
+			'caption'    => 'ส่งถึงหน้าบ้าน เข้าซอยแคบได้',
+			'caption_en' => 'Delivered to your door, even down narrow lanes',
+		),
+		array(
+			'file'       => 'work-video-04.mp4',
+			'poster'     => 'work-video-04-poster.jpg',
+			'caption'    => 'ส่งน้ำให้คลินิกและสำนักงาน',
+			'caption_en' => 'Delivering to clinics and businesses',
+		),
 	);
 }
 

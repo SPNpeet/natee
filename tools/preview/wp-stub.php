@@ -274,6 +274,23 @@ function get_post_meta( $id, $key, $single = true ) {
 	return '';
 }
 
+/* วิดีโอ */
+function wp_get_attachment_url( $id ) {
+	return '';
+}
+
+function get_post_thumbnail_id( $id ) {
+	return 0;
+}
+
+function get_post( $id ) {
+	return null;
+}
+
+function get_the_title( $id = 0 ) {
+	return '';
+}
+
 /* หน้าเว็บ */
 function language_attributes() {
 	echo apply_filters( 'language_attributes', 'lang="th"' );

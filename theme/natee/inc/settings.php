@@ -238,6 +238,21 @@ function natee_sanitize_options( $input ) {
 	}
 
 	// แกลเลอรี เก็บเป็นรายการรหัสรูปภาพ
+	if ( isset( $input['videos'] ) ) {
+		$video_ids = is_array( $input['videos'] ) ? $input['videos'] : explode( ',', (string) $input['videos'] );
+		$videos    = array();
+
+		foreach ( $video_ids as $id ) {
+			$id = absint( $id );
+
+			if ( $id ) {
+				$videos[] = $id;
+			}
+		}
+
+		$out['videos'] = array_values( array_unique( $videos ) );
+	}
+
 	if ( isset( $input['gallery'] ) ) {
 		$ids     = is_array( $input['gallery'] ) ? $input['gallery'] : explode( ',', (string) $input['gallery'] );
 		$gallery = array();
@@ -891,6 +906,36 @@ function natee_settings_page() {
 				natee_field_text( 'gallery_title', 'หัวข้อส่วนแกลเลอรี' );
 				natee_field_text( 'gallery_subtitle', 'คำอธิบายใต้หัวข้อ' );
 				?>
+
+				<h2>คลิปหน้างาน</h2>
+				<div class="natee-field">
+					<label>คลิปวิดีโอ</label>
+					<div class="natee-gallery" data-media-type="video" data-name="natee_options[videos]">
+						<input type="hidden" class="natee-gallery-ids" name="natee_options[videos]" value="<?php echo esc_attr( implode( ',', (array) $options['videos'] ) ); ?>" />
+						<div class="natee-gallery-list">
+							<?php foreach ( (array) $options['videos'] as $video_id ) : ?>
+								<?php
+								$video_url   = wp_get_attachment_url( absint( $video_id ) );
+								$video_title = get_the_title( absint( $video_id ) );
+								?>
+								<?php if ( $video_url ) : ?>
+									<div class="natee-gallery-item natee-gallery-item-video" data-id="<?php echo esc_attr( $video_id ); ?>">
+										<span class="natee-video-chip"><?php echo esc_html( $video_title ? $video_title : basename( $video_url ) ); ?></span>
+										<button type="button" class="natee-gallery-remove" aria-label="ลบคลิปนี้">ลบ</button>
+									</div>
+								<?php endif; ?>
+							<?php endforeach; ?>
+						</div>
+						<button type="button" class="button button-secondary natee-gallery-add">เพิ่มคลิปวิดีโอ</button>
+					</div>
+					<p class="natee-help">
+						รองรับไฟล์ MP4 แนะนำให้ถ่ายแนวตั้งและตัดให้ยาวไม่เกิน 20 วินาที ไฟล์ไม่ควรเกิน 3 เมกะไบต์ต่อคลิป
+						ชื่อไฟล์ที่ตั้งไว้ในคลังสื่อจะกลายเป็นคำบรรยายใต้คลิปบนหน้าเว็บ
+						หากยังไม่เลือก ระบบจะแสดงคลิปหน้างาน 4 คลิปที่ติดมากับธีมให้อัตโนมัติ
+					</p>
+				</div>
+
+				<h2>รูปผลงาน</h2>
 				<div class="natee-field">
 					<label>รูปผลงาน</label>
 					<div class="natee-gallery" data-name="natee_options[gallery]">

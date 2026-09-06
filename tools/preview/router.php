@@ -20,6 +20,7 @@ if ( 0 === strpos( $path, '/theme-assets/' ) ) {
 			'png'  => 'image/png',
 			'webp' => 'image/webp',
 			'svg'  => 'image/svg+xml',
+			'mp4'  => 'video/mp4',
 		);
 		$ext   = strtolower( pathinfo( $file, PATHINFO_EXTENSION ) );
 

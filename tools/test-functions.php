@@ -208,6 +208,59 @@ foreach ( array_merge( $bundled['fleet'], $bundled['gallery'] ) as $file ) {
 
 report( empty( $ไม่มีรูปเล็ก ), 'รูปใหญ่ทุกไฟล์มีรูปย่อสำหรับมือถือ', implode( ', ', $ไม่มีรูปเล็ก ) );
 
+echo "\n5. คลิปหน้างานที่ติดมากับธีม\n";
+
+$videos    = natee_bundled_videos();
+$ปัญหาคลิป = array();
+
+foreach ( $videos as $video ) {
+	$path = $theme . '/assets/videos/' . $video['file'];
+
+	if ( ! is_file( $path ) ) {
+		$ปัญหาคลิป[] = $video['file'] . ' ไม่มีไฟล์';
+		continue;
+	}
+
+	$mb = filesize( $path ) / 1048576;
+
+	if ( $mb > 3 ) {
+		$ปัญหาคลิป[] = sprintf( '%s ใหญ่เกินไป %.1f MB', $video['file'], $mb );
+	}
+
+	if ( ! is_file( $theme . '/assets/images/' . $video['poster'] ) ) {
+		$ปัญหาคลิป[] = $video['poster'] . ' ไม่มีภาพหน้าปก';
+	}
+
+	if ( '' === trim( $video['caption'] ) || '' === trim( $video['caption_en'] ) ) {
+		$ปัญหาคลิป[] = $video['file'] . ' คำบรรยายไม่ครบสองภาษา';
+	}
+}
+
+report( empty( $ปัญหาคลิป ), sprintf( 'คลิป %d รายการ มีไฟล์ ภาพหน้าปก และคำบรรยายครบ', count( $videos ) ), implode( "\n       ", $ปัญหาคลิป ) );
+
+$items      = natee_video_items();
+$ปัญหารายการ = array();
+
+foreach ( $items as $item ) {
+	if ( empty( $item['src'] ) || empty( $item['poster'] ) ) {
+		$ปัญหารายการ[] = 'มีรายการที่ขาดลิงก์ไฟล์หรือภาพหน้าปก';
+	}
+}
+
+report(
+	empty( $ปัญหารายการ ) && count( $items ) === count( $videos ),
+	sprintf( 'ระบบส่งคลิปให้หน้าเว็บครบ %d รายการ', count( $items ) ),
+	implode( "\n       ", array_unique( $ปัญหารายการ ) )
+);
+
+$ขนาดรวม = 0;
+
+foreach ( $videos as $video ) {
+	$ขนาดรวม += filesize( $theme . '/assets/videos/' . $video['file'] );
+}
+
+report( $ขนาดรวม < 6 * 1048576, sprintf( 'ขนาดคลิปรวม %.1f MB อยู่ในเกณฑ์ที่อัปโหลดธีมได้', $ขนาดรวม / 1048576 ) );
+
 printf( "\nผ่าน %d ข้อ ไม่ผ่าน %d ข้อ\n", $pass, $fail );
 
 exit( $fail > 0 ? 1 : 0 );

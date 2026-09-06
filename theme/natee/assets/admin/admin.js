@@ -164,10 +164,13 @@
 			var gallery = addButton.closest( '.natee-gallery' );
 			var list = gallery.querySelector( '.natee-gallery-list' );
 
+			var mediaType = gallery.getAttribute( 'data-media-type' ) === 'video' ? 'video' : 'image';
+			var isVideo = 'video' === mediaType;
+
 			var frame = window.wp.media( {
-				title: text.chooseImage || 'เลือกรูปภาพ',
-				button: { text: text.useImage || 'ใช้รูปนี้' },
-				library: { type: 'image' },
+				title: isVideo ? 'เลือกคลิปวิดีโอ' : ( text.chooseImage || 'เลือกรูปภาพ' ),
+				button: { text: isVideo ? 'ใช้คลิปนี้' : ( text.useImage || 'ใช้รูปนี้' ) },
+				library: { type: mediaType },
 				multiple: 'add'
 			} );
 
@@ -177,26 +180,35 @@
 						return;
 					}
 
-					var url = attachment.url;
-
-					if ( attachment.sizes && attachment.sizes.thumbnail ) {
-						url = attachment.sizes.thumbnail.url;
-					}
-
 					var item = document.createElement( 'div' );
 					item.className = 'natee-gallery-item';
 					item.setAttribute( 'data-id', attachment.id );
 
-					var image = document.createElement( 'img' );
-					image.src = url;
-					image.alt = '';
+					if ( isVideo ) {
+						item.className += ' natee-gallery-item-video';
+
+						var chip = document.createElement( 'span' );
+						chip.className = 'natee-video-chip';
+						chip.textContent = attachment.title || attachment.filename || 'คลิปวิดีโอ';
+						item.appendChild( chip );
+					} else {
+						var url = attachment.url;
+
+						if ( attachment.sizes && attachment.sizes.thumbnail ) {
+							url = attachment.sizes.thumbnail.url;
+						}
+
+						var image = document.createElement( 'img' );
+						image.src = url;
+						image.alt = '';
+						item.appendChild( image );
+					}
 
 					var remove = document.createElement( 'button' );
 					remove.type = 'button';
 					remove.className = 'natee-gallery-remove';
 					remove.textContent = 'ลบ';
 
-					item.appendChild( image );
 					item.appendChild( remove );
 					list.appendChild( item );
 				} );

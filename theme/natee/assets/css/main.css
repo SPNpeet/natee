@@ -965,6 +965,80 @@ textarea:focus-visible,
 	gap: 12px;
 }
 
+/* แถวคลิปหน้างาน แนวตั้งแบบเดียวกับคลิปในมือถือ */
+.natee-video-row {
+	display: grid;
+	grid-template-columns: repeat(2, 1fr);
+	gap: 12px;
+	margin-bottom: 16px;
+}
+
+.natee-video-cell {
+	min-width: 0;
+}
+
+.natee-video-link {
+	position: relative;
+	display: block;
+	border-radius: 12px;
+	overflow: hidden;
+	background: #0d1b2c;
+	aspect-ratio: 9 / 16;
+	cursor: pointer;
+}
+
+.natee-video-poster {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	transition: transform 0.3s ease;
+}
+
+.natee-video-link:hover .natee-video-poster,
+.natee-video-link:focus-visible .natee-video-poster {
+	transform: scale(1.04);
+}
+
+.natee-video-play {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	width: 52px;
+	height: 52px;
+	border-radius: 50%;
+	background: rgba(255, 255, 255, 0.92);
+	color: var(--natee-brand-dark);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	box-shadow: 0 6px 18px rgba(8, 16, 28, 0.35);
+	transition: transform 0.2s ease;
+}
+
+.natee-video-play .natee-icon {
+	width: 22px;
+	height: 22px;
+	margin-left: 3px;
+}
+
+.natee-video-link:hover .natee-video-play {
+	transform: translate(-50%, -50%) scale(1.08);
+}
+
+.natee-video-caption {
+	position: absolute;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	padding: 26px 12px 10px;
+	color: #fff;
+	font-size: 13px;
+	line-height: 1.45;
+	font-weight: 500;
+	background: linear-gradient(to top, rgba(8, 16, 28, 0.86), rgba(8, 16, 28, 0));
+}
+
 .natee-gallery-cell {
 	border-radius: 12px;
 	overflow: hidden;
@@ -1165,7 +1239,8 @@ body.natee-no-scroll {
 	transform: scale(0.94);
 }
 
-.natee-lightbox-image {
+.natee-lightbox-image,
+.natee-lightbox-video {
 	max-width: 100%;
 	max-height: 100%;
 	width: auto;
@@ -1173,6 +1248,20 @@ body.natee-no-scroll {
 	border-radius: 10px;
 	box-shadow: 0 18px 50px rgba(0, 0, 0, 0.45);
 	background: #0d1b2c;
+}
+
+.natee-lightbox-video {
+	display: block;
+}
+
+.natee-lightbox-caption {
+	flex: 0 0 auto;
+	text-align: center;
+	color: #e6eef7;
+	font-size: 15px;
+	font-weight: 500;
+	padding: 0 8px;
+	min-height: 22px;
 }
 
 .natee-lightbox.is-loading .natee-lightbox-image {
@@ -1187,6 +1276,17 @@ body.natee-no-scroll {
 }
 
 @media (min-width: 720px) {
+	.natee-video-row {
+		grid-template-columns: repeat(4, 1fr);
+		gap: 16px;
+		margin-bottom: 20px;
+	}
+
+	.natee-video-caption {
+		font-size: 14px;
+		padding: 30px 14px 12px;
+	}
+
 	.natee-lightbox-inner {
 		padding: 18px 18px 22px;
 		gap: 12px;
@@ -1978,5 +2078,15 @@ a.natee-contact-item:hover {
 
 	.natee-brand-tagline {
 		display: block;
+	}
+}
+
+/* จอใหญ่ คุมความสูงแถวคลิปไม่ให้กินพื้นที่มากเกินไป */
+@media (min-width: 1000px) {
+	.natee-video-row {
+		max-width: 920px;
+		margin-left: auto;
+		margin-right: auto;
+		margin-bottom: 24px;
 	}
 }
