@@ -291,6 +291,10 @@ function get_the_title( $id = 0 ) {
 	return '';
 }
 
+function get_post_mime_type( $id ) {
+	return 'video/mp4';
+}
+
 /* หน้าเว็บ */
 function language_attributes() {
 	echo apply_filters( 'language_attributes', 'lang="th"' );

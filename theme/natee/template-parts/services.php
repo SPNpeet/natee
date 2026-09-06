@@ -16,7 +16,9 @@ if ( empty( $services ) ) {
 <section class="natee-section natee-services" id="natee-services">
 	<div class="natee-container">
 		<header class="natee-section-head">
-			<h2 class="natee-section-title"><?php echo esc_html( natee_text( 'services_title', 'บริการของเรา' ) ); ?></h2>
+			<?php if ( natee_text( 'services_title', '' ) ) : ?>
+				<h2 class="natee-section-title"><?php echo esc_html( natee_text( 'services_title', '' ) ); ?></h2>
+			<?php endif; ?>
 			<?php if ( natee_text( 'services_subtitle', '' ) ) : ?>
 				<p class="natee-section-subtitle"><?php echo esc_html( natee_text( 'services_subtitle', '' ) ); ?></p>
 			<?php endif; ?>

@@ -286,6 +286,15 @@ function natee_sanitize_map_embed( $value ) {
 	}
 
 	$url  = esc_url_raw( $value );
+
+	// รับเฉพาะลิงก์ของ Google Maps เท่านั้น กันการวางโค้ดฝังจากที่อื่นโดยไม่ตั้งใจ
+	if ( $url ) {
+		$host = wp_parse_url( $url, PHP_URL_HOST );
+
+		if ( ! $host || ! preg_match( '/(^|\.)google\.com$/i', $host ) && ! preg_match( '/(^|\.)google\.co\.th$/i', $host ) ) {
+			$url = '';
+		}
+	}
 	$host = wp_parse_url( $url, PHP_URL_HOST );
 
 	if ( ! $host || ! preg_match( '/(^|\.)google\.com$/i', $host ) ) {

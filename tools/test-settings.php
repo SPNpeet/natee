@@ -139,9 +139,28 @@ if ( 'th' === $lang ) {
 	check( 'อีเมลที่ไม่ถูกต้องถูกล้างทิ้ง', $out['email'], '' );
 	check( 'ลิงก์อันตรายถูกล้างทิ้ง', $out['facebook_url'], '' );
 	check( 'ดึงเฉพาะลิงก์แผนที่จากโค้ดฝัง', $out['map_embed'], 'https://www.google.com/maps/embed?pb=abc' );
+
+	// แผนที่ต้องมาจากโดเมนของ Google เท่านั้น
+	$out = natee_sanitize_options( array( 'map_embed' => 'https://evil.example.com/maps/embed?pb=1' ) );
+	check( 'ปฏิเสธลิงก์แผนที่จากโดเมนอื่น', $out['map_embed'], '' );
+
+	$default_map = natee_default_options();
+	$out         = natee_sanitize_options( array( 'map_embed' => $default_map['map_embed'] ) );
+	check( 'ลิงก์แผนที่เริ่มต้นผ่านการตรวจ', $out['map_embed'], $default_map['map_embed'] );
+
+	echo "
+5. คลิปหน้างาน
+";
+
+	$out = natee_sanitize_options( array( 'videos' => '12,0,abc,34,12' ) );
+	check( 'รับเฉพาะรหัสคลิปที่เป็นตัวเลขและไม่ซ้ำ', $out['videos'], array( 12, 34 ) );
+
+	$items = natee_video_items();
+	check( 'คลิปที่ติดมากับธีมถูกส่งให้หน้าเว็บครบ', count( $items ), count( natee_bundled_videos() ) );
+	check( 'คลิปแรกมีลิงก์ไฟล์และภาพหน้าปก', ( '' !== $items[0]['src'] && '' !== $items[0]['poster'] ), true );
 }
 
-printf( "\n5. การแสดงผลเมื่อผู้เข้าชมเลือกภาษา %s\n", $lang );
+printf( "\n6. การแสดงผลเมื่อผู้เข้าชมเลือกภาษา %s\n", $lang );
 
 check( 'ภาษาที่ใช้แสดงผล', natee_lang(), $lang );
 

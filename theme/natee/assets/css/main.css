@@ -12,7 +12,9 @@
 	--natee-line: #e3e9f0;
 	--natee-bg: #ffffff;
 	--natee-bg-soft: #f4f8fc;
-	--natee-line-green: #06c755;
+	/* เขียวไลน์ปรับให้เข้มพอที่ตัวอักษรสีขาวอ่านได้ตามมาตรฐาน WCAG AA คือ 4.75 ต่อ 1 */
+	--natee-line-green: #048539;
+	--natee-line-green-dark: #036b2d;
 	--natee-radius: 14px;
 	--natee-shadow: 0 1px 2px rgba(15, 28, 46, 0.05), 0 8px 24px rgba(15, 28, 46, 0.06);
 	--natee-max: 1140px;
@@ -35,7 +37,7 @@ body {
 	background: var(--natee-bg);
 	color: var(--natee-ink);
 	font-family: "IBM Plex Sans Thai", "Noto Sans Thai", "Sarabun", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-	font-size: 16px;
+	font-size: 17px;
 	line-height: 1.75;
 	-webkit-font-smoothing: antialiased;
 }
@@ -220,13 +222,13 @@ textarea:focus-visible,
 
 .natee-brand-name {
 	font-weight: 600;
-	font-size: 18px;
+	font-size: 19px;
 	line-height: 1.3;
 }
 
 .natee-brand-tagline {
 	display: none;
-	font-size: 12px;
+	font-size: 14px;
 	color: var(--natee-muted);
 	line-height: 1.4;
 	white-space: nowrap;
@@ -341,13 +343,13 @@ textarea:focus-visible,
 }
 
 .natee-header-call-label {
-	font-size: 11px;
+	font-size: 14px;
 	font-weight: 500;
 	opacity: 0.9;
 }
 
 .natee-header-call-number {
-	font-size: 15px;
+	font-size: 17px;
 }
 
 
@@ -372,7 +374,7 @@ textarea:focus-visible,
 	min-height: 40px;
 	padding: 0 10px;
 	border-radius: 999px;
-	font-size: 13px;
+	font-size: 15px;
 	font-weight: 600;
 	color: var(--natee-muted);
 	text-decoration: none;
@@ -413,7 +415,7 @@ textarea:focus-visible,
 	border-radius: 999px;
 	text-decoration: none;
 	font-weight: 600;
-	font-size: 16px;
+	font-size: 17px;
 	border: 1px solid transparent;
 	min-height: 52px;
 	transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
@@ -440,7 +442,7 @@ textarea:focus-visible,
 }
 
 .natee-btn-line:hover {
-	background: #05a948;
+	background: var(--natee-line-green-dark);
 }
 
 .natee-btn-line-outline {
@@ -457,7 +459,7 @@ textarea:focus-visible,
 }
 
 .natee-btn-small {
-	font-size: 11px;
+	font-size: 14px;
 	font-weight: 500;
 	opacity: 0.92;
 }
@@ -477,7 +479,7 @@ textarea:focus-visible,
 	display: inline-block;
 	background: var(--natee-brand-soft);
 	color: var(--natee-brand-dark);
-	font-size: 13px;
+	font-size: 15px;
 	font-weight: 600;
 	padding: 6px 14px;
 	border-radius: 999px;
@@ -492,7 +494,7 @@ textarea:focus-visible,
 
 .natee-hero-subtitle {
 	margin-top: 14px;
-	font-size: 17px;
+	font-size: 18px;
 	color: var(--natee-muted);
 	max-width: 54ch;
 }
@@ -500,7 +502,7 @@ textarea:focus-visible,
 .natee-hero-second-phone {
 	margin-top: 10px;
 	color: var(--natee-muted);
-	font-size: 15px;
+	font-size: 16px;
 }
 
 .natee-hero-second-phone a {
@@ -514,7 +516,7 @@ textarea:focus-visible,
 	display: flex;
 	gap: 8px;
 	align-items: flex-start;
-	font-size: 15px;
+	font-size: 16px;
 	color: var(--natee-muted);
 	background: #fff;
 	border: 1px solid var(--natee-line);
@@ -566,14 +568,14 @@ textarea:focus-visible,
 }
 
 .natee-section-title {
-	font-size: 25px;
+	font-size: 27px;
 	font-weight: 700;
 }
 
 .natee-section-subtitle {
 	margin-top: 10px;
 	color: var(--natee-muted);
-	font-size: 16px;
+	font-size: 17px;
 }
 
 /* จุดเด่น */
@@ -587,10 +589,26 @@ textarea:focus-visible,
 }
 
 .natee-highlight {
+	position: relative;
 	background: #fff;
 	border: 1px solid var(--natee-line);
 	border-radius: var(--natee-radius);
-	padding: 20px;
+	padding: 24px 22px 22px;
+	overflow: hidden;
+	transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.natee-highlight::before {
+	content: "";
+	position: absolute;
+	inset: 0 0 auto 0;
+	height: 3px;
+	background: var(--natee-brand);
+}
+
+.natee-highlight:hover {
+	transform: translateY(-3px);
+	box-shadow: var(--natee-shadow);
 }
 
 .natee-highlight-icon {
@@ -606,13 +624,13 @@ textarea:focus-visible,
 }
 
 .natee-highlight-title {
-	font-size: 17px;
+	font-size: 18px;
 }
 
 .natee-highlight-text {
 	margin-top: 6px;
 	color: var(--natee-muted);
-	font-size: 15px;
+	font-size: 16px;
 }
 
 /* แนะนำร้าน */
@@ -637,7 +655,7 @@ textarea:focus-visible,
 .natee-about-body {
 	margin-top: 12px;
 	color: var(--natee-muted);
-	font-size: 16px;
+	font-size: 17px;
 	max-width: 62ch;
 }
 
@@ -647,7 +665,7 @@ textarea:focus-visible,
 	border-left: 4px solid var(--natee-brand);
 	background: var(--natee-brand-soft);
 	border-radius: 0 12px 12px 0;
-	font-size: 17px;
+	font-size: 18px;
 	font-weight: 600;
 	color: var(--natee-brand-dark);
 }
@@ -669,6 +687,13 @@ textarea:focus-visible,
 	overflow: hidden;
 	display: flex;
 	flex-direction: column;
+	transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+}
+
+.natee-card:hover {
+	transform: translateY(-3px);
+	border-color: #cfdcea;
+	box-shadow: var(--natee-shadow);
 }
 
 .natee-card-media {
@@ -703,13 +728,13 @@ textarea:focus-visible,
 }
 
 .natee-card-title {
-	font-size: 18px;
+	font-size: 19px;
 }
 
 .natee-card-text {
 	margin-top: 8px;
 	color: var(--natee-muted);
-	font-size: 15px;
+	font-size: 16px;
 }
 
 /* ประเภทรถ */
@@ -719,19 +744,30 @@ textarea:focus-visible,
 }
 
 .natee-fleet-item {
+	background: #fff;
 	border: 1px solid var(--natee-line);
 	border-radius: var(--natee-radius);
 	overflow: hidden;
-	background: #fff;
+	transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.natee-fleet-item:hover {
+	transform: translateY(-3px);
+	box-shadow: var(--natee-shadow);
 }
 
 .natee-fleet-media {
 	aspect-ratio: 16 / 9;
-	background: var(--natee-brand-soft);
+	background: #fff;
 	color: var(--natee-brand);
 	display: flex;
 	align-items: center;
 	justify-content: center;
+	border-bottom: 1px solid var(--natee-line);
+}
+
+.natee-fleet-media.is-empty {
+	background: var(--natee-brand-soft);
 }
 
 .natee-fleet-image {
@@ -745,20 +781,20 @@ textarea:focus-visible,
 }
 
 .natee-fleet-name {
-	font-size: 19px;
+	font-size: 20px;
 }
 
 .natee-fleet-capacity {
 	margin-top: 4px;
 	color: var(--natee-brand-dark);
 	font-weight: 600;
-	font-size: 14px;
+	font-size: 15px;
 }
 
 .natee-fleet-text {
 	margin-top: 8px;
 	color: var(--natee-muted);
-	font-size: 15px;
+	font-size: 16px;
 }
 
 /* ราคา */
@@ -811,12 +847,12 @@ textarea:focus-visible,
 
 .natee-price-name {
 	font-weight: 600;
-	font-size: 17px;
+	font-size: 18px;
 }
 
 .natee-price-detail {
 	color: var(--natee-muted);
-	font-size: 14px;
+	font-size: 15px;
 }
 
 .natee-price-side {
@@ -828,7 +864,7 @@ textarea:focus-visible,
 
 .natee-price-value {
 	font-weight: 700;
-	font-size: 16px;
+	font-size: 17px;
 	color: var(--natee-brand-dark);
 	background: var(--natee-brand-soft);
 	padding: 6px 14px;
@@ -862,7 +898,7 @@ textarea:focus-visible,
 	display: flex;
 	align-items: flex-start;
 	gap: 8px;
-	font-size: 15px;
+	font-size: 16px;
 	color: var(--natee-muted);
 }
 
@@ -880,13 +916,13 @@ textarea:focus-visible,
 .natee-btn-sm {
 	padding: 10px 18px;
 	min-height: 46px;
-	font-size: 15px;
+	font-size: 16px;
 }
 
 .natee-price-note {
 	margin-top: 16px;
 	color: var(--natee-muted);
-	font-size: 14px;
+	font-size: 15px;
 	max-width: 70ch;
 }
 
@@ -918,17 +954,17 @@ textarea:focus-visible,
 	align-items: center;
 	justify-content: center;
 	font-weight: 700;
-	font-size: 16px;
+	font-size: 17px;
 }
 
 .natee-step-title {
-	font-size: 18px;
+	font-size: 19px;
 }
 
 .natee-step-text {
 	margin-top: 6px;
 	color: var(--natee-muted);
-	font-size: 15px;
+	font-size: 16px;
 }
 
 /* พื้นที่ให้บริการ */
@@ -937,20 +973,27 @@ textarea:focus-visible,
 }
 
 .natee-area-list {
-	display: grid;
-	grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+	display: flex;
+	flex-wrap: wrap;
 	gap: 10px;
 }
 
 .natee-area {
 	display: flex;
-	align-items: flex-start;
+	align-items: center;
 	gap: 8px;
+	flex: 0 1 auto;
 	background: #fff;
 	border: 1px solid var(--natee-line);
 	border-radius: 10px;
-	padding: 11px 14px;
-	font-size: 15px;
+	padding: 12px 16px;
+	font-size: 16px;
+	transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.natee-area:hover {
+	border-color: var(--natee-brand);
+	box-shadow: 0 2px 10px rgba(15, 111, 191, 0.12);
 }
 
 .natee-area .natee-icon {
@@ -1033,7 +1076,7 @@ textarea:focus-visible,
 	bottom: 0;
 	padding: 26px 12px 10px;
 	color: #fff;
-	font-size: 13px;
+	font-size: 15px;
 	line-height: 1.45;
 	font-weight: 500;
 	background: linear-gradient(to top, rgba(8, 16, 28, 0.86), rgba(8, 16, 28, 0));
@@ -1154,7 +1197,7 @@ body.natee-no-scroll {
 
 .natee-lightbox-counter {
 	color: #dbe6f2;
-	font-size: 15px;
+	font-size: 16px;
 	font-weight: 600;
 	padding-left: 6px;
 	white-space: nowrap;
@@ -1258,7 +1301,7 @@ body.natee-no-scroll {
 	flex: 0 0 auto;
 	text-align: center;
 	color: #e6eef7;
-	font-size: 15px;
+	font-size: 16px;
 	font-weight: 500;
 	padding: 0 8px;
 	min-height: 22px;
@@ -1272,7 +1315,7 @@ body.natee-no-scroll {
 	flex: 0 0 auto;
 	text-align: center;
 	color: #9fb3c8;
-	font-size: 13px;
+	font-size: 14px;
 }
 
 @media (min-width: 720px) {
@@ -1364,7 +1407,7 @@ body.natee-no-scroll {
 .natee-faq-answer {
 	padding: 0 18px 18px;
 	color: var(--natee-muted);
-	font-size: 15px;
+	font-size: 16px;
 }
 
 /* แถบชวนโทร */
@@ -1380,7 +1423,7 @@ body.natee-no-scroll {
 }
 
 .natee-cta-title {
-	font-size: 24px;
+	font-size: 26px;
 	font-weight: 700;
 }
 
@@ -1446,7 +1489,7 @@ a.natee-contact-item:hover {
 
 .natee-contact-label {
 	display: block;
-	font-size: 12px;
+	font-size: 14px;
 	color: var(--natee-muted);
 	line-height: 1.4;
 }
@@ -1454,7 +1497,7 @@ a.natee-contact-item:hover {
 .natee-contact-value {
 	display: block;
 	font-weight: 600;
-	font-size: 16px;
+	font-size: 17px;
 	line-height: 1.4;
 }
 
@@ -1478,20 +1521,20 @@ a.natee-contact-item:hover {
 
 .natee-qr-title {
 	font-weight: 600;
-	font-size: 16px;
+	font-size: 17px;
 }
 
 .natee-qr-note {
 	margin-top: 4px;
 	color: var(--natee-muted);
-	font-size: 14px;
+	font-size: 15px;
 }
 
 .natee-qr-id {
 	margin-top: 6px;
 	font-weight: 600;
 	color: var(--natee-line-green);
-	font-size: 15px;
+	font-size: 16px;
 }
 
 .natee-map {
@@ -1517,7 +1560,7 @@ a.natee-contact-item:hover {
 }
 
 .natee-form-heading {
-	font-size: 18px;
+	font-size: 19px;
 	font-weight: 600;
 	margin-bottom: 14px;
 }
@@ -1529,7 +1572,7 @@ a.natee-contact-item:hover {
 }
 
 .natee-required {
-	font-size: 12px;
+	font-size: 14px;
 	font-weight: 500;
 	color: #b3261e;
 	margin-left: 4px;
@@ -1537,7 +1580,7 @@ a.natee-contact-item:hover {
 
 .natee-form-note {
 	margin-top: 6px;
-	font-size: 13px;
+	font-size: 15px;
 	color: var(--natee-muted);
 }
 
@@ -1593,7 +1636,7 @@ a.natee-contact-item:hover {
 
 .natee-form-hint {
 	margin-top: 10px;
-	font-size: 13px;
+	font-size: 15px;
 	color: var(--natee-muted);
 	text-align: center;
 }
@@ -1602,7 +1645,7 @@ a.natee-contact-item:hover {
 	padding: 12px 16px;
 	border-radius: 10px;
 	margin-bottom: 16px;
-	font-size: 15px;
+	font-size: 16px;
 }
 
 .natee-form-notice-ok {
@@ -1647,7 +1690,7 @@ a.natee-contact-item:hover {
 	margin-top: 6px;
 	padding: 10px 2px;
 	min-height: 44px;
-	font-size: 15px;
+	font-size: 16px;
 	font-weight: 600;
 	color: var(--natee-brand-dark);
 	text-decoration: none;
@@ -1658,19 +1701,19 @@ a.natee-contact-item:hover {
 }
 
 .natee-footer-name {
-	font-size: 19px;
+	font-size: 20px;
 	font-weight: 600;
 	color: #fff;
 }
 
 .natee-footer-text {
 	margin-top: 6px;
-	font-size: 15px;
+	font-size: 16px;
 	color: #a8b6c8;
 }
 
 .natee-footer-heading {
-	font-size: 15px;
+	font-size: 16px;
 	font-weight: 600;
 	color: #fff;
 	margin-bottom: 10px;
@@ -1687,7 +1730,7 @@ a.natee-contact-item:hover {
 	gap: 10px;
 	color: #cfd9e6;
 	text-decoration: none;
-	font-size: 15px;
+	font-size: 16px;
 	min-height: 44px;
 	padding: 4px 0;
 }
@@ -1700,7 +1743,7 @@ a.natee-contact-item:hover {
 	display: grid;
 	grid-template-columns: repeat(2, minmax(0, 1fr));
 	gap: 6px 14px;
-	font-size: 14px;
+	font-size: 15px;
 	color: #a8b6c8;
 }
 
@@ -1708,7 +1751,7 @@ a.natee-contact-item:hover {
 	margin-top: 28px;
 	padding-top: 18px;
 	border-top: 1px solid rgba(255, 255, 255, 0.1);
-	font-size: 13px;
+	font-size: 14px;
 	color: #8b9ab0;
 	display: grid;
 	gap: 4px;
@@ -1832,7 +1875,7 @@ a.natee-contact-item:hover {
 		min-width: 40px;
 		min-height: 40px;
 		padding: 0 6px;
-		font-size: 12px;
+		font-size: 14px;
 	}
 
 	.natee-header-inner {
@@ -1981,7 +2024,7 @@ a.natee-contact-item:hover {
 		border: none;
 		padding: 8px 10px;
 		border-radius: 8px;
-		font-size: 15px;
+		font-size: 16px;
 		white-space: nowrap;
 	}
 
@@ -2045,7 +2088,7 @@ a.natee-contact-item:hover {
 /* จอเดสก์ท็อปแคบ บีบส่วนหัวให้ทุกอย่างอยู่บรรทัดเดียว */
 @media (min-width: 1000px) and (max-width: 1399px) {
 	.natee-nav-list a {
-		font-size: 14px;
+		font-size: 15px;
 		padding: 8px 7px;
 	}
 
@@ -2061,7 +2104,7 @@ a.natee-contact-item:hover {
 	.natee-lang-item {
 		min-width: 40px;
 		min-height: 40px;
-		font-size: 12px;
+		font-size: 14px;
 		padding: 0 8px;
 	}
 }

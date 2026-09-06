@@ -149,6 +149,8 @@ function natee_ui_strings() {
 		'lang_th'          => array( 'ไทย', 'Thai' ),
 		'lang_en'          => array( 'English', 'English' ),
 		'lang_switch'      => array( 'เปลี่ยนภาษา', 'Change language' ),
+		'region'           => array( 'เชียงใหม่', 'Chiang Mai' ),
+		'highlights_title' => array( 'จุดเด่นของบริการ', 'Why customers choose us' ),
 		'notice_sent'      => array(
 			'ส่งข้อความเรียบร้อยแล้ว ทีมงานจะติดต่อกลับโดยเร็วที่สุด หากเร่งด่วนกรุณาโทรหาเราโดยตรง',
 			'Thank you. We have received your message and will call you back shortly. For urgent orders please call us directly.',

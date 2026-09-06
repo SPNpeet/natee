@@ -16,7 +16,9 @@ if ( empty( $faq ) ) {
 <section class="natee-section natee-faq" id="natee-faq">
 	<div class="natee-container natee-narrow">
 		<header class="natee-section-head">
-			<h2 class="natee-section-title"><?php echo esc_html( natee_text( 'faq_title', 'คำถามที่พบบ่อย' ) ); ?></h2>
+			<?php if ( natee_text( 'faq_title', '' ) ) : ?>
+				<h2 class="natee-section-title"><?php echo esc_html( natee_text( 'faq_title', '' ) ); ?></h2>
+			<?php endif; ?>
 		</header>
 
 		<div class="natee-faq-list">

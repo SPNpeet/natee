@@ -21,7 +21,9 @@ $index = 0;
 <section class="natee-section natee-gallery-section" id="natee-gallery">
 	<div class="natee-container">
 		<header class="natee-section-head">
-			<h2 class="natee-section-title"><?php echo esc_html( natee_text( 'gallery_title', 'ผลงานการจัดส่ง' ) ); ?></h2>
+			<?php if ( natee_text( 'gallery_title', '' ) ) : ?>
+				<h2 class="natee-section-title"><?php echo esc_html( natee_text( 'gallery_title', '' ) ); ?></h2>
+			<?php endif; ?>
 			<?php if ( natee_text( 'gallery_subtitle', '' ) ) : ?>
 				<p class="natee-section-subtitle"><?php echo esc_html( natee_text( 'gallery_subtitle', '' ) ); ?></p>
 			<?php endif; ?>

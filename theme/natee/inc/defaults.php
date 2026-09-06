@@ -358,8 +358,8 @@ function natee_bundled_image_sizes() {
 		'icon-32.png'      => array( 32, 32 ),
 		'icon-180.png'     => array( 180, 180 ),
 		'og-banner.jpg'    => array( 1200, 480 ),
-		'truck-6wheel.jpg' => array( 1200, 801 ),
-		'truck-4wheel.jpg' => array( 1195, 794 ),
+		'truck-6wheel.jpg' => array( 1200, 675 ),
+		'truck-4wheel.jpg' => array( 1200, 675 ),
 		'line-qr.jpg'      => array( 480, 480 ),
 		'work-01.jpg'      => array( 1100, 825 ),
 		'work-02.jpg'      => array( 1100, 825 ),
@@ -381,8 +381,8 @@ function natee_bundled_image_sizes() {
 		'work-video-04-poster.jpg' => array( 432, 768 ),
 
 		// ไฟล์ย่อสำหรับมือถือ เบราว์เซอร์เลือกใช้เองผ่าน srcset
-		'truck-6wheel-sm.jpg' => array( 560, 374 ),
-		'truck-4wheel-sm.jpg' => array( 560, 372 ),
+		'truck-6wheel-sm.jpg' => array( 560, 315 ),
+		'truck-4wheel-sm.jpg' => array( 560, 315 ),
 		'work-01-sm.jpg'      => array( 560, 420 ),
 		'work-02-sm.jpg'      => array( 560, 420 ),
 		'work-03-sm.jpg'      => array( 560, 420 ),

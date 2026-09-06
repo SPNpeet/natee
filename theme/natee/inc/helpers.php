@@ -176,6 +176,10 @@ function natee_bundled_url( $file ) {
 		return '';
 	}
 
+	if ( ! is_file( get_template_directory() . '/assets/images/' . $file ) ) {
+		return '';
+	}
+
 	return get_template_directory_uri() . '/assets/images/' . $file;
 }
 
@@ -308,9 +312,16 @@ function natee_video_items() {
 			continue;
 		}
 
-		$poster_id = (int) get_post_thumbnail_id( $id );
-		$poster     = $poster_id ? wp_get_attachment_image_url( $poster_id, 'large' ) : '';
-		$attachment = get_post( $id );
+		// รับเฉพาะไฟล์วิดีโอจริง กันกรณีเลือกไฟล์ผิดประเภทมาโดยไม่ตั้งใจ
+		$type = function_exists( 'get_post_mime_type' ) ? (string) get_post_mime_type( $id ) : 'video/mp4';
+
+		if ( 0 !== strpos( $type, 'video/' ) ) {
+			continue;
+		}
+
+		$poster_id  = (int) get_post_thumbnail_id( $id );
+		$poster      = $poster_id ? wp_get_attachment_image_url( $poster_id, 'large' ) : '';
+		$attachment  = get_post( $id );
 
 		$items[] = array(
 			'src'     => $url,
@@ -324,6 +335,11 @@ function natee_video_items() {
 	}
 
 	foreach ( natee_bundled_videos() as $video ) {
+		// ถ้าไฟล์หายไปจากธีม ให้ข้ามไป ดีกว่าปล่อยให้หน้าเว็บมีตัวเล่นที่เล่นไม่ได้
+		if ( ! is_file( get_template_directory() . '/assets/videos/' . $video['file'] ) ) {
+			continue;
+		}
+
 		$items[] = array(
 			'src'     => get_template_directory_uri() . '/assets/videos/' . $video['file'],
 			'poster'  => natee_bundled_url( $video['poster'] ),

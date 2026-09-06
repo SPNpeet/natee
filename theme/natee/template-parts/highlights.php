@@ -13,8 +13,9 @@ if ( empty( $highlights ) ) {
 	return;
 }
 ?>
-<section class="natee-section natee-highlights" id="natee-highlights">
+<section class="natee-section natee-highlights" id="natee-highlights" aria-labelledby="natee-highlights-title">
 	<div class="natee-container">
+		<h2 class="natee-screen-reader" id="natee-highlights-title"><?php echo esc_html( natee_ui( 'highlights_title' ) ); ?></h2>
 		<ul class="natee-highlight-grid" role="list">
 			<?php foreach ( $highlights as $item ) : ?>
 				<li class="natee-highlight">

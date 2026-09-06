@@ -19,7 +19,9 @@ $line   = natee_line_href();
 <section class="natee-section natee-pricing" id="natee-pricing">
 	<div class="natee-container">
 		<header class="natee-section-head">
-			<h2 class="natee-section-title"><?php echo esc_html( natee_text( 'pricing_title', 'อัตราค่าบริการ' ) ); ?></h2>
+			<?php if ( natee_text( 'pricing_title', '' ) ) : ?>
+				<h2 class="natee-section-title"><?php echo esc_html( natee_text( 'pricing_title', '' ) ); ?></h2>
+			<?php endif; ?>
 			<?php if ( natee_text( 'pricing_subtitle', '' ) ) : ?>
 				<p class="natee-section-subtitle"><?php echo esc_html( natee_text( 'pricing_subtitle', '' ) ); ?></p>
 			<?php endif; ?>

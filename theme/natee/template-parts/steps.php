@@ -16,7 +16,9 @@ if ( empty( $steps ) ) {
 <section class="natee-section natee-steps" id="natee-steps">
 	<div class="natee-container">
 		<header class="natee-section-head">
-			<h2 class="natee-section-title"><?php echo esc_html( natee_text( 'steps_title', 'สั่งน้ำง่ายใน 3 ขั้นตอน' ) ); ?></h2>
+			<?php if ( natee_text( 'steps_title', '' ) ) : ?>
+				<h2 class="natee-section-title"><?php echo esc_html( natee_text( 'steps_title', '' ) ); ?></h2>
+			<?php endif; ?>
 		</header>
 
 		<ol class="natee-step-list" role="list">

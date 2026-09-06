@@ -16,7 +16,9 @@ if ( empty( $areas ) ) {
 <section class="natee-section natee-areas" id="natee-areas">
 	<div class="natee-container">
 		<header class="natee-section-head">
-			<h2 class="natee-section-title"><?php echo esc_html( natee_text( 'areas_title', 'พื้นที่ให้บริการ' ) ); ?></h2>
+			<?php if ( natee_text( 'areas_title', '' ) ) : ?>
+				<h2 class="natee-section-title"><?php echo esc_html( natee_text( 'areas_title', '' ) ); ?></h2>
+			<?php endif; ?>
 			<?php if ( natee_text( 'areas_subtitle', '' ) ) : ?>
 				<p class="natee-section-subtitle"><?php echo esc_html( natee_text( 'areas_subtitle', '' ) ); ?></p>
 			<?php endif; ?>

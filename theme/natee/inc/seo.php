@@ -219,7 +219,7 @@ function natee_schema_json_ld() {
 		$business['address'] = array(
 			'@type'           => 'PostalAddress',
 			'streetAddress'   => $address,
-			'addressRegion'   => 'เชียงใหม่',
+			'addressRegion'   => natee_ui( 'region' ),
 			'addressCountry'  => 'TH',
 		);
 	}
@@ -281,6 +281,68 @@ function natee_schema_json_ld() {
 		printf(
 			'<script type="application/ld+json">%s</script>' . "\n",
 			wp_json_encode( $node, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES )
+		);
+	}
+}
+
+/**
+ * ข้อมูลโครงสร้างของคลิปหน้างาน ใส่เฉพาะหน้าแรกที่มีคลิปแสดงอยู่จริง
+ */
+add_action( 'wp_head', 'natee_video_schema', 6 );
+function natee_video_schema() {
+	if ( ! is_front_page() ) {
+		return;
+	}
+
+	$videos = natee_video_items();
+
+	if ( empty( $videos ) ) {
+		return;
+	}
+
+	$bundled  = natee_bundled_videos();
+	$uploaded = wp_date( 'Y-m-d' );
+	$graph    = array();
+
+	foreach ( $videos as $position => $video ) {
+		if ( empty( $video['src'] ) ) {
+			continue;
+		}
+
+		$name = trim( (string) $video['caption'] );
+
+		if ( '' === $name ) {
+			$name = natee_ui( 'video_default_caption' );
+		}
+
+		$item = array(
+			'@context'     => 'https://schema.org',
+			'@type'        => 'VideoObject',
+			'name'         => $name,
+			'description'  => sprintf( '%s %s', $name, natee_site_name() ),
+			'contentUrl'   => $video['src'],
+			'uploadDate'   => $uploaded,
+			'publisher'    => array(
+				'@type' => 'Organization',
+				'name'  => natee_site_name(),
+			),
+		);
+
+		if ( ! empty( $video['poster'] ) ) {
+			$item['thumbnailUrl'] = $video['poster'];
+		}
+
+		$graph[] = $item;
+	}
+
+	if ( empty( $graph ) ) {
+		return;
+	}
+
+	foreach ( $graph as $item ) {
+		printf(
+			'<script type="application/ld+json">%s</script>' . "\n",
+			wp_json_encode( $item, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES )
 		);
 	}
 }

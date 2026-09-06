@@ -29,12 +29,6 @@ function natee_setup() {
 		'html5',
 		array( 'search-form', 'comment-form', 'comment-list', 'gallery', 'caption', 'style', 'script' )
 	);
-
-	register_nav_menus(
-		array(
-			'primary' => 'เมนูหลัก',
-		)
-	);
 }
 
 add_action( 'wp_enqueue_scripts', 'natee_assets' );

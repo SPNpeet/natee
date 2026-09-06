@@ -16,7 +16,9 @@ if ( empty( $fleet ) ) {
 <section class="natee-section natee-fleet" id="natee-fleet">
 	<div class="natee-container">
 		<header class="natee-section-head">
-			<h2 class="natee-section-title"><?php echo esc_html( natee_text( 'fleet_title', 'ประเภทรถให้บริการ' ) ); ?></h2>
+			<?php if ( natee_text( 'fleet_title', '' ) ) : ?>
+				<h2 class="natee-section-title"><?php echo esc_html( natee_text( 'fleet_title', '' ) ); ?></h2>
+			<?php endif; ?>
 			<?php if ( natee_text( 'fleet_subtitle', '' ) ) : ?>
 				<p class="natee-section-subtitle"><?php echo esc_html( natee_text( 'fleet_subtitle', '' ) ); ?></p>
 			<?php endif; ?>

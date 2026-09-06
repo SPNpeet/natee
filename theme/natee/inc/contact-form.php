@@ -72,6 +72,7 @@ function natee_handle_contact() {
 			'พื้นที่จัดส่ง: ' . ( '' !== $area ? $area : 'ไม่ได้ระบุ' ),
 			'รายละเอียด: ' . ( '' !== $message ? $message : 'ไม่ได้ระบุ' ),
 			'',
+			'ภาษาที่ลูกค้าใช้: ' . ( false !== strpos( $redirect, 'lang=en' ) ? 'อังกฤษ ควรตอบกลับเป็นภาษาอังกฤษ' : 'ไทย' ),
 			'ส่งเมื่อ: ' . wp_date( 'j F Y เวลา H:i น.' ),
 			'จากหน้า: ' . $redirect,
 		)
