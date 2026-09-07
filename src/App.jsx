@@ -14,7 +14,6 @@ export default function App() {
   const [toast, setToast] = useState('')
 
   const L = I18N[lang]
-  const base = import.meta.env.BASE_URL
 
   // เลือกภาษาจากที่อยู่เว็บ ค่าที่เคยเลือกไว้ หรือภาษาของเบราว์เซอร์ ตามลำดับ
   useEffect(() => {
@@ -47,15 +46,15 @@ export default function App() {
   const media = [
     ...VIDEOS.map((v, i) => ({
       type: 'video',
-      src: `${base}videos/${v.file}.mp4`,
-      poster: `${base}images/${v.file}-poster.jpg`,
+      src: `videos/${v.file}.mp4`,
+      poster: `images/${v.file}-poster.jpg`,
       alt: v[lang] || v.th,
       key: `v${i}`,
     })),
     ...GALLERY.map((name, i) => ({
       type: 'image',
-      src: `${base}images/${name}.jpg`,
-      thumb: `${base}images/${name}-sm.jpg`,
+      src: `images/${name}.jpg`,
+      thumb: `images/${name}-sm.jpg`,
       alt: `${L.galleryAlt} ${L.siteName} ${i + 1}`,
       key: name,
     })),
@@ -132,7 +131,7 @@ export default function App() {
       <header className="natee-header">
         <div className="natee-container natee-header-inner">
           <a className="natee-brand" href="#natee-hero">
-            <img className="natee-brand-logo" src={`${base}images/logo.png`} alt={L.siteName} width="240" height="338" />
+            <img className="natee-brand-logo" src={`images/logo.png`} alt={L.siteName} width="240" height="338" />
             <span className="natee-brand-text">
               <span className="natee-brand-name">{L.siteName}</span>
               <span className="natee-brand-tagline">{L.tagline}</span>
@@ -211,8 +210,8 @@ export default function App() {
             <div className="natee-hero-media">
               <img
                 className="natee-hero-image"
-                src={`${base}images/truck-6wheel.jpg`}
-                srcSet={`${base}images/truck-6wheel-sm.jpg 560w, ${base}images/truck-6wheel.jpg 1200w`}
+                src={`images/truck-6wheel.jpg`}
+                srcSet={`images/truck-6wheel-sm.jpg 560w, images/truck-6wheel.jpg 1200w`}
                 sizes="(max-width: 719px) 92vw, (max-width: 999px) 46vw, 560px"
                 alt={L.heroTitle}
                 width="1200"
@@ -244,8 +243,8 @@ export default function App() {
             <div className="natee-about-media">
               <img
                 className="natee-about-image"
-                src={`${base}images/work-11.jpg`}
-                srcSet={`${base}images/work-11-sm.jpg 560w, ${base}images/work-11.jpg 960w`}
+                src={`images/work-11.jpg`}
+                srcSet={`images/work-11-sm.jpg 560w, images/work-11.jpg 960w`}
                 sizes="(max-width: 719px) 92vw, 46vw"
                 alt={L.aboutTitle}
                 width="960"
@@ -294,8 +293,8 @@ export default function App() {
                   <div className="natee-fleet-media">
                     <img
                       className="natee-fleet-image"
-                      src={`${base}images/${truck.image}.jpg`}
-                      srcSet={`${base}images/${truck.image}-sm.jpg 560w, ${base}images/${truck.image}.jpg 1200w`}
+                      src={`images/${truck.image}.jpg`}
+                      srcSet={`images/${truck.image}-sm.jpg 560w, images/${truck.image}.jpg 1200w`}
                       sizes="(max-width: 719px) 92vw, 46vw"
                       alt={truck.name}
                       width="1200"
@@ -568,7 +567,7 @@ export default function App() {
                 </ul>
 
                 <div className="natee-qr">
-                  <img src={`${base}images/line-qr.jpg`} alt={`${L.labelLine} ${L.siteName}`} width="480" height="480" loading="lazy" decoding="async" />
+                  <img src={`images/line-qr.jpg`} alt={`${L.labelLine} ${L.siteName}`} width="480" height="480" loading="lazy" decoding="async" />
                   <div className="natee-qr-text">
                     <p className="natee-qr-title">{L.labelLine} {L.siteName}</p>
                     <p className="natee-qr-note">{L.ctaSubtitle}</p>
@@ -600,7 +599,7 @@ export default function App() {
       <footer className="natee-footer">
         <div className="natee-container natee-footer-grid">
           <div className="natee-footer-col">
-            <img className="natee-footer-logo" src={`${base}images/logo.png`} alt={L.siteName} width="240" height="338" loading="lazy" />
+            <img className="natee-footer-logo" src={`images/logo.png`} alt={L.siteName} width="240" height="338" loading="lazy" />
             <p className="natee-footer-name">{L.siteName}</p>
             <p className="natee-footer-text">{L.tagline}</p>
             <p className="natee-footer-text">{L.address}</p>

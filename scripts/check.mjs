@@ -95,6 +95,13 @@ const heavy = clips
 check('ไม่มีคลิปไหนใหญ่เกิน 3 MB', heavy.length === 0, heavy.map((v) => `${v.n} ${v.mb.toFixed(1)} MB`).join(', '))
 
 console.log('\n4. ลิงก์ในหน้าเว็บ')
+const absolute = [...html.matchAll(/(?:src|href)="(\/[^/][^"]*)"/g)].map((m) => m[1])
+check('ไม่มีลิงก์ที่ขึ้นต้นด้วยขีดทับ', absolute.length === 0,
+  `เส้นทางแบบนี้จะพังเมื่อเว็บอยู่ใต้โฟลเดอร์ย่อย เช่น ${absolute.slice(0, 3).join(', ')}`)
+
+const cssFonts = [...html.matchAll(/url\((\/?[^)]*fonts[^)]*)\)/g)].map((m) => m[1])
+check('เส้นทางฟอนต์ในสไตล์เป็นแบบสัมพัทธ์', cssFonts.length > 0 && cssFonts.every((u) => !u.startsWith('/')),
+  cssFonts.filter((u) => u.startsWith('/')).join(', '))
 const srcs = [...html.matchAll(/(?:src|href)="(?!http|#|mailto:|tel:|data:)([^"]+)"/g)].map((m) => m[1])
 const broken = [...new Set(srcs)]
   .map((u) => u.replace(/^\.\//, '').replace(/^\//, ''))

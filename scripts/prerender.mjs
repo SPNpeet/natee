@@ -14,7 +14,7 @@ let out = template.replace(marker, `<div id="root">${html}</div>`)
 const cssLink = out.match(/<link rel="stylesheet"[^>]*href="([^"]+\.css)"[^>]*>/)
 if (cssLink) {
   const cssPath = resolve(dist, cssLink[1].replace(/^\.\//, ''))
-  const css = readFileSync(cssPath, 'utf-8').replaceAll('url(../fonts/', 'url(/fonts/')
+  const css = readFileSync(cssPath, 'utf-8').replaceAll('url(../fonts/', 'url(fonts/')
   out = out.replace(cssLink[0], `<style>${css}</style>`)
 }
 writeFileSync(indexPath, out)
