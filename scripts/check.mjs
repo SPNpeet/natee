@@ -64,13 +64,14 @@ const need = [
   'robots.txt',
   'sitemap.xml',
   '404.html',
-  'images/logo.png',
+  'en.html',
+  'images/logo.webp',
   'images/icon-32.png',
   'images/icon-180.png',
   'images/og-banner.jpg',
-  'images/line-qr.jpg',
-  'images/truck-6wheel.jpg',
-  'images/truck-4wheel.jpg',
+  'images/line-qr.webp',
+  'images/truck-6wheel.webp',
+  'images/truck-4wheel.webp',
   'fonts/ibm-plex-sans-thai-400-thai.woff2',
   'fonts/ibm-plex-sans-thai-700-thai.woff2',
 ]
@@ -79,13 +80,13 @@ check(`ไฟล์หลัก ${need.length} รายการอยู่ค
 
 const photos = Array.from({ length: 12 }, (_, i) => `work-${String(i + 1).padStart(2, '0')}`)
 const photoMissing = photos.flatMap((n) =>
-  [`images/${n}.jpg`, `images/${n}-sm.jpg`].filter((f) => !existsSync(resolve(dist, f)))
+  [`images/${n}.webp`, `images/${n}-sm.webp`].filter((f) => !existsSync(resolve(dist, f)))
 )
 check('รูปผลงาน 12 รูปพร้อมไฟล์ย่อครบ', photoMissing.length === 0, photoMissing.join(', '))
 
 const clips = ['work-video-01', 'work-video-02', 'work-video-03', 'work-video-04']
 const clipMissing = clips.flatMap((n) =>
-  [`videos/${n}.mp4`, `images/${n}-poster.jpg`].filter((f) => !existsSync(resolve(dist, f)))
+  [`videos/${n}.mp4`, `images/${n}-poster.webp`].filter((f) => !existsSync(resolve(dist, f)))
 )
 check('คลิปหน้างาน 4 คลิปพร้อมภาพหน้าปกครบ', clipMissing.length === 0, clipMissing.join(', '))
 
@@ -109,6 +110,21 @@ const broken = [...new Set(srcs)]
 check('ไม่มีลิงก์ไฟล์ที่ชี้ไปยังของที่ไม่มีอยู่', broken.length === 0, broken.join(', '))
 
 console.log('\n5. เนื้อหาสองภาษา')
+const en = readFileSync(resolve(dist, 'en.html'), 'utf-8')
+check('หน้าอังกฤษถูกพรีเรนเดอร์แยกไฟล์', en.includes('Water truck delivery in Chiang Mai'))
+check('หน้าอังกฤษตั้งภาษาเป็น en', /<html[^>]*lang="en"/.test(en))
+check('หน้าอังกฤษมี canonical ของตัวเอง', /rel="canonical" href="[^"]*en\.html"/.test(en))
+check('ทั้งสองหน้าผูก hreflang ถึงกัน',
+  /hreflang="en"/.test(html) && /hreflang="th"/.test(en) && /hreflang="x-default"/.test(html))
+check('ปุ่มสลับภาษาเป็นลิงก์ที่เครื่องมือค้นหาตามได้',
+  html.includes('href="en.html"') && en.includes('href="index.html"'))
+
+const enBlocks = [...en.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)]
+let enOk = true
+for (const b of enBlocks) { try { JSON.parse(b[1]) } catch { enOk = false } }
+check(`ข้อมูลโครงสร้างหน้าอังกฤษ ${enBlocks.length} ชุด อ่านได้ทุกชุด`, enOk && enBlocks.length >= 2)
+check('ข้อมูลโครงสร้างไม่ซ้ำซ้อน', blocks.length === 6, `พบ ${blocks.length} ชุด ควรมี 6 ชุด`)
+
 const data = readFileSync(resolve('src/data.js'), 'utf-8')
 const thKeys = [...data.matchAll(/^\s{4}(\w+):/gm)].map((m) => m[1])
 const half = thKeys.length / 2
@@ -122,6 +138,7 @@ if (jsFile) {
   if (existsSync(jsPath)) {
     const js = readFileSync(jsPath, 'utf-8')
     check('ข้อความภาษาอังกฤษถูกรวมไว้ในไฟล์แล้ว', js.includes('Water truck delivery in Chiang Mai'))
+    check(`ขนาดไฟล์ JavaScript ${Math.round(Buffer.byteLength(js) / 1024)} KB ไม่เกิน 120 KB`, Buffer.byteLength(js) / 1024 < 120)
     check('ข้อความภาษาไทยถูกรวมไว้ในไฟล์แล้ว', js.includes('รถส่งน้ำประปา'))
   }
 }

@@ -24,13 +24,6 @@ export const GALLERY = [
   'work-07', 'work-08', 'work-09', 'work-10', 'work-11', 'work-12',
 ]
 
-export const VIDEOS = [
-  { file: 'work-video-01', th: 'เติมน้ำให้ร้านค้าและคาเฟ่', en: 'Filling tanks for shops and cafes' },
-  { file: 'work-video-02', th: 'เติมแท็งก์น้ำบ้านพักอาศัย', en: 'Filling a home water tank' },
-  { file: 'work-video-03', th: 'ส่งถึงหน้าบ้าน เข้าซอยแคบได้', en: 'Delivered to your door, even down narrow lanes' },
-  { file: 'work-video-04', th: 'ส่งน้ำให้คลินิกและสำนักงาน', en: 'Delivering to clinics and businesses' },
-]
-
 export const I18N = {
   th: {
     lang: 'th',
@@ -134,6 +127,13 @@ export const I18N = {
       'อำเภอเมืองเชียงใหม่', 'อำเภอสันทราย', 'อำเภอสารภี', 'อำเภอหางดง',
       'อำเภอสันกำแพง', 'อำเภอดอยสะเก็ด', 'อำเภอแม่ริม', 'อำเภอสันป่าตอง',
       'อำเภอแม่แตง', 'อำเภอสะเมิง', 'อำเภอจอมทอง', 'อำเภอแม่ออน',
+    ],
+
+    videos: [
+      { file: 'work-video-01', caption: 'เติมน้ำให้ร้านค้าและคาเฟ่' },
+      { file: 'work-video-02', caption: 'เติมแท็งก์น้ำบ้านพักอาศัย' },
+      { file: 'work-video-03', caption: 'ส่งถึงหน้าบ้าน เข้าซอยแคบได้' },
+      { file: 'work-video-04', caption: 'ส่งน้ำให้คลินิกและสำนักงาน' },
     ],
 
     galleryTitle: 'ผลงานของเรา',
@@ -282,6 +282,13 @@ export const I18N = {
       'Mueang Chiang Mai', 'San Sai', 'Saraphi', 'Hang Dong',
       'San Kamphaeng', 'Doi Saket', 'Mae Rim', 'San Pa Tong',
       'Mae Taeng', 'Samoeng', 'Chom Thong', 'Mae On',
+    ],
+
+    videos: [
+      { file: 'work-video-01', caption: 'Filling tanks for shops and cafes' },
+      { file: 'work-video-02', caption: 'Filling a home water tank' },
+      { file: 'work-video-03', caption: 'Delivered to your door, even down narrow lanes' },
+      { file: 'work-video-04', caption: 'Delivering to clinics and businesses' },
     ],
 
     galleryTitle: 'Our work',

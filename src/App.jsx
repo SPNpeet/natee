@@ -1,12 +1,10 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import Icon from './icons.jsx'
-import { I18N, CONTACT, GALLERY, VIDEOS } from './data.js'
+import { I18N, CONTACT, GALLERY } from './data.js'
 
 const SECTIONS = ['services', 'fleet', 'pricing', 'areas', 'gallery', 'faq', 'contact']
 
-export default function App() {
-  const [lang, setLang] = useState('th')
-  const [ready, setReady] = useState(false)
+export default function App({ lang = 'th' }) {
   const [menuOpen, setMenuOpen] = useState(false)
   const [openPrice, setOpenPrice] = useState(0)
   const [openFaq, setOpenFaq] = useState(null)
@@ -14,47 +12,20 @@ export default function App() {
   const [toast, setToast] = useState('')
 
   const L = I18N[lang]
-
-  // เลือกภาษาจากที่อยู่เว็บ ค่าที่เคยเลือกไว้ หรือภาษาของเบราว์เซอร์ ตามลำดับ
-  useEffect(() => {
-    let next = null
-
-    try {
-      const param = new URLSearchParams(window.location.search).get('lang')
-      if (param === 'th' || param === 'en') next = param
-    } catch { /* ที่อยู่เว็บอ่านไม่ได้ */ }
-
-    if (!next) {
-      try {
-        const saved = localStorage.getItem('natee-lang')
-        if (saved === 'th' || saved === 'en') next = saved
-      } catch { /* เบราว์เซอร์ปิดการเก็บข้อมูล */ }
-    }
-
-    // ค่าเริ่มต้นเป็นภาษาไทยเสมอ เพราะลูกค้าส่วนใหญ่เป็นคนไทย
-    // และหน้าเว็บที่พรีเรนเดอร์ไว้ก็เป็นภาษาไทย จึงไม่มีการกะพริบสลับภาษาตอนเปิด
-    if (next && next !== 'th') setLang(next)
-    setReady(true)
-  }, [])
-
-  useEffect(() => {
-    if (!ready) return
-    try { localStorage.setItem('natee-lang', lang) } catch { /* เบราว์เซอร์ปิดการเก็บข้อมูล */ }
-    document.documentElement.lang = lang
-  }, [lang, ready])
+  const otherLangHref = lang === 'th' ? 'en.html' : 'index.html'
 
   const media = [
-    ...VIDEOS.map((v, i) => ({
+    ...L.videos.map((v, i) => ({
       type: 'video',
       src: `videos/${v.file}.mp4`,
-      poster: `images/${v.file}-poster.jpg`,
-      alt: v[lang] || v.th,
+      poster: `images/${v.file}-poster.webp`,
+      alt: v.caption,
       key: `v${i}`,
     })),
     ...GALLERY.map((name, i) => ({
       type: 'image',
-      src: `images/${name}.jpg`,
-      thumb: `images/${name}-sm.jpg`,
+      src: `images/${name}.webp`,
+      thumb: `images/${name}-sm.webp`,
       alt: `${L.galleryAlt} ${L.siteName} ${i + 1}`,
       key: name,
     })),
@@ -131,7 +102,7 @@ export default function App() {
       <header className="natee-header">
         <div className="natee-container natee-header-inner">
           <a className="natee-brand" href="#natee-hero">
-            <img className="natee-brand-logo" src={`images/logo.png`} alt={L.siteName} width="240" height="338" />
+            <img className="natee-brand-logo" src={`images/logo.webp`} alt={L.siteName} width="240" height="338" />
             <span className="natee-brand-text">
               <span className="natee-brand-name">{L.siteName}</span>
               <span className="natee-brand-tagline">{L.tagline}</span>
@@ -160,20 +131,16 @@ export default function App() {
           </nav>
 
           <div className="natee-lang" role="group" aria-label={L.changeLanguage}>
-            <button
-              type="button"
-              className={`natee-lang-item${lang === 'th' ? ' is-active' : ''}`}
-              onClick={() => setLang('th')}
-              aria-pressed={lang === 'th'}
-              lang="th"
-            >ไทย</button>
-            <button
-              type="button"
-              className={`natee-lang-item${lang === 'en' ? ' is-active' : ''}`}
-              onClick={() => setLang('en')}
-              aria-pressed={lang === 'en'}
-              lang="en"
-            >EN</button>
+            {lang === 'th' ? (
+              <span className="natee-lang-item is-active" lang="th" aria-current="true">ไทย</span>
+            ) : (
+              <a className="natee-lang-item" href={otherLangHref} hrefLang="th" lang="th">ไทย</a>
+            )}
+            {lang === 'en' ? (
+              <span className="natee-lang-item is-active" lang="en" aria-current="true">EN</span>
+            ) : (
+              <a className="natee-lang-item" href={otherLangHref} hrefLang="en" lang="en">EN</a>
+            )}
           </div>
 
           <a className="natee-header-call" href={CONTACT.phoneHref}>
@@ -210,8 +177,8 @@ export default function App() {
             <div className="natee-hero-media">
               <img
                 className="natee-hero-image"
-                src={`images/truck-6wheel.jpg`}
-                srcSet={`images/truck-6wheel-sm.jpg 560w, images/truck-6wheel.jpg 1200w`}
+                src={`images/truck-6wheel.webp`}
+                srcSet={`images/truck-6wheel-sm.webp 560w, images/truck-6wheel.webp 1200w`}
                 sizes="(max-width: 719px) 92vw, (max-width: 999px) 46vw, 560px"
                 alt={L.heroTitle}
                 width="1200"
@@ -243,8 +210,8 @@ export default function App() {
             <div className="natee-about-media">
               <img
                 className="natee-about-image"
-                src={`images/work-11.jpg`}
-                srcSet={`images/work-11-sm.jpg 560w, images/work-11.jpg 960w`}
+                src={`images/work-11.webp`}
+                srcSet={`images/work-11-sm.webp 560w, images/work-11.webp 960w`}
                 sizes="(max-width: 719px) 92vw, 46vw"
                 alt={L.aboutTitle}
                 width="960"
@@ -293,8 +260,8 @@ export default function App() {
                   <div className="natee-fleet-media">
                     <img
                       className="natee-fleet-image"
-                      src={`images/${truck.image}.jpg`}
-                      srcSet={`images/${truck.image}-sm.jpg 560w, images/${truck.image}.jpg 1200w`}
+                      src={`images/${truck.image}.webp`}
+                      srcSet={`images/${truck.image}-sm.webp 560w, images/${truck.image}.webp 1200w`}
                       sizes="(max-width: 719px) 92vw, 46vw"
                       alt={truck.name}
                       width="1200"
@@ -434,7 +401,7 @@ export default function App() {
                   <button
                     type="button"
                     className="natee-media-link natee-gallery-link"
-                    onClick={() => setViewer(VIDEOS.length + index)}
+                    onClick={() => setViewer(L.videos.length + index)}
                     aria-label={`${L.galleryOpen} ${index + 1} ${L.viewerOf} ${media.length}`}
                   >
                     <img
@@ -567,7 +534,7 @@ export default function App() {
                 </ul>
 
                 <div className="natee-qr">
-                  <img src={`images/line-qr.jpg`} alt={`${L.labelLine} ${L.siteName}`} width="480" height="480" loading="lazy" decoding="async" />
+                  <img src={`images/line-qr.webp`} alt={`${L.labelLine} ${L.siteName}`} width="480" height="480" loading="lazy" decoding="async" />
                   <div className="natee-qr-text">
                     <p className="natee-qr-title">{L.labelLine} {L.siteName}</p>
                     <p className="natee-qr-note">{L.ctaSubtitle}</p>
@@ -599,7 +566,7 @@ export default function App() {
       <footer className="natee-footer">
         <div className="natee-container natee-footer-grid">
           <div className="natee-footer-col">
-            <img className="natee-footer-logo" src={`images/logo.png`} alt={L.siteName} width="240" height="338" loading="lazy" />
+            <img className="natee-footer-logo" src={`images/logo.webp`} alt={L.siteName} width="240" height="338" loading="lazy" />
             <p className="natee-footer-name">{L.siteName}</p>
             <p className="natee-footer-text">{L.tagline}</p>
             <p className="natee-footer-text">{L.address}</p>
@@ -666,7 +633,7 @@ export default function App() {
                     poster={current.poster}
                     controls
                     playsInline
-                    autoPlay
+                    preload="auto"
                     aria-label={current.alt}
                   />
                 ) : (

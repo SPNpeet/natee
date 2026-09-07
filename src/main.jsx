@@ -4,9 +4,10 @@ import './index.css'
 import App from './App.jsx'
 
 const root = document.getElementById('root')
+const lang = document.documentElement.lang === 'en' ? 'en' : 'th'
 const tree = (
   <StrictMode>
-    <App />
+    <App lang={lang} />
   </StrictMode>
 )
 
