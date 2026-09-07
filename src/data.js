@@ -19,6 +19,35 @@ export const CONTACT = {
     '&hl=th&z=15&output=embed',
 }
 
+/**
+ * ฟอร์มฝากข้อความ ส่งผ่าน Web3Forms ซึ่งใช้ได้ฟรีและไม่ต้องมีเซิร์ฟเวอร์
+ *
+ * วิธีเปิดใช้งาน
+ *   1. สมัครที่ web3forms.com ด้วยอีเมลที่ต้องการรับข้อความ
+ *   2. นำกุญแจที่ได้มาใส่ใน accessKey ด้านล่าง
+ *   3. สั่ง npm run build แล้วขึ้นเว็บใหม่
+ *
+ * ถ้า accessKey ยังว่าง ฟอร์มจะไม่ถูกแสดงบนหน้าเว็บเลย
+ * หน้าเว็บจึงไม่มีทางมีฟอร์มที่กดส่งแล้วไม่ไปไหน
+ */
+export const FORM = {
+  accessKey: '',
+  endpoint: 'https://api.web3forms.com/submit',
+}
+
+/**
+ * คะแนนรีวิวจาก Google Business Profile
+ *
+ * ใส่ค่าจริงเท่านั้น ห้ามใส่ตัวเลขที่ไม่มีอยู่จริง
+ * เพราะ Google ตรวจสอบได้และมีบทลงโทษถึงขั้นถอดเว็บออกจากผลค้นหา
+ * ถ้า count เป็นศูนย์ ส่วนนี้จะไม่ถูกแสดงและไม่ถูกส่งให้ Google
+ */
+export const REVIEWS = {
+  rating: 0,
+  count: 0,
+  url: '',
+}
+
 export const GALLERY = [
   'work-01', 'work-02', 'work-03', 'work-04', 'work-05', 'work-06',
   'work-07', 'work-08', 'work-09', 'work-10', 'work-11', 'work-12',
@@ -160,6 +189,24 @@ export const I18N = {
 
     ctaTitle: 'ต้องการน้ำด่วนวันนี้',
     ctaSubtitle: 'โทรหาเราได้ตลอด 24 ชั่วโมง ทีมงานพร้อมจัดรถให้ทันที',
+
+    formHeading: 'ให้ทีมงานติดต่อกลับ',
+    formSubject: 'ลูกค้าสั่งน้ำผ่านเว็บไซต์',
+    formName: 'ชื่อผู้ติดต่อ',
+    formPhone: 'เบอร์โทรกลับ',
+    formPhoneHint: 'กรอกเฉพาะตัวเลข เช่น 0812345678',
+    formArea: 'พื้นที่จัดส่ง',
+    formAreaPlaceholder: 'เช่น อำเภอสันทราย',
+    formMessage: 'รายละเอียด',
+    formMessagePlaceholder: 'ปริมาณน้ำที่ต้องการ วันและเวลาที่สะดวกรับน้ำ',
+    formRequired: 'จำเป็น',
+    formTrap: 'เว้นช่องนี้ว่างไว้',
+    formSubmit: 'ส่งข้อมูลให้ทีมงานติดต่อกลับ',
+    formSending: 'กำลังส่ง',
+    formSent: 'ส่งข้อความเรียบร้อยแล้ว ทีมงานจะติดต่อกลับโดยเร็วที่สุด หากเร่งด่วนกรุณาโทรหาเราโดยตรง',
+    formError: 'ส่งข้อความไม่สำเร็จ กรุณาโทรหาเราโดยตรงเพื่อความรวดเร็ว',
+    formHint: 'ต้องการน้ำด่วนวันนี้ แนะนำให้โทรหาเราโดยตรง',
+    reviewsLabel: 'จากรีวิวบน Google',
 
     contactTitle: 'ติดต่อสั่งน้ำ',
     contactSubtitle: 'โทรได้เลยเพื่อความรวดเร็วที่สุด หรือทักไลน์เพื่อส่งรายละเอียดงานให้ทีมงาน',
@@ -315,6 +362,24 @@ export const I18N = {
 
     ctaTitle: 'Need water today?',
     ctaSubtitle: 'Call us any time, day or night. We will get a truck to you.',
+
+    formHeading: 'Request a call back',
+    formSubject: 'Website enquiry for',
+    formName: 'Your name',
+    formPhone: 'Phone number',
+    formPhoneHint: 'Numbers only, for example 0812345678',
+    formArea: 'Delivery area',
+    formAreaPlaceholder: 'For example, San Sai district',
+    formMessage: 'Details',
+    formMessagePlaceholder: 'How much water you need, and when you want it delivered',
+    formRequired: 'required',
+    formTrap: 'Leave this field empty',
+    formSubmit: 'Send my details',
+    formSending: 'Sending',
+    formSent: 'Thank you. We have received your message and will call you back shortly. For urgent orders please call us directly.',
+    formError: 'The message could not be sent. Please call us directly instead.',
+    formHint: 'Need water today? Calling us is the fastest way.',
+    reviewsLabel: 'from reviews on Google',
 
     contactTitle: 'Contact us',
     contactSubtitle: 'Call us for the fastest response, or message us on LINE with the details of your job.',

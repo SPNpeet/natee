@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import Icon from './icons.jsx'
-import { I18N, CONTACT, GALLERY } from './data.js'
+import { I18N, CONTACT, GALLERY, REVIEWS } from './data.js'
+import { track } from './track.js'
+import ContactForm from './ContactForm.jsx'
 
 const SECTIONS = ['services', 'fleet', 'pricing', 'areas', 'gallery', 'faq', 'contact']
 
@@ -134,16 +136,19 @@ export default function App({ lang = 'th' }) {
             {lang === 'th' ? (
               <span className="natee-lang-item is-active" lang="th" aria-current="true">ไทย</span>
             ) : (
-              <a className="natee-lang-item" href={otherLangHref} hrefLang="th" lang="th">ไทย</a>
+              <a className="natee-lang-item" href={otherLangHref} hrefLang="th" lang="th"
+                onClick={() => track('language_switch', { to: 'th' })}>ไทย</a>
             )}
             {lang === 'en' ? (
               <span className="natee-lang-item is-active" lang="en" aria-current="true">EN</span>
             ) : (
-              <a className="natee-lang-item" href={otherLangHref} hrefLang="en" lang="en">EN</a>
+              <a className="natee-lang-item" href={otherLangHref} hrefLang="en" lang="en"
+                onClick={() => track('language_switch', { to: 'en' })}>EN</a>
             )}
           </div>
 
-          <a className="natee-header-call" href={CONTACT.phoneHref}>
+          <a className="natee-header-call" href={CONTACT.phoneHref}
+            onClick={() => track('call_click', { place: 'header', language: lang })}>
             <Icon name="phone" />
             <span className="natee-header-call-text">
               <span className="natee-header-call-label">{L.callHeader}</span>
@@ -161,7 +166,23 @@ export default function App({ lang = 'th' }) {
               <h1 className="natee-hero-title">{L.heroTitle}</h1>
               <p className="natee-hero-subtitle">{L.heroSubtitle}</p>
 
-              <ContactButtons L={L} />
+              {REVIEWS.count > 0 && (
+                <p className="natee-rating">
+                  <span className="natee-rating-score">{REVIEWS.rating.toFixed(1)}</span>
+                  <span className="natee-rating-stars" aria-hidden="true">★★★★★</span>
+                  <span className="natee-rating-text">
+                    {REVIEWS.url ? (
+                      <a href={REVIEWS.url} target="_blank" rel="noopener">
+                        {REVIEWS.count} {L.reviewsLabel}
+                      </a>
+                    ) : (
+                      <>{REVIEWS.count} {L.reviewsLabel}</>
+                    )}
+                  </span>
+                </p>
+              )}
+
+              <ContactButtons L={L} place="hero" />
 
               <p className="natee-hero-second-phone">
                 {L.orCall}{' '}
@@ -318,7 +339,8 @@ export default function App({ lang = 'th' }) {
                         ))}
                       </ul>
                       <div className="natee-price-actions">
-                        <a className="natee-btn natee-btn-call natee-btn-sm" href={CONTACT.phoneHref}>
+                        <a className="natee-btn natee-btn-call natee-btn-sm" href={CONTACT.phoneHref}
+                          onClick={() => track('call_click', { place: 'pricing', language: lang })}>
                           <Icon name="phone" />
                           <span>{L.priceCallNow}</span>
                         </a>
@@ -384,7 +406,7 @@ export default function App({ lang = 'th' }) {
                   <button
                     type="button"
                     className="natee-media-link natee-video-link"
-                    onClick={() => setViewer(index)}
+                    onClick={() => { setViewer(index); track('video_open', { clip: item.key, language: lang }) }}
                     aria-label={`${L.videoPlay} ${item.alt}`}
                   >
                     <img className="natee-video-poster" src={item.poster} alt={item.alt} width="432" height="768" loading="lazy" decoding="async" />
@@ -455,7 +477,7 @@ export default function App({ lang = 'th' }) {
               <h2 className="natee-cta-title">{L.ctaTitle}</h2>
               <p className="natee-cta-subtitle">{L.ctaSubtitle}</p>
             </div>
-            <ContactButtons L={L} />
+            <ContactButtons L={L} place="cta" />
           </div>
         </section>
 
@@ -544,6 +566,8 @@ export default function App({ lang = 'th' }) {
               </div>
 
               <div className="natee-contact-map">
+                <ContactForm L={L} />
+
                 <div className="natee-map">
                   <iframe
                     src={CONTACT.mapEmbed}
@@ -599,10 +623,12 @@ export default function App({ lang = 'th' }) {
       </footer>
 
       <div className="natee-sticky" role="complementary" aria-label={L.contactTitle}>
-        <a className="natee-sticky-item natee-sticky-call" href={CONTACT.phoneHref}>
+        <a className="natee-sticky-item natee-sticky-call" href={CONTACT.phoneHref}
+          onClick={() => track('call_click', { place: 'sticky', language: lang })}>
           <Icon name="phone" /><span>{L.callLabel}</span>
         </a>
-        <a className="natee-sticky-item natee-sticky-line" href={CONTACT.lineUrl} target="_blank" rel="noopener">
+        <a className="natee-sticky-item natee-sticky-line" href={CONTACT.lineUrl} target="_blank" rel="noopener"
+          onClick={() => track('line_click', { place: 'sticky', language: lang })}>
           <Icon name="line" /><span>{L.lineLabel}</span>
         </a>
       </div>
@@ -658,17 +684,27 @@ export default function App({ lang = 'th' }) {
   )
 }
 
-function ContactButtons({ L }) {
+function ContactButtons({ L, place = 'hero' }) {
   return (
     <div className="natee-actions">
-      <a className="natee-btn natee-btn-call" href={CONTACT.phoneHref}>
+      <a
+        className="natee-btn natee-btn-call"
+        href={CONTACT.phoneHref}
+        onClick={() => track('call_click', { place, language: L.lang })}
+      >
         <Icon name="phone" />
         <span className="natee-btn-label">
           <span className="natee-btn-small">{L.callLabel}</span>
           <span className="natee-nowrap">{CONTACT.phone}</span>
         </span>
       </a>
-      <a className="natee-btn natee-btn-line" href={CONTACT.lineUrl} target="_blank" rel="noopener">
+      <a
+        className="natee-btn natee-btn-line"
+        href={CONTACT.lineUrl}
+        target="_blank"
+        rel="noopener"
+        onClick={() => track('line_click', { place, language: L.lang })}
+      >
         <Icon name="line" />
         <span className="natee-btn-label">
           <span className="natee-btn-small">{L.lineLabel}</span>

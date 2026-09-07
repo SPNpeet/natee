@@ -143,6 +143,16 @@ if (jsFile) {
   }
 }
 
+const dataSrc = readFileSync(resolve('src/data.js'), 'utf-8')
+const ratingInPage = /aggregateRating/.test(html)
+const ratingInData = /rating:\s*([0-9.]+)/.exec(dataSrc)
+const countInData = /count:\s*([0-9]+)/.exec(dataSrc)
+const hasReal = Number(ratingInData?.[1] || 0) > 0 && Number(countInData?.[1] || 0) > 0
+check('คะแนนรีวิวขึ้นเว็บก็ต่อเมื่อมีข้อมูลจริงเท่านั้น', ratingInPage === hasReal,
+  'ถ้าไม่ตรงกันแปลว่ามีคะแนนที่ไม่มีอยู่จริงหลุดขึ้นเว็บ ซึ่งผิดกติกาของ Google')
+check('ฟอร์มแสดงก็ต่อเมื่อตั้งกุญแจไว้แล้ว',
+  html.includes('<form') === /accessKey:\s*'[^']+'/.test(dataSrc))
+
 console.log('\n6. ขนาดที่ผู้เข้าชมต้องโหลด')
 const htmlKb = Buffer.byteLength(html) / 1024
 check(`หน้าแรกรวมสไตล์ ${htmlKb.toFixed(0)} KB ไม่เกิน 150 KB`, htmlKb < 150)

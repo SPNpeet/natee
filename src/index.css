@@ -2162,3 +2162,133 @@ a.natee-contact-item:hover {
 		bottom: 32px;
 	}
 }
+
+/* แถบคะแนนรีวิว แสดงเฉพาะเมื่อมีข้อมูลจริง */
+.natee-rating {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin-top: 14px;
+	font-size: 16px;
+}
+
+.natee-rating-score {
+	font-weight: 700;
+	font-size: 18px;
+	color: var(--natee-ink);
+}
+
+.natee-rating-stars {
+	color: #f5a623;
+	letter-spacing: 1px;
+}
+
+.natee-rating-text {
+	color: var(--natee-muted);
+}
+
+.natee-rating-text a {
+	color: var(--natee-brand-dark);
+}
+
+/* ฟอร์มฝากข้อความ */
+.natee-form {
+	background: #fff;
+	border: 1px solid var(--natee-line);
+	border-radius: var(--natee-radius);
+	padding: 22px;
+	margin-bottom: 16px;
+}
+
+.natee-form-heading {
+	font-size: 19px;
+	font-weight: 600;
+	margin-bottom: 14px;
+}
+
+.natee-form-row {
+	display: flex;
+	flex-direction: column;
+	margin-bottom: 14px;
+}
+
+.natee-form-row label {
+	font-weight: 600;
+	font-size: 16px;
+	margin-bottom: 6px;
+}
+
+.natee-form input[type="text"],
+.natee-form input[type="tel"],
+.natee-form textarea {
+	width: 100%;
+	padding: 12px 14px;
+	border: 1px solid var(--natee-line);
+	border-radius: 10px;
+	font: inherit;
+	font-size: 17px;
+	background: var(--natee-bg-soft);
+}
+
+.natee-form input:focus,
+.natee-form textarea:focus {
+	background: #fff;
+	border-color: var(--natee-brand);
+	outline: none;
+}
+
+.natee-required {
+	font-size: 14px;
+	font-weight: 500;
+	color: #b3261e;
+	margin-left: 4px;
+}
+
+.natee-form-note {
+	margin-top: 6px;
+	font-size: 15px;
+	color: var(--natee-muted);
+}
+
+.natee-form-trap {
+	position: absolute;
+	left: -9999px;
+	width: 1px;
+	height: 1px;
+	overflow: hidden;
+}
+
+.natee-btn-submit {
+	width: 100%;
+	justify-content: center;
+	margin-top: 4px;
+}
+
+.natee-btn-submit[disabled] {
+	opacity: 0.7;
+	cursor: progress;
+}
+
+.natee-form-notice {
+	margin-top: 12px;
+	padding: 12px 14px;
+	border-radius: 10px;
+	font-size: 16px;
+	line-height: 1.65;
+}
+
+.natee-form-notice-ok {
+	background: rgba(4, 133, 57, 0.1);
+	color: #04702f;
+}
+
+.natee-form-notice-warn {
+	background: rgba(179, 38, 30, 0.08);
+	color: #8c1d18;
+}
+
+.natee-form-hint {
+	margin-top: 10px;
+	font-size: 15px;
+	color: var(--natee-muted);
+}

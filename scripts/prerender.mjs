@@ -18,7 +18,7 @@ const serverEntry = pathToFileURL(resolve(dist, 'server/entry-server.js')).href
 const { render } = await import(serverEntry)
 
 const dataUrl = pathToFileURL(resolve('src/data.js')).href
-const { I18N, CONTACT } = await import(dataUrl)
+const { I18N, CONTACT, REVIEWS } = await import(dataUrl)
 
 const template = readFileSync(resolve(dist, 'index.html'), 'utf-8')
 const marker = '<div id="root"></div>'
@@ -41,7 +41,7 @@ function businessSchema(lang) {
   const L = I18N[lang]
   const url = lang === 'th' ? `${SITE}/` : `${SITE}/en.html`
 
-  return {
+  const schema = {
     '@context': 'https://schema.org',
     '@type': 'LocalBusiness',
     name: L.siteName,
@@ -77,8 +77,19 @@ function businessSchema(lang) {
       areaServed: 'TH',
       availableLanguage: ['th', 'en'],
     })),
-    sameAs: [CONTACT.facebookUrl, CONTACT.lineUrl],
+    sameAs: [CONTACT.facebookUrl, CONTACT.lineUrl].concat(REVIEWS.url ? [REVIEWS.url] : []),
   }
+
+  // ใส่คะแนนรีวิวเฉพาะเมื่อมีข้อมูลจริง การใส่ตัวเลขที่ไม่มีอยู่จริงผิดกติกาของ Google
+  if (REVIEWS.count > 0 && REVIEWS.rating > 0) {
+    schema.aggregateRating = {
+      '@type': 'AggregateRating',
+      ratingValue: String(REVIEWS.rating),
+      reviewCount: String(REVIEWS.count),
+    }
+  }
+
+  return schema
 }
 
 /** คำถามที่พบบ่อย ดึงจากเนื้อหาชุดเดียวกับที่แสดงบนหน้าเว็บ */
@@ -104,7 +115,7 @@ function videoSchema(lang) {
     name: v.caption,
     description: `${v.caption} ${I18N[lang].siteName}`,
     contentUrl: `${SITE}/videos/${v.file}.mp4`,
-    thumbnailUrl: `${SITE}/images/${v.file}-poster.jpg`,
+    thumbnailUrl: `${SITE}/images/${v.file}-poster.webp`,
     uploadDate: today,
     publisher: { '@type': 'Organization', name: I18N[lang].siteName },
   }))
