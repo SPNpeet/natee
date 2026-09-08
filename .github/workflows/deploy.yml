@@ -1,11 +1,11 @@
 # Simple workflow for deploying static content to GitHub Pages
 name: Deploy static content to Pages
 
-# ยังไม่เปิดให้ขึ้นเว็บอัตโนมัติตอน push
-# เมื่อพร้อมเผยแพร่จริง ให้เอาคอมเมนต์สามบรรทัดใต้นี้ออก
+# push ขึ้น main เมื่อไร เว็บจริงอัปเดตตามทันที
+# ด่านตรวจอยู่ก่อนขั้นเผยแพร่ ถ้าตรวจไม่ผ่านจะหยุดและของเดิมบนเว็บยังอยู่ครบ
 on:
-  # push:
-  #   branches: ["main"]
+  push:
+    branches: ["main"]
   workflow_dispatch:
 
 permissions:
