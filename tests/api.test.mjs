@@ -8,7 +8,9 @@ async function call(path,{method='GET',body,cookie,csrf,origin=base}={}){
   if(body)headers['Content-Type']='application/json'
   if(cookie)headers.Cookie=cookie
   if(csrf)headers['X-CSRF-Token']=csrf
-  const response=await fetch(base+'/api/'+path,{method,headers,body:body?JSON.stringify(body):undefined})
+  const options={method,headers}
+  if(body && !['GET','HEAD'].includes(method))options.body=JSON.stringify(body)
+  const response=await fetch(base+'/api/'+path,options)
   return {response,data:await response.json()}
 }
 test('admin authentication, authorization and session lifecycle',async t=>{
