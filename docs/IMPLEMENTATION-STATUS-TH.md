@@ -34,3 +34,5 @@
 ทุกการ build/run ใช้ GitHub Actions และ Cloudflare emulator ใน runner ไม่รันแอปบนเครื่องลูกค้า ภาพ/trace ที่ดาวน์โหลดใช้วิเคราะห์หลักฐานเท่านั้น Browser fixtures ไม่มีข้อมูลลูกค้าจริง และไม่ได้กดส่งข้อความ/โทรออกไปยังบุคคลภายนอก
 
 หลักฐานเป็นการตรวจตาม test cases ไม่ใช่การรับรองว่าปลอดบั๊ก 100% หรือผ่าน Free CPU quota จริง ลูกค้าต้องอนุมัติ review ก่อนเชื่อม Cloudflare และทำ UAT production ตาม HANDOVER-TH.md
+
+รอบ b9b108b / [run 34329419855](https://github.com/SPNpeet/natee/actions/runs/34329419855): browser 49 ผ่าน, 2 ไม่ผ่าน, 2 ข้าม โดย layout ทั้ง 42 ชุดและ axe ผ่านแล้ว เหลือ race ของ Escape/resize เมนูมือถือ จึงติด listener ตลอดอายุ component และทดสอบ desktop state ก่อนย่อกลับมือถือ นอกจากนี้ตรวจ audit เครื่องมือ CI เต็มชุดและขยับ Playwright เป็นรุ่นทางการ 1.63.0

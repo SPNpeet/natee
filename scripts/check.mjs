@@ -157,10 +157,10 @@ const ratingInPage = /aggregateRating/.test(html)
 const ratingInData = /rating:\s*([0-9.]+)/.exec(dataSrc)
 const countInData = /count:\s*([0-9]+)/.exec(dataSrc)
 const hasReal = Number(ratingInData?.[1] || 0) > 0 && Number(countInData?.[1] || 0) > 0
-check('คะแนนรีวิวขึ้นเว็บก็ต่อเมื่อมีข้อมูลจริงเท่านั้น', ratingInPage === hasReal,
-  'ถ้าไม่ตรงกันแปลว่ามีคะแนนที่ไม่มีอยู่จริงหลุดขึ้นเว็บ ซึ่งผิดกติกาของ Google')
-check('ฟอร์มแสดงก็ต่อเมื่อตั้งกุญแจไว้แล้ว',
-  html.includes('<form') === (/enabled:\s*true/.test(dataSrc) || /accessKey:\s*'[^']+'/.test(dataSrc)))
+check('คะแนนรีวิวขึ้นเว็บก็ต่อเมื่อตั้งค่าคะแนนและจำนวนมากกว่า 0', ratingInPage === hasReal,
+  'ค่าที่เรนเดอร์ไม่ตรงกับข้อมูลตั้งต้น ต้องให้ลูกค้ายืนยันความถูกต้องของคะแนนจริง')
+check('ฟอร์มแสดงตามค่าเปิดใช้งาน',
+  html.includes('<form') === /enabled:\s*true/.test(dataSrc))
 
 console.log('\n6. ขนาดที่ผู้เข้าชมต้องโหลด')
 const htmlKb = Buffer.byteLength(html) / 1024

@@ -24,7 +24,12 @@ jobs:
       - run: npm run check
       - run: npm test
       - name: Install pinned CI tools
-        run: npm install --no-save --package-lock=false wrangler@4.130.0 @playwright/test@1.58.2 @axe-core/playwright@4.13.0
+        run: npm install --save-dev --save-exact wrangler@4.130.0 @playwright/test@1.63.0 @axe-core/playwright@4.13.0
+      - name: Audit the complete resolved toolchain
+        run: |
+          mkdir -p work
+          npm audit --json > work/dependency-audit.json || true
+          node -e "const a=require('./work/dependency-audit.json');console.log(JSON.stringify(a.vulnerabilities,null,2));if(a.error)process.exit(1)"
       - name: Validate Worker bundle without publishing
         run: npx wrangler deploy --dry-run --outdir work/worker-bundle
       - name: Start isolated Cloudflare emulator on this GitHub runner
@@ -59,4 +64,7 @@ jobs:
             playwright-report/
             test-results/
             work/worker.log
+            work/dependency-audit.json
+            package.json
+            package-lock.json
           retention-days: 14

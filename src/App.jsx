@@ -99,16 +99,15 @@ export default function App({ lang = 'th', content = defaults }) {
   }, [viewer])
 
   useEffect(() => {
-    if (!menuOpen) return
     const toggle = document.querySelector('.natee-nav-toggle')
     const onKey = (e) => {
-      if (e.key === 'Escape') { setMenuOpen(false); toggle?.focus() }
+      if (e.key === 'Escape' && toggle?.getAttribute('aria-expanded') === 'true') { setMenuOpen(false); toggle.focus() }
     }
     const onOutside = (e) => {
       if (!e.target.closest('.natee-nav, .natee-nav-toggle')) setMenuOpen(false)
     }
     const wide = window.matchMedia('(min-width: 1000px)')
-    const onResize = () => { if (wide.matches) setMenuOpen(false) }
+    const onResize = (event) => { if (event.matches) setMenuOpen(false) }
     window.addEventListener('keydown', onKey)
     document.addEventListener('pointerdown', onOutside)
     wide.addEventListener('change', onResize)
@@ -117,7 +116,7 @@ export default function App({ lang = 'th', content = defaults }) {
       document.removeEventListener('pointerdown', onOutside)
       wide.removeEventListener('change', onResize)
     }
-  }, [menuOpen])
+  }, [])
 
   const swipe = useRef(null)
   const onTouchStart = (e) => { swipe.current = { x: e.touches[0].clientX, y: e.touches[0].clientY } }

@@ -84,7 +84,7 @@ test('all public controls, modal focus, video lifecycle and mobile menu',async({
   await page.locator('#natee-nav a').first().click();await expect(toggle).toHaveAttribute('aria-expanded','false')
   await toggle.click();await page.keyboard.press('Escape');await expect(toggle).toBeFocused()
   await expect(toggle).toHaveAttribute('aria-expanded','false')
-  await toggle.click();await page.setViewportSize({width:1280,height:900});await page.setViewportSize({width:375,height:812})
+  await toggle.click();await page.setViewportSize({width:1280,height:900});await expect(toggle).toHaveAttribute('aria-expanded','false');await page.setViewportSize({width:375,height:812})
   await expect(toggle).toHaveAttribute('aria-expanded','false')
   await page.locator('.natee-sticky-call').click();await page.locator('.natee-sticky-line').click()
   await page.getByRole('link',{name:'EN',exact:true}).click();await expect(page.locator('html')).toHaveAttribute('lang','en')

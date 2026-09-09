@@ -125,7 +125,7 @@ async function api(request, env, path) {
     await env.DB.batch([query(env,'UPDATE users SET password=? WHERE id=?',hashed,active.userId),query(env,'DELETE FROM sessions WHERE user_id=?',active.userId)])
     return json({success:true},200,{'Set-Cookie':cookie('',env,0)})
   }
-  if (path === '/api/stats' && method === 'GET') return json((await query(env,"SELECT event,SUM(count) AS count FROM daily_stats WHERE day>=? GROUP BY event",new Date(Date.now()-30*86400000).toISOString().slice(0,10)).all()).results)
+  if (path === '/api/stats' && method === 'GET') return json((await query(env,"SELECT event,SUM(count) AS count FROM daily_stats WHERE day>=? GROUP BY event",new Date(Date.now()-29*86400000).toISOString().slice(0,10)).all()).results)
   if (path === '/api/content' && method === 'GET') return json(await currentContent(env))
   if (path === '/api/content' && method === 'PUT') {
     const body = await readJSON(request)
