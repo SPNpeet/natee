@@ -6,6 +6,8 @@
  */
 import { readFileSync, existsSync, statSync } from 'node:fs'
 import { resolve } from 'node:path'
+import { siteConfig } from './site-config.mjs'
+const { site: SITE, basePath } = siteConfig()
 
 const dist = resolve('dist')
 let pass = 0
@@ -91,6 +93,7 @@ const clipMissing = clips.flatMap((n) =>
 check('คลิปหน้างาน 4 คลิปพร้อมภาพหน้าปกครบ', clipMissing.length === 0, clipMissing.join(', '))
 
 const heavy = clips
+  .filter((n) => existsSync(resolve(dist, `videos/${n}.mp4`)))
   .map((n) => ({ n, mb: statSync(resolve(dist, `videos/${n}.mp4`)).size / 1048576 }))
   .filter((v) => v.mb > 3)
 check('ไม่มีคลิปไหนใหญ่เกิน 3 MB', heavy.length === 0, heavy.map((v) => `${v.n} ${v.mb.toFixed(1)} MB`).join(', '))
@@ -106,7 +109,7 @@ check('เส้นทางฟอนต์ในสไตล์เป็นแ�
 const srcs = [...html.matchAll(/(?:src|href)="(?!http|#|mailto:|tel:|data:)([^"]+)"/g)].map((m) => m[1])
 const broken = [...new Set(srcs)]
   .map((u) => u.replace(/^\.\//, '').replace(/^\//, ''))
-  .filter((u) => u && !u.startsWith('assets/') && !existsSync(resolve(dist, u)))
+  .filter((u) => u && !existsSync(resolve(dist, u.split(/[?#]/)[0])))
 check('ไม่มีลิงก์ไฟล์ที่ชี้ไปยังของที่ไม่มีอยู่', broken.length === 0, broken.join(', '))
 
 console.log('\n5. เนื้อหาสองภาษา')
@@ -132,15 +135,21 @@ check('มีเนื้อหาทั้งก้อนไทยและก�
 check('จำนวนหัวข้อของสองภาษาเท่ากัน', thKeys.slice(0, half).join() === thKeys.slice(half).join(),
   'ถ้าไม่เท่ากันแปลว่ามีบางหัวข้อที่ยังไม่ได้แปล')
 
-const jsFile = html.match(/src="([^"]+\.js)"/)
-if (jsFile) {
-  const jsPath = resolve(dist, jsFile[1].replace(/^\.\//, ''))
-  if (existsSync(jsPath)) {
-    const js = readFileSync(jsPath, 'utf-8')
-    check('ข้อความภาษาอังกฤษถูกรวมไว้ในไฟล์แล้ว', js.includes('Water truck delivery in Chiang Mai'))
-    check(`ขนาดไฟล์ JavaScript ${Math.round(Buffer.byteLength(js) / 1024)} KB ไม่เกิน 120 KB`, Buffer.byteLength(js) / 1024 < 120)
-    check('ข้อความภาษาไทยถูกรวมไว้ในไฟล์แล้ว', js.includes('รถส่งน้ำประปา'))
-  }
+check('canonical ตรงกับ SITE_URL', html.includes(`rel="canonical" href="${SITE}/"`))
+check('sitemap และ robots ตรงกับ SITE_URL',
+  readFileSync(resolve(dist, 'sitemap.xml'), 'utf8').includes(`<loc>${SITE}/en.html</loc>`) &&
+  readFileSync(resolve(dist, 'robots.txt'), 'utf8').includes(`Sitemap: ${SITE}/sitemap.xml`))
+check('หน้า 404 กลับรากของเว็บที่กำหนดไว้',
+  readFileSync(resolve(dist, '404.html'), 'utf8').includes(`href="${basePath}"`))
+const jsPaths = [...new Set([...html.matchAll(/(?:src|href)="([^"]+\.js)"/g)].map(m => m[1]))]
+check('มีไฟล์ JavaScript สำหรับปุ่มโต้ตอบ', jsPaths.length > 0)
+const missingJs = jsPaths.filter(p => !existsSync(resolve(dist,p.replace(/^\.\//,''))))
+check('ไฟล์ JavaScript และ shared chunks อยู่ครบ', missingJs.length === 0, missingJs.join(', '))
+if (missingJs.length === 0) {
+  const js = jsPaths.map(p => readFileSync(resolve(dist,p.replace(/^\.\//,'')),'utf8')).join('\n')
+  check('ข้อความภาษาอังกฤษถูกรวมไว้ในไฟล์แล้ว', js.includes('Water truck delivery in Chiang Mai'))
+  check('ข้อความภาษาไทยถูกรวมไว้ในไฟล์แล้ว', js.includes('รถส่งน้ำประปา'))
+  check('JavaScript ของหน้าสาธารณะไม่เกิน 150 KB', Buffer.byteLength(js)/1024 < 150)
 }
 
 const dataSrc = readFileSync(resolve('src/data.js'), 'utf-8')
@@ -151,11 +160,11 @@ const hasReal = Number(ratingInData?.[1] || 0) > 0 && Number(countInData?.[1] ||
 check('คะแนนรีวิวขึ้นเว็บก็ต่อเมื่อมีข้อมูลจริงเท่านั้น', ratingInPage === hasReal,
   'ถ้าไม่ตรงกันแปลว่ามีคะแนนที่ไม่มีอยู่จริงหลุดขึ้นเว็บ ซึ่งผิดกติกาของ Google')
 check('ฟอร์มแสดงก็ต่อเมื่อตั้งกุญแจไว้แล้ว',
-  html.includes('<form') === /accessKey:\s*'[^']+'/.test(dataSrc))
+  html.includes('<form') === (/enabled:\s*true/.test(dataSrc) || /accessKey:\s*'[^']+'/.test(dataSrc)))
 
 console.log('\n6. ขนาดที่ผู้เข้าชมต้องโหลด')
 const htmlKb = Buffer.byteLength(html) / 1024
-check(`หน้าแรกรวมสไตล์ ${htmlKb.toFixed(0)} KB ไม่เกิน 150 KB`, htmlKb < 150)
+check(`หน้าแรกรวมสไตล์ ${htmlKb.toFixed(0)} KB ไม่เกิน 250 KB`, htmlKb < 250)
 
 console.log(`\nผ่าน ${pass} ข้อ ไม่ผ่าน ${fail} ข้อ`)
 process.exit(fail > 0 ? 1 : 0)

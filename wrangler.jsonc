@@ -10,9 +10,15 @@
     "not_found_handling": "404-page",
     "run_worker_first": [
       "/",
+      "/index.html",
+      "/en.html",
       "/admin",
       "/admin/*",
-      "/api/*"
+      "/api/*",
+      "/uploads/*",
+      "/sitemap.xml",
+      "/robots.txt",
+      "/__shell.html"
     ]
   },
   "d1_databases": [
@@ -21,6 +27,12 @@
       "database_name": "natee",
       "database_id": "00000000-0000-0000-0000-000000000000",
       "migrations_dir": "worker/migrations"
+    }
+  ],
+  "kv_namespaces": [
+    {
+      "binding": "MEDIA",
+      "id": "00000000000000000000000000000000"
     }
   ],
   "vars": {

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import Icon from './icons.jsx'
 import { FORM } from './data.js'
 import { track } from './track.js'
@@ -9,36 +9,46 @@ import { track } from './track.js'
  * ถ้ายังไม่ได้ใส่กุญแจใน FORM.accessKey ฟอร์มจะไม่ถูกแสดงเลย
  * หน้าเว็บจึงไม่มีทางมีฟอร์มที่กดส่งแล้วไม่ไปไหน
  */
-export default function ContactForm({ L }) {
+export default function ContactForm({ L, config = FORM }) {
   const [state, setState] = useState('idle')
+  const sending = useRef(false)
 
-  if (!FORM.accessKey) return null
+  if (!config.enabled && !config.accessKey) return null
 
   async function onSubmit(event) {
     event.preventDefault()
 
+    if (sending.current) return
     const form = event.currentTarget
     const data = new FormData(form)
 
     // ช่องล่อสำหรับดักบอท ผู้ใช้จริงจะไม่เห็นและไม่กรอก
     if (data.get('botcheck')) return
 
+    sending.current = true
     setState('sending')
+    const controller = new AbortController()
+    const timeout = setTimeout(() => controller.abort(), 15000)
 
     try {
-      const res = await fetch(FORM.endpoint, {
+      const res = await fetch(config.endpoint, {
         method: 'POST',
-        headers: { Accept: 'application/json' },
-        body: data,
+        headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
+        body: JSON.stringify(Object.fromEntries(data)),
+        signal: controller.signal,
       })
 
-      if (!res.ok) throw new Error('ส่งไม่สำเร็จ')
+      const result = await res.json()
+      if (!res.ok || result.success !== true) throw new Error('ส่งไม่สำเร็จ')
 
       setState('sent')
       form.reset()
       track('form_submit', { language: L.lang })
     } catch {
       setState('error')
+    } finally {
+      clearTimeout(timeout)
+      sending.current = false
     }
   }
 
@@ -46,7 +56,7 @@ export default function ContactForm({ L }) {
     <form className="natee-form" onSubmit={onSubmit} aria-labelledby="natee-form-heading">
       <p className="natee-form-heading" id="natee-form-heading">{L.formHeading}</p>
 
-      <input type="hidden" name="access_key" value={FORM.accessKey} />
+      <input type="hidden" name="access_key" value={config.accessKey} />
       <input type="hidden" name="subject" value={`${L.formSubject} ${L.siteName}`} />
       <input type="hidden" name="from_name" value={L.siteName} />
       <input type="hidden" name="language" value={L.lang} />
@@ -68,8 +78,8 @@ export default function ContactForm({ L }) {
           name="phone"
           inputMode="tel"
           autoComplete="tel"
-          maxLength={20}
-          pattern="[0-9+\-\s()]{9,20}"
+          maxLength={15}
+          pattern="[0-9]{9,15}"
           aria-describedby="natee-phone-hint"
           required
         />

@@ -39,3 +39,37 @@ test('admin authentication, authorization and session lifecycle',async t=>{
     assert.equal((await call('login',{method:'POST',body:{email,password}})).response.status,200)
   })
 })
+
+test('content persists, renders on the server and rejects stale saves',async t=>{
+  const logged=await call('login',{method:'POST',body:{email,password}})
+  const cookie=logged.response.headers.get('set-cookie').split(';')[0],csrf=logged.data.csrf
+  const original=(await call('content',{cookie})).data
+  let version=original.version
+  await t.test('save Thai/English content and read it back',async()=>{
+    const content=structuredClone(original.content)
+    content.I18N.th.heroTitle='ข้อความทดสอบการบันทึกจริง'
+    content.I18N.en.heroTitle='Saved content acceptance test'
+    const saved=await call('content',{method:'PUT',body:{content,version},cookie,csrf})
+    assert.equal(saved.response.status,200,JSON.stringify(saved.data));version=saved.data.version
+    assert.equal((await call('content',{cookie})).data.content.I18N.th.heroTitle,content.I18N.th.heroTitle)
+    assert.ok((await (await fetch(base+'/')).text()).includes(content.I18N.th.heroTitle))
+    assert.ok((await (await fetch(base+'/en.html')).text()).includes(content.I18N.en.heroTitle))
+  })
+  await t.test('stale writes are rejected',async()=>{
+    assert.equal((await call('content',{method:'PUT',body:{content:original.content,version:original.version},cookie,csrf})).response.status,409)
+  })
+  await t.test('invalid URL and injected markup cannot become active HTML',async()=>{
+    const invalid=structuredClone(original.content);invalid.CONTACT.lineUrl='javascript:alert(1)'
+    assert.equal((await call('content',{method:'PUT',body:{content:invalid,version},cookie,csrf})).response.status,422)
+    const safe=structuredClone(original.content);safe.I18N.th.heroTitle='</script><img src=x onerror=alert(1)>'
+    const saved=await call('content',{method:'PUT',body:{content:safe,version},cookie,csrf})
+    assert.equal(saved.response.status,200,JSON.stringify(saved.data));version=saved.data.version
+    const html=await (await fetch(base+'/')).text()
+    assert.ok(!html.includes(safe.I18N.th.heroTitle));assert.ok(html.includes('&lt;/script&gt;'))
+  })
+  await t.test('history is available and original content can be restored',async()=>{
+    const history=await call('revisions',{cookie});assert.ok(history.data.length>=2)
+    const saved=await call('content',{method:'PUT',body:{content:original.content,version},cookie,csrf})
+    assert.equal(saved.response.status,200,JSON.stringify(saved.data))
+  })
+})

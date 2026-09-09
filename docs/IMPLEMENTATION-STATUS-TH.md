@@ -20,14 +20,16 @@ tests/unit.test.mjs: password hashing และ JSON validation
 tests/api.test.mjs: anonymous access, origin, setup secret, session, CSRF, logout, login
 tests/browser/auth.spec.js: เปิดหน้าสาธารณะ, login ผิด/ถูก, reload session, logout, หน้าจอ 375px และภาพหน้าจอ
 
-สถานะผลรันต้องอ้างอิง GitHub Actions ของ commit นั้น ๆ ยังไม่ถือว่าผ่านจนกว่า run จะสำเร็จ
+จุดที่ 1 ผ่านทุกขั้นที่ https://github.com/SPNpeet/natee/actions/runs/34326246219
+
+จุดที่ 2 เพิ่มการแก้เนื้อหา/คำแปล/ราคา บันทึก D1 พร้อมเลขรุ่นป้องกันการเขียนทับ และพรีเรนเดอร์หน้าเว็บสองภาษาจากข้อมูลที่บันทึก ทั้ง HTML และ SEO เปลี่ยนพร้อมกัน มีประวัติ 20 รุ่นสำหรับกู้คืนเป็นแบบร่าง โครง API/หน้า media และกล่องข้อความเชื่อมมาด้วย แต่ยังไม่ปิดงานสองส่วนนี้จนกว่าจะผ่านชุดตรวจของจุดถัดไป
 
 ## ตารางข้อกำหนดที่ต้องทำต่อ
 
 | ข้อกำหนด | Implementation | หลักฐาน | คงเหลือ |
 |---|---|---|---|
 | หน้าเว็บสองภาษาและส่วนธุรกิจเดิม | React เดิม | build/check เดิมที่ 1b558c8 ผ่าน 36 ข้อ | ตรวจ UX/action ใหม่หลังเชื่อมข้อมูล |
-| admin login และ server authorization | worker/index.mjs, worker/security.mjs, /admin/ | unit/API/browser tests | รอ CI จุดที่ 1 |
+| admin login และ server authorization | worker/index.mjs, worker/security.mjs, /admin/ | unit/API/browser tests | ผ่าน CI run 34326246219 ที่ commit a78311a |
 | แก้ข้อความ/ราคา/คำแปล | เตรียมโค้ดไว้ ยังไม่รวมจุดที่ 1 | ยังไม่ทดสอบ | จุดที่ 2 |
 | บันทึกข้อมูลจริงและ public render | เตรียม D1/SSR ไว้ | ยังไม่ทดสอบ | จุดที่ 2 |
 | รูป/คลิปและคลังสื่อ | เตรียม KV/API/UI ไว้ | ยังไม่ทดสอบ | จุดที่ 3 |

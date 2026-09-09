@@ -2292,3 +2292,32 @@ a.natee-contact-item:hover {
 	font-size: 15px;
 	color: var(--natee-muted);
 }
+
+/* Native dialog occupies the viewport without browser default margins. */
+dialog.natee-lightbox {
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+}
+dialog.natee-lightbox::backdrop { background: #070e19; }
+.natee-lightbox-btn:focus-visible { outline-color: #fff; }
+
+/* Keep copy controls out of the phone text at narrow widths. */
+.natee-contact-list li:has(.natee-copy) {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+.natee-contact-list li:has(.natee-copy) .natee-contact-item { flex: 1 1 220px; }
+.natee-copy { position: static; transform: none; flex: 0 0 auto; }
+
+@media (prefers-reduced-motion: reduce) {
+  .natee-lightbox.is-open .natee-lightbox-image { animation: none; }
+}

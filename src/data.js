@@ -1,6 +1,6 @@
 /**
  * เนื้อหาทั้งเว็บไซต์ แก้ที่ไฟล์นี้ไฟล์เดียว
- * ทุกข้อความมีคู่ภาษาไทยและอังกฤษ ถ้าไม่มีคำแปลอังกฤษระบบจะใช้ภาษาไทยแทน
+ * ทุกข้อความต้องมีคู่ภาษาไทยและอังกฤษ ตรวจความครบก่อนส่งมอบ
  */
 
 export const CONTACT = {
@@ -31,9 +31,14 @@ export const CONTACT = {
  * หน้าเว็บจึงไม่มีทางมีฟอร์มที่กดส่งแล้วไม่ไปไหน
  */
 export const FORM = {
+  enabled: true,
   accessKey: '',
-  endpoint: 'https://api.web3forms.com/submit',
+  endpoint: 'api/inquiries',
 }
+export const ASSETS = {
+  logo: 'logo', hero: 'truck-6wheel', about: 'work-11', qr: 'line-qr',
+}
+
 
 /**
  * คะแนนรีวิวจาก Google Business Profile
@@ -159,10 +164,10 @@ export const I18N = {
     ],
 
     videos: [
-      { file: 'work-video-01', caption: 'เติมน้ำให้ร้านค้าและคาเฟ่' },
-      { file: 'work-video-02', caption: 'เติมแท็งก์น้ำบ้านพักอาศัย' },
-      { file: 'work-video-03', caption: 'ส่งถึงหน้าบ้าน เข้าซอยแคบได้' },
-      { file: 'work-video-04', caption: 'ส่งน้ำให้คลินิกและสำนักงาน' },
+      { file: 'work-video-01', poster: '', caption: 'เติมน้ำให้ร้านค้าและคาเฟ่' },
+      { file: 'work-video-02', poster: '', caption: 'เติมแท็งก์น้ำบ้านพักอาศัย' },
+      { file: 'work-video-03', poster: '', caption: 'ส่งถึงหน้าบ้าน เข้าซอยแคบได้' },
+      { file: 'work-video-04', poster: '', caption: 'ส่งน้ำให้คลินิกและสำนักงาน' },
     ],
 
     galleryTitle: 'ผลงานของเรา',
@@ -205,7 +210,7 @@ export const I18N = {
     formSending: 'กำลังส่ง',
     formSent: 'ส่งข้อความเรียบร้อยแล้ว ทีมงานจะติดต่อกลับโดยเร็วที่สุด หากเร่งด่วนกรุณาโทรหาเราโดยตรง',
     formError: 'ส่งข้อความไม่สำเร็จ กรุณาโทรหาเราโดยตรงเพื่อความรวดเร็ว',
-    formHint: 'ต้องการน้ำด่วนวันนี้ แนะนำให้โทรหาเราโดยตรง',
+    formHint: 'ใช้ข้อมูลนี้เพื่อติดต่อกลับเรื่องบริการ เก็บในระบบของร้าน 90 วัน หากต้องการน้ำด่วนวันนี้ กรุณาโทรโดยตรง',
     reviewsLabel: 'จากรีวิวบน Google',
 
     contactTitle: 'ติดต่อสั่งน้ำ',
@@ -219,6 +224,8 @@ export const I18N = {
     labelHours: 'เวลาให้บริการ',
     mapLink: 'เปิดเส้นทางใน Google Maps',
     mapTitle: 'แผนที่',
+    copyPhone: 'คัดลอก',
+    copyError: 'คัดลอกไม่ได้ กรุณาจดเบอร์นี้',
     copied: 'คัดลอกเบอร์แล้ว',
 
     footerContact: 'ติดต่อเรา',
@@ -332,10 +339,10 @@ export const I18N = {
     ],
 
     videos: [
-      { file: 'work-video-01', caption: 'Filling tanks for shops and cafes' },
-      { file: 'work-video-02', caption: 'Filling a home water tank' },
-      { file: 'work-video-03', caption: 'Delivered to your door, even down narrow lanes' },
-      { file: 'work-video-04', caption: 'Delivering to clinics and businesses' },
+      { file: 'work-video-01', poster: '', caption: 'Filling tanks for shops and cafes' },
+      { file: 'work-video-02', poster: '', caption: 'Filling a home water tank' },
+      { file: 'work-video-03', poster: '', caption: 'Delivered to your door, even down narrow lanes' },
+      { file: 'work-video-04', poster: '', caption: 'Delivering to clinics and businesses' },
     ],
 
     galleryTitle: 'Our work',
@@ -378,7 +385,7 @@ export const I18N = {
     formSending: 'Sending',
     formSent: 'Thank you. We have received your message and will call you back shortly. For urgent orders please call us directly.',
     formError: 'The message could not be sent. Please call us directly instead.',
-    formHint: 'Need water today? Calling us is the fastest way.',
+    formHint: 'We use these details to respond to your enquiry and keep them for 90 days. Need water today? Please call us directly.',
     reviewsLabel: 'from reviews on Google',
 
     contactTitle: 'Contact us',
@@ -392,6 +399,8 @@ export const I18N = {
     labelHours: 'Opening hours',
     mapLink: 'Open directions in Google Maps',
     mapTitle: 'Map of',
+    copyPhone: 'Copy',
+    copyError: 'Copy unavailable. Please use this number:',
     copied: 'Phone number copied',
 
     footerContact: 'Contact',

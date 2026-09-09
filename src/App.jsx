@@ -1,17 +1,23 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import Icon from './icons.jsx'
-import { I18N, CONTACT, GALLERY, REVIEWS } from './data.js'
+import * as defaults from './data.js'
 import { track } from './track.js'
 import ContactForm from './ContactForm.jsx'
 
 const SECTIONS = ['services', 'fleet', 'pricing', 'areas', 'gallery', 'faq', 'contact']
 
-export default function App({ lang = 'th' }) {
+export default function App({ lang = 'th', content = defaults }) {
+  const { I18N, CONTACT, GALLERY, REVIEWS, FORM, ASSETS } = content
+  const asset = (name, suffix = '.webp') => name.startsWith('uploads/') ? name : `images/${name}${suffix}`
   const [menuOpen, setMenuOpen] = useState(false)
   const [openPrice, setOpenPrice] = useState(0)
   const [openFaq, setOpenFaq] = useState(null)
   const [viewer, setViewer] = useState(null)
   const [toast, setToast] = useState('')
+
+  const dialogRef = useRef(null)
+  const toastTimer = useRef(null)
+  const viewerOpen = viewer !== null
 
   const L = I18N[lang]
   const otherLangHref = lang === 'th' ? 'en.html' : 'index.html'
@@ -19,15 +25,15 @@ export default function App({ lang = 'th' }) {
   const media = [
     ...L.videos.map((v, i) => ({
       type: 'video',
-      src: `videos/${v.file}.mp4`,
-      poster: `images/${v.file}-poster.webp`,
+      src: v.file.startsWith('uploads/') ? v.file : `videos/${v.file}.mp4`,
+      poster: v.poster ? asset(v.poster) : (v.file.startsWith('uploads/') ? asset(ASSETS.hero) : `images/${v.file}-poster.webp`),
       alt: v.caption,
       key: `v${i}`,
     })),
     ...GALLERY.map((name, i) => ({
       type: 'image',
-      src: `images/${name}.webp`,
-      thumb: `images/${name}-sm.webp`,
+      src: asset(name),
+      thumb: asset(name, '-sm.webp'),
       alt: `${L.galleryAlt} ${L.siteName} ${i + 1}`,
       key: name,
     })),
@@ -36,6 +42,16 @@ export default function App({ lang = 'th' }) {
   const showNext = useCallback((step) => {
     setViewer((v) => (v === null ? v : (v + step + media.length) % media.length))
   }, [media.length])
+
+  // Native modal keeps keyboard focus inside and restores it to the opener.
+  useEffect(() => {
+    if (!viewerOpen) return
+    const dialog = dialogRef.current
+    dialog.showModal()
+    return () => dialog.close()
+  }, [viewerOpen])
+
+  useEffect(() => () => clearTimeout(toastTimer.current), [])
 
   // ปุ่มลูกศรและปุ่ม Esc ขณะเปิดตัวดูผลงาน
   useEffect(() => {
@@ -69,9 +85,23 @@ export default function App({ lang = 'th' }) {
 
   useEffect(() => {
     if (!menuOpen) return
-    const onKey = (e) => { if (e.key === 'Escape') setMenuOpen(false) }
+    const toggle = document.querySelector('.natee-nav-toggle')
+    const onKey = (e) => {
+      if (e.key === 'Escape') { setMenuOpen(false); toggle?.focus() }
+    }
+    const onOutside = (e) => {
+      if (!e.target.closest('.natee-nav, .natee-nav-toggle')) setMenuOpen(false)
+    }
+    const wide = window.matchMedia('(min-width: 1000px)')
+    const onResize = () => { if (wide.matches) setMenuOpen(false) }
     window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
+    document.addEventListener('pointerdown', onOutside)
+    wide.addEventListener('change', onResize)
+    return () => {
+      window.removeEventListener('keydown', onKey)
+      document.removeEventListener('pointerdown', onOutside)
+      wide.removeEventListener('change', onResize)
+    }
   }, [menuOpen])
 
   const swipe = useRef(null)
@@ -89,9 +119,12 @@ export default function App({ lang = 'th' }) {
     try {
       await navigator.clipboard.writeText(number)
       setToast(`${L.copied} ${number}`)
-      setTimeout(() => setToast(''), 1800)
+      clearTimeout(toastTimer.current)
+      toastTimer.current = setTimeout(() => setToast(''), 3000)
     } catch {
-      window.location.href = `tel:${number.replace(/[^0-9]/g, '')}`
+      setToast(`${L.copyError} ${number}`)
+      clearTimeout(toastTimer.current)
+      toastTimer.current = setTimeout(() => setToast(''), 6000)
     }
   }
 
@@ -104,7 +137,7 @@ export default function App({ lang = 'th' }) {
       <header className="natee-header">
         <div className="natee-container natee-header-inner">
           <a className="natee-brand" href="#natee-hero">
-            <img className="natee-brand-logo" src={`images/logo.webp`} alt={L.siteName} width="240" height="338" />
+            <img className="natee-brand-logo" src={asset(ASSETS.logo)} alt={L.siteName} width="240" height="338" />
             <span className="natee-brand-text">
               <span className="natee-brand-name">{L.siteName}</span>
               <span className="natee-brand-tagline">{L.tagline}</span>
@@ -182,11 +215,11 @@ export default function App({ lang = 'th' }) {
                 </p>
               )}
 
-              <ContactButtons L={L} place="hero" />
+              <ContactButtons CONTACT={CONTACT} L={L} place="hero" />
 
               <p className="natee-hero-second-phone">
                 {L.orCall}{' '}
-                <a className="natee-nowrap" href={CONTACT.phone2Href}>{CONTACT.phone2}</a>
+                <a className="natee-nowrap" href={CONTACT.phone2Href} onClick={() => track('call_click', { place: 'hero-secondary', language: lang })}>{CONTACT.phone2}</a>
               </p>
 
               <p className="natee-hero-note">
@@ -198,8 +231,8 @@ export default function App({ lang = 'th' }) {
             <div className="natee-hero-media">
               <img
                 className="natee-hero-image"
-                src={`images/truck-6wheel.webp`}
-                srcSet={`images/truck-6wheel-sm.webp 560w, images/truck-6wheel.webp 1200w`}
+                src={asset(ASSETS.hero)}
+                srcSet={ASSETS.hero.startsWith('uploads/') ? undefined : `${asset(ASSETS.hero, '-sm.webp')} 560w, ${asset(ASSETS.hero)} 1200w`}
                 sizes="(max-width: 719px) 92vw, (max-width: 999px) 46vw, 560px"
                 alt={L.heroTitle}
                 width="1200"
@@ -231,8 +264,8 @@ export default function App({ lang = 'th' }) {
             <div className="natee-about-media">
               <img
                 className="natee-about-image"
-                src={`images/work-11.webp`}
-                srcSet={`images/work-11-sm.webp 560w, images/work-11.webp 960w`}
+                src={asset(ASSETS.about)}
+                srcSet={ASSETS.about.startsWith('uploads/') ? undefined : `${asset(ASSETS.about, '-sm.webp')} 560w, ${asset(ASSETS.about)} 960w`}
                 sizes="(max-width: 719px) 92vw, 46vw"
                 alt={L.aboutTitle}
                 width="960"
@@ -281,8 +314,8 @@ export default function App({ lang = 'th' }) {
                   <div className="natee-fleet-media">
                     <img
                       className="natee-fleet-image"
-                      src={`images/${truck.image}.webp`}
-                      srcSet={`images/${truck.image}-sm.webp 560w, images/${truck.image}.webp 1200w`}
+                      src={asset(truck.image)}
+                      srcSet={truck.image.startsWith('uploads/') ? undefined : `${asset(truck.image, '-sm.webp')} 560w, ${asset(truck.image)} 1200w`}
                       sizes="(max-width: 719px) 92vw, 46vw"
                       alt={truck.name}
                       width="1200"
@@ -316,6 +349,7 @@ export default function App({ lang = 'th' }) {
                     type="button"
                     className="natee-price-summary"
                     aria-expanded={openPrice === index}
+                    aria-controls={openPrice === index ? `natee-price-body-${index}` : undefined}
                     onClick={() => setOpenPrice(openPrice === index ? null : index)}
                   >
                     <span className="natee-price-info">
@@ -329,7 +363,7 @@ export default function App({ lang = 'th' }) {
                   </button>
 
                   {openPrice === index && (
-                    <div className="natee-price-body">
+                    <div className="natee-price-body" id={`natee-price-body-${index}`}>
                       <ul className="natee-price-includes">
                         {row.includes.map((line) => (
                           <li key={line}>
@@ -344,7 +378,8 @@ export default function App({ lang = 'th' }) {
                           <Icon name="phone" />
                           <span>{L.priceCallNow}</span>
                         </a>
-                        <a className="natee-btn natee-btn-line natee-btn-sm" href={CONTACT.lineUrl} target="_blank" rel="noopener">
+                        <a className="natee-btn natee-btn-line natee-btn-sm" href={CONTACT.lineUrl} target="_blank" rel="noopener"
+                          onClick={() => track('line_click', { place: 'pricing', language: lang })}>
                           <Icon name="line" />
                           <span>{L.lineLabel}</span>
                         </a>
@@ -424,7 +459,7 @@ export default function App({ lang = 'th' }) {
                     type="button"
                     className="natee-media-link natee-gallery-link"
                     onClick={() => setViewer(L.videos.length + index)}
-                    aria-label={`${L.galleryOpen} ${index + 1} ${L.viewerOf} ${media.length}`}
+                    aria-label={`${L.galleryOpen} ${index + 1} ${L.viewerOf} ${GALLERY.length}`}
                   >
                     <img
                       className="natee-gallery-image"
@@ -457,13 +492,14 @@ export default function App({ lang = 'th' }) {
                     type="button"
                     className="natee-faq-question"
                     aria-expanded={openFaq === index}
+                    aria-controls={openFaq === index ? `natee-faq-answer-${index}` : undefined}
                     onClick={() => setOpenFaq(openFaq === index ? null : index)}
                   >
                     <span>{item.q}</span>
                     <Icon name="chevron" className="natee-icon natee-faq-chevron" />
                   </button>
                   {openFaq === index && (
-                    <div className="natee-faq-answer"><p>{item.a}</p></div>
+                    <div className="natee-faq-answer" id={`natee-faq-answer-${index}`}><p>{item.a}</p></div>
                   )}
                 </div>
               ))}
@@ -477,7 +513,7 @@ export default function App({ lang = 'th' }) {
               <h2 className="natee-cta-title">{L.ctaTitle}</h2>
               <p className="natee-cta-subtitle">{L.ctaSubtitle}</p>
             </div>
-            <ContactButtons L={L} place="cta" />
+            <ContactButtons CONTACT={CONTACT} L={L} place="cta" />
           </div>
         </section>
 
@@ -493,19 +529,21 @@ export default function App({ lang = 'th' }) {
                 <ul className="natee-contact-list">
                   {[CONTACT.phone, CONTACT.phone2].map((number, i) => (
                     <li key={number}>
-                      <a className="natee-contact-item" href={i === 0 ? CONTACT.phoneHref : CONTACT.phone2Href}>
+                      <a className="natee-contact-item" href={i === 0 ? CONTACT.phoneHref : CONTACT.phone2Href}
+                        onClick={() => track('call_click', { place: 'contact', language: lang })}>
                         <span className="natee-contact-icon"><Icon name="phone" /></span>
                         <span>
                           <span className="natee-contact-label">{L.labelPhone}</span>
                           <span className="natee-contact-value natee-nowrap">{number}</span>
                         </span>
                       </a>
-                      <button type="button" className="natee-copy" onClick={() => copyPhone(number)}>{L.copied.split(' ')[0]}</button>
+                      <button type="button" className="natee-copy" onClick={() => copyPhone(number)} aria-label={`${L.copyPhone} ${number}`}>{L.copyPhone}</button>
                     </li>
                   ))}
 
                   <li>
-                    <a className="natee-contact-item" href={CONTACT.lineUrl} target="_blank" rel="noopener">
+                    <a className="natee-contact-item" href={CONTACT.lineUrl} target="_blank" rel="noopener"
+                      onClick={() => track('line_click', { place: 'contact', language: lang })}>
                       <span className="natee-contact-icon"><Icon name="line" /></span>
                       <span>
                         <span className="natee-contact-label">{L.labelLine}</span>
@@ -556,7 +594,7 @@ export default function App({ lang = 'th' }) {
                 </ul>
 
                 <div className="natee-qr">
-                  <img src={`images/line-qr.webp`} alt={`${L.labelLine} ${L.siteName}`} width="480" height="480" loading="lazy" decoding="async" />
+                  <img src={asset(ASSETS.qr)} alt={`${L.labelLine} ${L.siteName}`} width="480" height="480" loading="lazy" decoding="async" />
                   <div className="natee-qr-text">
                     <p className="natee-qr-title">{L.labelLine} {L.siteName}</p>
                     <p className="natee-qr-note">{L.ctaSubtitle}</p>
@@ -566,7 +604,7 @@ export default function App({ lang = 'th' }) {
               </div>
 
               <div className="natee-contact-map">
-                <ContactForm L={L} />
+                <ContactForm L={L} config={FORM} />
 
                 <div className="natee-map">
                   <iframe
@@ -590,7 +628,7 @@ export default function App({ lang = 'th' }) {
       <footer className="natee-footer">
         <div className="natee-container natee-footer-grid">
           <div className="natee-footer-col">
-            <img className="natee-footer-logo" src={`images/logo.webp`} alt={L.siteName} width="240" height="338" loading="lazy" />
+            <img className="natee-footer-logo" src={asset(ASSETS.logo)} alt={L.siteName} width="240" height="338" loading="lazy" />
             <p className="natee-footer-name">{L.siteName}</p>
             <p className="natee-footer-text">{L.tagline}</p>
             <p className="natee-footer-text">{L.address}</p>
@@ -600,9 +638,9 @@ export default function App({ lang = 'th' }) {
           <div className="natee-footer-col">
             <p className="natee-footer-heading">{L.footerContact}</p>
             <ul className="natee-footer-list">
-              <li><a href={CONTACT.phoneHref}><Icon name="phone" /><span className="natee-nowrap">{CONTACT.phone}</span></a></li>
-              <li><a href={CONTACT.phone2Href}><Icon name="phone" /><span className="natee-nowrap">{CONTACT.phone2}</span></a></li>
-              <li><a href={CONTACT.lineUrl} target="_blank" rel="noopener"><Icon name="line" /><span>{CONTACT.lineId}</span></a></li>
+              <li><a href={CONTACT.phoneHref} onClick={() => track('call_click', { place: 'footer', language: lang })}><Icon name="phone" /><span className="natee-nowrap">{CONTACT.phone}</span></a></li>
+              <li><a href={CONTACT.phone2Href} onClick={() => track('call_click', { place: 'footer-secondary', language: lang })}><Icon name="phone" /><span className="natee-nowrap">{CONTACT.phone2}</span></a></li>
+              <li><a href={CONTACT.lineUrl} target="_blank" rel="noopener" onClick={() => track('line_click', { place: 'footer', language: lang })}><Icon name="line" /><span>{CONTACT.lineId}</span></a></li>
               <li><a href={CONTACT.facebookUrl} target="_blank" rel="noopener"><Icon name="facebook" /><span>{L.labelFacebook}</span></a></li>
               <li><a href={`mailto:${CONTACT.email}`}><Icon name="mail" /><span>{CONTACT.email}</span></a></li>
             </ul>
@@ -634,7 +672,8 @@ export default function App({ lang = 'th' }) {
       </div>
 
       {current && (
-        <div className="natee-lightbox is-open" role="dialog" aria-modal="true" aria-label={L.viewerLabel}>
+        <dialog ref={dialogRef} className="natee-lightbox is-open" aria-label={L.viewerLabel}
+          onCancel={(event) => { event.preventDefault(); setViewer(null) }}>
           <div className="natee-lightbox-backdrop" onClick={() => setViewer(null)} />
           <div className="natee-lightbox-inner">
             <div className="natee-lightbox-bar">
@@ -645,7 +684,8 @@ export default function App({ lang = 'th' }) {
               </button>
             </div>
 
-            <div className="natee-lightbox-stage" onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
+            <div className="natee-lightbox-stage" onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}
+              onClick={(event) => { if (event.target === event.currentTarget) setViewer(null) }}>
               <button type="button" className="natee-lightbox-btn natee-lightbox-prev" onClick={() => showNext(-1)}>
                 <Icon name="arrow" />
                 <span className="natee-screen-reader">{L.viewerPrev}</span>
@@ -655,6 +695,7 @@ export default function App({ lang = 'th' }) {
                 {current.type === 'video' ? (
                   <video
                     className="natee-lightbox-video"
+                    key={current.src}
                     src={current.src}
                     poster={current.poster}
                     controls
@@ -676,7 +717,7 @@ export default function App({ lang = 'th' }) {
             <p className="natee-lightbox-caption">{current.alt}</p>
             <p className="natee-lightbox-hint">{L.viewerHint}</p>
           </div>
-        </div>
+        </dialog>
       )}
 
       {toast && <div className="natee-toast" role="status">{toast}</div>}
@@ -684,7 +725,7 @@ export default function App({ lang = 'th' }) {
   )
 }
 
-function ContactButtons({ L, place = 'hero' }) {
+function ContactButtons({ CONTACT, L, place = 'hero' }) {
   return (
     <div className="natee-actions">
       <a
