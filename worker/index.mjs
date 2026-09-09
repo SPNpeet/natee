@@ -151,7 +151,7 @@ async function api(request, env, path) {
     const result=await query(env,'INSERT INTO media SELECT ?,?,?,? WHERE (SELECT COALESCE(SUM(bytes),0) FROM media)+? <= 800000000',uploadPath,mime,bytes.length,new Date().toISOString(),bytes.length).run()
     if (!result.meta.changes) throw new HttpError(413,'คลังสื่อเต็ม กรุณาสำรองและลบไฟล์ที่ไม่ได้ใช้')
     try { await env.MEDIA.put(uploadPath,bytes,{metadata:{mime}}) }
-    catch { await query(env,'DELETE FROM media WHERE uploadPath=?',uploadPath).run(); throw new HttpError(503,'อัปโหลดไม่สำเร็จหรือโควต้าเต็ม กรุณาลองภายหลัง') }
+    catch { await query(env,'DELETE FROM media WHERE path=?',uploadPath).run(); throw new HttpError(503,'อัปโหลดไม่สำเร็จหรือโควต้าเต็ม กรุณาลองภายหลัง') }
     return json({path:uploadPath,mime,bytes:bytes.length},201)
   }
   if (path === '/api/media' && method === 'DELETE') {

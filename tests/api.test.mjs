@@ -73,3 +73,73 @@ test('content persists, renders on the server and rejects stale saves',async t=>
     assert.equal(saved.response.status,200,JSON.stringify(saved.data))
   })
 })
+
+test('media authorization, upload validation, delivery and deletion',async t=>{
+  const logged=await call('login',{method:'POST',body:{email,password}})
+  const cookie=logged.response.headers.get('set-cookie').split(';')[0],csrf=logged.data.csrf
+  const headers={Origin:base,Cookie:cookie,'X-CSRF-Token':csrf}
+  const png=Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jN1kAAAAASUVORK5CYII=','base64')
+  let uploaded
+  await t.test('anonymous uploads are denied',async()=>{const r=await fetch(base+'/api/media',{method:'POST',headers:{Origin:base},body:png});assert.equal(r.status,401)})
+  await t.test('SVG and oversized uploads are rejected',async()=>{
+    const svg=await fetch(base+'/api/media',{method:'POST',headers,body:'<svg onload="alert(1)"></svg>'});assert.equal(svg.status,422)
+    const huge=await fetch(base+'/api/media',{method:'POST',headers,body:Buffer.alloc(8*1024*1024+1)});assert.equal(huge.status,413)
+  })
+  await t.test('image stores in KV with a generated name and safe content type',async()=>{
+    const r=await fetch(base+'/api/media',{method:'POST',headers:{...headers,'Content-Type':'text/html'},body:png})
+    uploaded=await r.json();assert.equal(r.status,201,JSON.stringify(uploaded));assert.match(uploaded.path,/^uploads\/[a-f0-9]{32}\.png$/)
+    const got=await fetch(base+'/'+uploaded.path);assert.equal(got.status,200);assert.equal(got.headers.get('Content-Type'),'image/png')
+    assert.deepEqual(Buffer.from(await got.arrayBuffer()),png)
+    const range=await fetch(base+'/'+uploaded.path,{headers:{Range:'bytes=0-7'}});assert.equal(range.status,206);assert.equal((await range.arrayBuffer()).byteLength,8)
+    const invalid=await fetch(base+'/'+uploaded.path,{headers:{Range:'bytes=99999-'}});assert.equal(invalid.status,416)
+  })
+  await t.test('in-use media cannot be deleted and references are validated',async()=>{
+    const original=(await call('content',{cookie})).data
+    const invalid=structuredClone(original.content);invalid.GALLERY.push('uploads/'+'a'.repeat(32)+'.png')
+    assert.equal((await call('content',{method:'PUT',cookie,csrf,body:{content:invalid,version:original.version}})).response.status,422)
+    const content=structuredClone(original.content);content.GALLERY.push(uploaded.path)
+    const saved=await call('content',{method:'PUT',cookie,csrf,body:{content,version:original.version}})
+    assert.equal(saved.response.status,200,JSON.stringify(saved.data))
+    assert.equal((await call('media',{method:'DELETE',cookie,csrf,body:{path:uploaded.path}})).response.status,409)
+    const restored=await call('content',{method:'PUT',cookie,csrf,body:{content:original.content,version:saved.data.version}})
+    assert.equal(restored.response.status,200)
+  })
+  await t.test('unused upload can be deleted',async()=>{
+    const r=await fetch(base+'/api/media',{method:'POST',headers,body:png}),extra=await r.json()
+    assert.equal((await call('media',{method:'DELETE',cookie,csrf,body:{path:extra.path}})).response.status,200)
+    assert.equal((await fetch(base+'/'+extra.path)).status,404)
+  })
+})
+test('public enquiries arrive in the private inbox and can be managed',async()=>{
+  assert.equal((await call('inquiries')).response.status,401)
+  const invalid=await call('inquiries',{method:'POST',body:{name:'Tester',phone:'bad'}});assert.equal(invalid.response.status,422)
+  const sent=await call('inquiries',{method:'POST',body:{name:'CI enquiry',phone:'0812345678',area:'Chiang Mai',message:'Acceptance fixture only',language:'en'}})
+  assert.equal(sent.response.status,201,JSON.stringify(sent.data))
+  const logged=await call('login',{method:'POST',body:{email,password}})
+  const cookie=logged.response.headers.get('set-cookie').split(';')[0],csrf=logged.data.csrf
+  const rows=(await call('inquiries',{cookie})).data
+  const row=rows.find(r=>r.name==='CI enquiry');assert.ok(row);assert.equal(row.language,'en')
+  assert.equal((await call('inquiries/'+row.id,{method:'PATCH',cookie,csrf,body:{}})).response.status,200)
+  assert.equal((await call('inquiries',{cookie})).data.find(r=>r.id===row.id).status,'read')
+  assert.equal((await call('inquiries/'+row.id,{method:'DELETE',cookie,csrf,body:{}})).response.status,200)
+  assert.equal((await call('inquiries',{cookie})).data.some(r=>r.id===row.id),false)
+})
+test('admin account changes invalidate old sessions',async()=>{
+  const logged=await call('login',{method:'POST',body:{email,password}})
+  const cookie=logged.response.headers.get('set-cookie').split(';')[0],csrf=logged.data.csrf
+  const other='second-admin@example.test'
+  assert.equal((await call('users',{method:'POST',cookie,csrf,body:{email:other,password}})).response.status,201)
+  const users=(await call('users',{cookie})).data
+  const id=users.find(x=>x.email===other).id
+  const second=await call('login',{method:'POST',body:{email:other,password}})
+  const secondCookie=second.response.headers.get('set-cookie').split(';')[0]
+  assert.equal((await call('users/'+id,{method:'PATCH',cookie,csrf,body:{active:false}})).response.status,200)
+  assert.equal((await call('content',{cookie:secondCookie})).response.status,401)
+  assert.equal((await call('login',{method:'POST',body:{email:other,password}})).response.status,401)
+  assert.equal((await call('password',{method:'POST',cookie,csrf,body:{currentPassword:'wrong',password:'Replacement-CI-passphrase!'}})).response.status,422)
+  assert.equal((await call('password',{method:'POST',cookie,csrf,body:{currentPassword:password,password:'Replacement-CI-passphrase!'}})).response.status,200)
+  assert.equal((await call('content',{cookie})).response.status,401)
+  const fresh=await call('login',{method:'POST',body:{email,password:'Replacement-CI-passphrase!'}})
+  const freshCookie=fresh.response.headers.get('set-cookie').split(';')[0]
+  assert.equal((await call('password',{method:'POST',cookie:freshCookie,csrf:fresh.data.csrf,body:{currentPassword:'Replacement-CI-passphrase!',password}})).response.status,200)
+})
