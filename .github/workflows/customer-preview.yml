@@ -1,0 +1,106 @@
+name: Deploy Natee customer preview
+on:
+  push:
+    branches: [codex/handover-readiness]
+    paths: [.github/workflows/customer-preview.yml]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: natee-customer-preview
+  cancel-in-progress: false
+jobs:
+  deploy:
+    environment: natee-customer-preview
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      SITE_URL: https://natee.chaiyootauifujai.workers.dev
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: 046229eeac10c298eb7658ba4f488bf2e465e117
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - name: Write reviewed customer configuration
+        shell: bash
+        run: |
+          cat > wrangler.customer.jsonc <<'CONFIG'
+          {
+            "$schema": "node_modules/wrangler/config-schema.json",
+            "name": "natee",
+            "main": "worker/index.mjs",
+            "compatibility_date": "2026-09-09",
+            "assets": {
+              "directory": "./dist",
+              "binding": "ASSETS",
+              "html_handling": "none",
+              "not_found_handling": "404-page",
+              "run_worker_first": [
+                "/",
+                "/index.html",
+                "/en.html",
+                "/admin",
+                "/admin/*",
+                "/api/*",
+                "/uploads/*",
+                "/sitemap.xml",
+                "/robots.txt",
+                "/__shell.html"
+              ]
+            },
+            "d1_databases": [
+              {
+                "binding": "DB",
+                "database_name": "natee",
+                "database_id": "db70eea1-2f69-4222-b895-a47288bb155c",
+                "migrations_dir": "worker/migrations"
+              }
+            ],
+            "kv_namespaces": [
+              {
+                "binding": "MEDIA",
+                "id": "b6e29331310d402e90aef580a03c16c7"
+              }
+            ],
+            "vars": {
+              "SITE_URL": "https://natee.chaiyootauifujai.workers.dev"
+            },
+            "triggers": {
+              "crons": [
+                "0 3 * * *"
+              ]
+            },
+            "observability": {
+              "enabled": false
+            },
+            "account_id": "3c3a30b952642a567008635f095785ca",
+            "workers_dev": true
+          }
+          CONFIG
+      - run: npm ci
+      - run: npm run build
+      - run: npm run check
+      - name: Validate deployment bundle
+        run: npx wrangler deploy --config wrangler.customer.jsonc --dry-run
+      - name: Migrate and publish to the verified customer account
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: 3c3a30b952642a567008635f095785ca
+        run: |
+          test -n "$CLOUDFLARE_API_TOKEN"
+          npx wrangler d1 migrations apply natee --remote --config wrangler.customer.jsonc
+          npx wrangler deploy --config wrangler.customer.jsonc
+      - name: Check public HTTPS pages
+        run: |
+          curl --fail --silent --show-error --retry 5 --retry-all-errors --retry-delay 5 "$SITE_URL/" -o /tmp/natee-home.html
+          curl --fail --silent --show-error "$SITE_URL/en.html" -o /tmp/natee-en.html
+          curl --fail --silent --show-error "$SITE_URL/admin/" -o /tmp/natee-admin.html
+          curl --fail --silent --show-error "$SITE_URL/sitemap.xml" -o /tmp/natee-sitemap.xml
+          test -s /tmp/natee-home.html
+          test -s /tmp/natee-en.html
+          test -s /tmp/natee-admin.html
+          grep -F "$SITE_URL" /tmp/natee-sitemap.xml
