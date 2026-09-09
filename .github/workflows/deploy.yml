@@ -1,50 +1,52 @@
-# Simple workflow for deploying static content to GitHub Pages
-name: Deploy static content to Pages
-
-# push ขึ้น main เมื่อไร เว็บจริงอัปเดตตามทันที
-# ด่านตรวจอยู่ก่อนขั้นเผยแพร่ ถ้าตรวจไม่ผ่านจะหยุดและของเดิมบนเว็บยังอยู่ครบ
+name: Validate Natee (no deployment)
 on:
   push:
-    branches: ["main"]
+    branches: ["main", "codex/**"]
   workflow_dispatch:
-
 permissions:
   contents: read
-  pages: write
-  id-token: write
-
 concurrency:
-  group: "pages"
-  cancel-in-progress: false
-
+  group: validate-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
-  deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+  checks:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Set up Node
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: 20
-          cache: "npm"
-      - name: Install dependencies
-        run: npm ci
-      - name: Build
-        run: npm run build
-      - name: Check build
-        run: npm run check
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run build
+      - run: npm run check
+      - run: npm test
+      - name: Install pinned CI tools
+        run: npm install --no-save --package-lock=false wrangler@4.130.0 @playwright/test@1.58.2
+      - name: Validate Worker bundle without publishing
+        run: npx wrangler deploy --dry-run --outdir work/worker-bundle
+      - name: Start isolated Cloudflare emulator on this GitHub runner
+        run: |
+          mkdir -p work
+          printf 'SETUP_TOKEN="%s"\n' 'ci-only-setup-token-not-for-production-827456192038' > .dev.vars
+          npx wrangler d1 migrations apply natee --local
+          npx wrangler dev --local --ip 127.0.0.1 --port 8787 > work/worker.log 2>&1 &
+          echo $! > work/worker.pid
+          node tests/wait-server.mjs
+      - name: API acceptance
+        run: node --test tests/api.test.mjs
+      - name: Install browser
+        run: npx playwright install --with-deps chromium
+      - name: Browser acceptance
+        run: npx playwright test
+      - uses: actions/upload-artifact@v4
+        if: always()
         with:
-          enablement: true
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: "./dist"
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+          name: natee-test-evidence-${{ github.sha }}
+          path: |
+            playwright-report/
+            test-results/
+            work/worker.log
+          retention-days: 14

@@ -4,3 +4,13 @@ dist/
 Thumbs.db
 node_modules/
 dist-natee-react.zip
+
+server-build/
+.wrangler/
+.dev.vars
+.env*
+!.env.example
+wrangler.production.json
+playwright-report/
+test-results/
+work/

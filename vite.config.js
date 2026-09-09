@@ -8,6 +8,9 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   base: './',
   plugins: [react()],
+  build: {
+    rollupOptions: { input: { main: 'index.html', admin: 'admin/index.html' } },
+  },
   resolve: {
     alias: {
       react: 'preact/compat',
