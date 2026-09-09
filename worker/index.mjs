@@ -114,7 +114,7 @@ async function handle(request,env) {
   if (url.pathname.startsWith('/api/')) return api(request,env,url.pathname)
   if (!['GET','HEAD'].includes(request.method)) throw new HttpError(405,'ไม่รองรับคำขอนี้')
   if (url.pathname === '/admin') return Response.redirect(url.origin+'/admin/',302)
-  const target=url.pathname === '/admin/' ? new URL('/admin/index.html',url) : request
+  const target=url.pathname === '/admin/' ? new URL('/admin/index.html',url) : url.pathname === '/' ? new URL('/index.html',url) : request
   const response=await env.ASSETS.fetch(target)
   return new Response(response.body,{status:response.status,headers:{...Object.fromEntries(response.headers),...securityHeaders,'Cache-Control':'no-store'}})
 }
