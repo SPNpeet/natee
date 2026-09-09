@@ -1,4 +1,6 @@
 import seed from '../server-build/seed.json'
+import buildInfo from '../server-build/build.json'
+import { withDefaults } from './content.mjs'
 import { render } from '../server-build/entry-server.js'
 import { renderPage, sitemap } from './render-page.mjs'
 import { randomToken, digest, equal, hashPassword, verifyPassword, HttpError, readBody, readJSON } from './security.mjs'
@@ -20,7 +22,7 @@ async function limit(env, key, max, seconds) {
 }
 async function currentContent(env) {
   const row = await query(env, 'SELECT version,data,updated FROM content WHERE id=1').first()
-  return row ? { version: row.version, content: JSON.parse(row.data), updated: row.updated } : { version: 0, content: seed, updated: null }
+  return row ? { version: row.version, content: withDefaults(seed,JSON.parse(row.data)), updated: row.updated } : { version: 0, content: seed, updated: null }
 }
 function originCheck(request, env) {
   const origin = new URL(env.SITE_URL).origin
@@ -91,8 +93,21 @@ async function api(request, env, path) {
     }
     const phone = text('phone',15,true)
     if (!/^\d{9,15}$/.test(phone)) throw new HttpError(422, 'เบอร์โทรต้องมีตัวเลข 9–15 หลัก')
-    await query(env, 'INSERT INTO inquiries(name,phone,area,message,language,created) VALUES (?,?,?,?,?,?)', text('name',120,true),phone,text('area',160),text('message',1500),body.language === 'en' ? 'en' : 'th',new Date().toISOString()).run()
+    await env.DB.batch([
+      query(env, 'INSERT INTO inquiries(name,phone,area,message,language,created) VALUES (?,?,?,?,?,?)', text('name',120,true),phone,text('area',160),text('message',1500),body.language === 'en' ? 'en' : 'th',new Date().toISOString()),
+      query(env,"INSERT INTO daily_stats(day,event,place,language,count) VALUES (?,'form_submit','contact',?,1) ON CONFLICT(day,event,place,language) DO UPDATE SET count=count+1",new Date().toISOString().slice(0,10),body.language==='en'?'en':'th'),
+    ])
     return json({ success: true }, 201)
+  }
+  if (path === '/api/events' && method === 'POST') {
+    await limit(env,'event:'+ip,60,60)
+    const body=await readJSON(request)
+    if (!['call_click','line_click','video_open','language_switch'].includes(body.name)) throw new HttpError(422,'เหตุการณ์ไม่ถูกต้อง')
+    const places=['header','hero','hero-secondary','cta','pricing','contact','footer','footer-secondary','sticky']
+    const place=places.includes(body.place)?body.place:'other'
+    const language=body.language==='en'?'en':'th'
+    await query(env,'INSERT INTO daily_stats(day,event,place,language,count) VALUES (?,?,?,?,1) ON CONFLICT(day,event,place,language) DO UPDATE SET count=count+1',new Date().toISOString().slice(0,10),body.name,place,language).run()
+    return json({success:true})
   }
   const active = await session(request, env)
   if (!active) throw new HttpError(401, 'กรุณาเข้าสู่ระบบอีกครั้ง')
@@ -110,6 +125,7 @@ async function api(request, env, path) {
     await env.DB.batch([query(env,'UPDATE users SET password=? WHERE id=?',hashed,active.userId),query(env,'DELETE FROM sessions WHERE user_id=?',active.userId)])
     return json({success:true},200,{'Set-Cookie':cookie('',env,0)})
   }
+  if (path === '/api/stats' && method === 'GET') return json((await query(env,"SELECT event,SUM(count) AS count FROM daily_stats WHERE day>=? GROUP BY event",new Date(Date.now()-30*86400000).toISOString().slice(0,10)).all()).results)
   if (path === '/api/content' && method === 'GET') return json(await currentContent(env))
   if (path === '/api/content' && method === 'PUT') {
     const body = await readJSON(request)
@@ -124,22 +140,25 @@ async function api(request, env, path) {
     const th = renderPage(template,render,data,'th',site)
     const en = renderPage(template,render,data,'en',site)
     const now = new Date().toISOString()
-    let result
+    let write
     if (before.version === 0) {
-      result = await query(env,'INSERT OR IGNORE INTO content VALUES (1,1,?,?,?,?)',JSON.stringify(data),th,en,now).run()
+      write = query(env,'INSERT OR IGNORE INTO content(id,version,data,html_th,html_en,updated,site,render_version) VALUES (1,1,?,?,?,?,?,?)',JSON.stringify(data),th,en,now,site,buildInfo.id)
     } else {
-      result = await query(env,'UPDATE content SET version=version+1,data=?,html_th=?,html_en=?,updated=? WHERE id=1 AND version=?',JSON.stringify(data),th,en,now,before.version).run()
+      write = query(env,'UPDATE content SET version=version+1,data=?,html_th=?,html_en=?,updated=?,site=?,render_version=? WHERE id=1 AND version=?',JSON.stringify(data),th,en,now,site,buildInfo.id,before.version)
     }
-    if (!result.meta.changes) throw new HttpError(409,'มีคนบันทึกข้อมูลพร้อมกัน กรุณาโหลดล่าสุด')
-    await query(env,'INSERT OR IGNORE INTO revisions VALUES (?,?,?,?)',before.version,JSON.stringify(before.content),active.userId,now).run()
-    await query(env,'DELETE FROM revisions WHERE version < ?',Math.max(0,before.version-19)).run()
+    const results=await env.DB.batch([
+      write,
+      query(env,'INSERT OR IGNORE INTO revisions VALUES (?,?,?,?)',before.version,JSON.stringify(before.content),active.userId,now),
+      query(env,'DELETE FROM revisions WHERE version < ?',Math.max(0,before.version-19)),
+    ])
+    if (!results[0].meta.changes) throw new HttpError(409,'มีคนบันทึกข้อมูลพร้อมกัน กรุณาโหลดล่าสุด')
     return json(await currentContent(env))
   }
   if (path === '/api/revisions' && method === 'GET') return json((await query(env,'SELECT version,updated FROM revisions ORDER BY version DESC LIMIT 20').all()).results)
   if (/^\/api\/revisions\/\d+$/.test(path) && method === 'GET') {
     const row=await query(env,'SELECT data FROM revisions WHERE version=?',Number(path.split('/').pop())).first()
     if (!row) throw new HttpError(404,'ไม่พบข้อมูลรุ่นนี้')
-    return json({content:JSON.parse(row.data)})
+    return json({content:withDefaults(seed,JSON.parse(row.data))})
   }
   if (path === '/api/media' && method === 'GET') return json((await query(env,'SELECT * FROM media ORDER BY created DESC LIMIT 500').all()).results)
   if (path === '/api/media' && method === 'POST') {
@@ -232,12 +251,16 @@ async function handle(request,env) {
   if (path === '/sitemap.xml') return new Response(sitemap(site),{headers:{...securityHeaders,'Content-Type':'application/xml'}})
   if (path === '/robots.txt') return new Response('User-agent: *\nAllow: /\nDisallow: /admin/\nDisallow: /api/\nSitemap: '+site+'/sitemap.xml\n',{headers:{...securityHeaders,'Content-Type':'text/plain'}})
   if (['/','/index.html','/en.html'].includes(path)) {
-    const row=await query(env,'SELECT html_th,html_en FROM content WHERE id=1').first()
+    const row=await query(env,'SELECT * FROM content WHERE id=1').first()
     const lang=path === '/en.html' ? 'en' : 'th'
     let html=row?.['html_'+lang]
-    if (!html) {
+    if (!html || row?.site !== site || row?.render_version !== buildInfo.id) {
       const shell=await (await env.ASSETS.fetch(new URL('/__shell.html',url))).text()
-      html=renderPage(shell,render,seed,lang,site)
+      const data=row ? withDefaults(seed,JSON.parse(row.data)) : seed
+      const th=renderPage(shell,render,data,'th',site)
+      const en=renderPage(shell,render,data,'en',site)
+      html=lang==='th'?th:en
+      if(row) await query(env,'UPDATE content SET html_th=?,html_en=?,site=?,render_version=? WHERE id=1 AND version=?',th,en,site,buildInfo.id,row.version).run()
     }
     return new Response(request.method === 'HEAD' ? null : html,{headers:{...securityHeaders,'Content-Type':'text/html; charset=utf-8','Cache-Control':'no-store'}})
   }
@@ -255,6 +278,6 @@ export default {
   },
   async scheduled(_event,env) {
     const cutoff=new Date(Date.now()-90*86400000).toISOString()
-    await env.DB.batch([query(env,'DELETE FROM sessions WHERE expires<?',Date.now()),query(env,'DELETE FROM limits WHERE expires<?',Date.now()),query(env,'DELETE FROM inquiries WHERE created<?',cutoff)])
+    await env.DB.batch([query(env,'DELETE FROM sessions WHERE expires<?',Date.now()),query(env,'DELETE FROM limits WHERE expires<?',Date.now()),query(env,'DELETE FROM inquiries WHERE created<?',cutoff),query(env,'DELETE FROM daily_stats WHERE day<?',cutoff.slice(0,10))])
   },
 }

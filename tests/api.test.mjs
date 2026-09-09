@@ -143,3 +143,14 @@ test('admin account changes invalidate old sessions',async()=>{
   const freshCookie=fresh.response.headers.get('set-cookie').split(';')[0]
   assert.equal((await call('password',{method:'POST',cookie:freshCookie,csrf:fresh.data.csrf,body:{currentPassword:'Replacement-CI-passphrase!',password}})).response.status,200)
 })
+
+test('aggregate metrics are private and record accepted events',async()=>{
+  assert.equal((await call('stats')).response.status,401)
+  assert.equal((await call('events',{method:'POST',body:{name:'call_click',place:'hero',language:'th'}})).response.status,200)
+  assert.equal((await call('events',{method:'POST',body:{name:'unknown'}})).response.status,422)
+  const logged=await call('login',{method:'POST',body:{email,password}})
+  const cookie=logged.response.headers.get('set-cookie').split(';')[0]
+  const stats=(await call('stats',{cookie})).data
+  assert.ok(stats.find(s=>s.event==='call_click').count>=1)
+  assert.ok(stats.find(s=>s.event==='form_submit').count>=1)
+})

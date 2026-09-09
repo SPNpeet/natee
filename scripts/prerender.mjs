@@ -1,5 +1,6 @@
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs'
 import { resolve } from 'node:path'
+import { createHash } from 'node:crypto'
 import { render } from '../server-build/entry-server.js'
 import * as content from '../src/data.js'
 import { renderPage, sitemap } from '../worker/render-page.mjs'
@@ -15,6 +16,7 @@ if (css) {
 }
 mkdirSync('server-build', { recursive: true })
 writeFileSync('server-build/seed.json', JSON.stringify(content))
+writeFileSync('server-build/build.json', JSON.stringify({ id: createHash('sha256').update(template).digest('hex') }))
 writeFileSync(resolve(dist, '__shell.html'), template)
 for (const [lang, file] of [['th', 'index.html'], ['en', 'en.html']]) {
   writeFileSync(resolve(dist, file), renderPage(template, render, content, lang, site))

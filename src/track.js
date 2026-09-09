@@ -17,6 +17,10 @@ export function track(name, params = {}) {
   if (typeof window === 'undefined') return
 
   try {
+    // Aggregate interaction counts only; no visitor identifiers or form contents.
+    if (name !== 'form_submit') void fetch('api/events', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, place: params.place, language: params.language || params.to }), keepalive: true }).catch(() => {})
+
     // Google Analytics 4 หรือ Google Tag Manager
     if (typeof window.gtag === 'function') {
       window.gtag('event', name, params)

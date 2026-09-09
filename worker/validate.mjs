@@ -16,6 +16,11 @@ function walk(model, input, path = '') {
 import { HttpError } from './security.mjs'
 export function validateContent(seed, value) {
   const out = walk(seed, value)
+  if(!/^#[0-9a-f]{6}$/i.test(out.BRAND.color))throw new HttpError(422,'สีเว็บไซต์ไม่ถูกต้อง')
+  const channels=[1,3,5].map(i=>parseInt(out.BRAND.color.slice(i,i+2),16)/255).map(v=>v<=0.04045?v/12.92:((v+0.055)/1.055)**2.4)
+  const luminance=channels[0]*0.2126+channels[1]*0.7152+channels[2]*0.0722
+  if(1.05/(luminance+0.05)<4.5)throw new HttpError(422,'สีหลักสว่างเกินไปสำหรับตัวอักษรสีขาว กรุณาเลือกสีเข้มขึ้น')
+  for(const lang of ['th','en'])if(out.SEO[lang].title.length>160||out.SEO[lang].description.length>500)throw new HttpError(422,'ชื่อ SEO ต้องไม่เกิน 160 ตัวอักษร และคำอธิบายไม่เกิน 500 ตัวอักษร')
   for (const key of ['phone', 'phone2']) {
     const digits = out.CONTACT[key].replace(/\D/g, '')
     if (!/^\d{9,15}$/.test(digits)) throw new HttpError(422, 'เบอร์โทรต้องมีตัวเลข 9–15 หลัก')

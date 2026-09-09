@@ -13,6 +13,7 @@ test('public website remains public; admin login and logout work',async({page})=
   await expect(page.getByRole('heading',{name:'ข้อมูลร้าน',exact:true})).toBeVisible()
   await page.reload()
   await expect(page.getByRole('heading',{name:'ข้อมูลร้าน',exact:true})).toBeVisible()
+  await expect(page.getByLabel('เบอร์โทรหลัก',{exact:true})).toHaveValue('064-825-3515')
   await page.screenshot({path:'test-results/admin-auth-desktop.png',fullPage:true})
   await page.setViewportSize({width:375,height:812})
   await expect.poll(()=>page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true)

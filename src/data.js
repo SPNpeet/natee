@@ -36,7 +36,7 @@ export const FORM = {
   endpoint: 'api/inquiries',
 }
 export const ASSETS = {
-  logo: 'logo', hero: 'truck-6wheel', about: 'work-11', qr: 'line-qr',
+  logo: 'logo', hero: 'truck-6wheel', about: 'work-11', qr: 'line-qr', share: 'og-banner',
 }
 
 
@@ -52,6 +52,9 @@ export const REVIEWS = {
   count: 0,
   url: '',
 }
+
+export const BRAND = { color: '#0f6fbf' }
+export const SEO = { th: { title: '', description: '' }, en: { title: '', description: '' } }
 
 export const GALLERY = [
   'work-01', 'work-02', 'work-03', 'work-04', 'work-05', 'work-06',

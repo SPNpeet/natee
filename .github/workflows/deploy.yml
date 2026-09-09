@@ -24,7 +24,7 @@ jobs:
       - run: npm run check
       - run: npm test
       - name: Install pinned CI tools
-        run: npm install --no-save --package-lock=false wrangler@4.130.0 @playwright/test@1.58.2
+        run: npm install --no-save --package-lock=false wrangler@4.130.0 @playwright/test@1.58.2 @axe-core/playwright@4.13.0
       - name: Validate Worker bundle without publishing
         run: npx wrangler deploy --dry-run --outdir work/worker-bundle
       - name: Start isolated Cloudflare emulator on this GitHub runner
@@ -32,13 +32,23 @@ jobs:
           mkdir -p work
           printf 'SETUP_TOKEN="%s"\n' 'ci-only-setup-token-not-for-production-827456192038' > .dev.vars
           npx wrangler d1 migrations apply natee --local
-          npx wrangler dev --local --ip 127.0.0.1 --port 8787 > work/worker.log 2>&1 &
+          setsid node node_modules/wrangler/bin/wrangler.js dev --local --ip 127.0.0.1 --port 8787 > work/worker.log 2>&1 &
           echo $! > work/worker.pid
           node tests/wait-server.mjs
       - name: API acceptance
         run: node --test tests/api.test.mjs
-      - name: Install browser
-        run: npx playwright install --with-deps chromium
+      - name: Verify persistence and render cache recovery after restart
+        run: |
+          node tests/persistence.mjs before
+          npx wrangler d1 execute natee --local --command "UPDATE content SET render_version='old-build',html_th='STALE-CACHE-FIXTURE' WHERE id=1"
+          kill -- -$(cat work/worker.pid)
+          sleep 2
+          setsid node node_modules/wrangler/bin/wrangler.js dev --local --ip 127.0.0.1 --port 8787 >> work/worker.log 2>&1 &
+          echo $! > work/worker.pid
+          node tests/wait-server.mjs
+          node tests/persistence.mjs after
+      - name: Install browsers
+        run: npx playwright install --with-deps chromium firefox webkit
       - name: Browser acceptance
         run: npx playwright test
       - uses: actions/upload-artifact@v4

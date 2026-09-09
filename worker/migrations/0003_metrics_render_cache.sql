@@ -1,0 +1,3 @@
+ALTER TABLE content ADD COLUMN site TEXT NOT NULL DEFAULT '';
+ALTER TABLE content ADD COLUMN render_version TEXT NOT NULL DEFAULT '';
+CREATE TABLE daily_stats (day TEXT NOT NULL,event TEXT NOT NULL,place TEXT NOT NULL,language TEXT NOT NULL,count INTEGER NOT NULL DEFAULT 1,PRIMARY KEY(day,event,place,language));

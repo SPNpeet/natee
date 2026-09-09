@@ -1,14 +1,16 @@
+import { imageAsset } from '../src/brand.js'
 export const escapeHtml = value => String(value).replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;')
 export const safeJSON = value => JSON.stringify(value).replaceAll('<', '\\u003c')
 export function metadata(content, lang, site) {
-  const { I18N, CONTACT, REVIEWS, ASSETS } = content
+  const { I18N, CONTACT, REVIEWS, ASSETS, SEO } = content
   const L = I18N[lang]
   const url = site + (lang === 'th' ? '/' : '/en.html')
-  const img = value => site + '/' + (value.startsWith('uploads/') ? value : 'images/' + value + '.webp')
+  const img = value => site + '/' + imageAsset(value)
   const business = {
     '@context': 'https://schema.org', '@type': 'LocalBusiness',
     name: L.siteName, description: L.heroSubtitle, url, image: img(ASSETS.hero), logo: img(ASSETS.logo),
     telephone: CONTACT.phone, email: CONTACT.email,
+    contactPoint: [CONTACT.phone,CONTACT.phone2].map(telephone=>({'@type':'ContactPoint',telephone,contactType:'customer service',availableLanguage:['th','en']})),
     address: { '@type': 'PostalAddress', streetAddress: L.address, addressCountry: 'TH' },
     areaServed: L.areas, sameAs: [CONTACT.facebookUrl, CONTACT.lineUrl],
   }
@@ -19,9 +21,9 @@ export function metadata(content, lang, site) {
     contentUrl: site + '/' + (v.file.startsWith('uploads/') ? v.file : 'videos/' + v.file + '.mp4'),
     thumbnailUrl: v.poster ? img(v.poster) : (v.file.startsWith('uploads/') ? img(ASSETS.hero) : site + '/images/' + v.file + '-poster.webp'),
   }))
-  const title = L.heroTitle + ' | ' + L.siteName
-  const description = L.heroSubtitle + ' ' + CONTACT.phone
-  return { title, description, url, image: img(ASSETS.hero), schemas: [business, faq, ...videos] }
+  const title = SEO[lang].title.trim() || L.heroTitle + ' | ' + L.siteName
+  const description = SEO[lang].description.trim() || L.heroSubtitle + ' ' + CONTACT.phone
+  return { title, description, url, image: img(ASSETS.share), schemas: [business, faq, ...videos] }
 }
 export function renderPage(template, render, content, lang, site) {
   const m = metadata(content, lang, site)

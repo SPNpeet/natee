@@ -1,15 +1,14 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import Icon from './icons.jsx'
 import * as defaults from './data.js'
+import { brandCSS, imageAsset as asset } from './brand.js'
 import { track } from './track.js'
 import ContactForm from './ContactForm.jsx'
 
 const SECTIONS = ['services', 'fleet', 'pricing', 'areas', 'gallery', 'faq', 'contact']
 
-const asset = (name, suffix = '.webp') => name.startsWith('uploads/') ? name : `images/${name}${suffix}`
-
 export default function App({ lang = 'th', content = defaults }) {
-  const { I18N, CONTACT, GALLERY, REVIEWS, FORM, ASSETS } = content
+  const { I18N, CONTACT, GALLERY, REVIEWS, FORM, ASSETS, BRAND } = content
   const [menuOpen, setMenuOpen] = useState(false)
   const [openPrice, setOpenPrice] = useState(0)
   const [openFaq, setOpenFaq] = useState(null)
@@ -17,6 +16,8 @@ export default function App({ lang = 'th', content = defaults }) {
   const [toast, setToast] = useState('')
 
   const dialogRef = useRef(null)
+  const viewerOpener = useRef(null)
+  const videoRef = useRef(null)
   const toastTimer = useRef(null)
   const viewerOpen = viewer !== null
 
@@ -49,10 +50,16 @@ export default function App({ lang = 'th', content = defaults }) {
     if (!viewerOpen) return
     const dialog = dialogRef.current
     dialog.showModal()
-    return () => dialog.close()
+    return () => { dialog.close(); viewerOpener.current?.focus({ preventScroll: true }) }
   }, [viewerOpen])
 
   useEffect(() => () => clearTimeout(toastTimer.current), [])
+  useEffect(() => {
+    const video = videoRef.current
+    return () => {
+      if (video) { video.pause(); video.removeAttribute('src'); video.load() }
+    }
+  }, [viewer])
 
   // ปุ่มลูกศรและปุ่ม Esc ขณะเปิดตัวดูผลงาน
   useEffect(() => {
@@ -133,6 +140,7 @@ export default function App({ lang = 'th', content = defaults }) {
 
   return (
     <>
+      <style>{brandCSS(BRAND.color)}</style>
       <a className="natee-skip" href="#natee-main">{L.skipToContent}</a>
 
       <header className="natee-header">
@@ -442,7 +450,7 @@ export default function App({ lang = 'th', content = defaults }) {
                   <button
                     type="button"
                     className="natee-media-link natee-video-link"
-                    onClick={() => { setViewer(index); track('video_open', { clip: item.key, language: lang }) }}
+                    onClick={(event) => { viewerOpener.current = event.currentTarget; setViewer(index); track('video_open', { clip: item.key, language: lang }) }}
                     aria-label={`${L.videoPlay} ${item.alt}`}
                   >
                     <img className="natee-video-poster" src={item.poster} alt={item.alt} width="432" height="768" loading="lazy" decoding="async" />
@@ -459,7 +467,7 @@ export default function App({ lang = 'th', content = defaults }) {
                   <button
                     type="button"
                     className="natee-media-link natee-gallery-link"
-                    onClick={() => setViewer(L.videos.length + index)}
+                    onClick={(event) => { viewerOpener.current = event.currentTarget; setViewer(L.videos.length + index) }}
                     aria-label={`${L.galleryOpen} ${index + 1} ${L.viewerOf} ${GALLERY.length}`}
                   >
                     <img
@@ -676,7 +684,7 @@ export default function App({ lang = 'th', content = defaults }) {
         <dialog ref={dialogRef} className="natee-lightbox is-open" aria-label={L.viewerLabel}
           onCancel={(event) => { event.preventDefault(); setViewer(null) }}>
           <div className="natee-lightbox-backdrop" onClick={() => setViewer(null)} />
-          <div className="natee-lightbox-inner">
+          <div className="natee-lightbox-inner" onClick={(event) => { if (event.target === event.currentTarget || event.target.classList.contains('natee-lightbox-figure')) setViewer(null) }}>
             <div className="natee-lightbox-bar">
               <span className="natee-lightbox-counter" aria-live="polite">{viewer + 1} {L.viewerOf} {media.length}</span>
               <button type="button" className="natee-lightbox-btn natee-lightbox-close" onClick={() => setViewer(null)}>
@@ -696,6 +704,7 @@ export default function App({ lang = 'th', content = defaults }) {
                 {current.type === 'video' ? (
                   <video
                     className="natee-lightbox-video"
+                    ref={videoRef}
                     key={current.src}
                     src={current.src}
                     poster={current.poster}

@@ -65,7 +65,7 @@ export default function ContactForm({ L, config = FORM }) {
         <label htmlFor="natee-name">
           {L.formName} <span className="natee-required">{L.formRequired}</span>
         </label>
-        <input type="text" id="natee-name" name="name" autoComplete="name" maxLength={120} required />
+        <input type="text" id="natee-name" name="name" autoComplete="name" maxLength={120} pattern={".*\\S.*"} required />
       </p>
 
       <p className="natee-form-row">
