@@ -34,7 +34,7 @@ Worker หนึ่งตัวเสิร์ฟ React public/admin และ A
 2. สร้าง D1 ชื่อ natee และ KV namespace MEDIA ในบัญชีนั้น บันทึก ID ทั้งสอง
 3. คัดลอก wrangler.customer.example.jsonc เป็น wrangler.customer.jsonc ที่ราก repo แทนทุก REPLACE_WITH... ให้ถูกต้อง ไฟล์นี้ถูก gitignore เพื่อไม่ปะปน config ลูกค้ากับ config ทดสอบ
 4. ตรวจ account_id, database_id, KV id, SITE_URL และ routes.pattern ตรงกัน ห้ามใช้ wrangler.jsonc สำหรับ production เพราะมี ID ศูนย์และ localhost
-5. ใช้ Node 24, npm ci และ Wrangler 4.130.0 ตาม CI การพิสูจน์ bundle ใช้ --dry-run เท่านั้น
+5. ใช้ Node 24 และ npm ci เพื่อใช้ Wrangler 4.130.0 และชุดเครื่องมือที่ล็อกไว้ รวม sharp0.35.4 สำหรับช่องโหว่ dependency ของ emulator การพิสูจน์ bundle ใช้ --dry-run เท่านั้น
 
 ```sh
 npm ci
@@ -42,7 +42,7 @@ SITE_URL=https://YOUR-CUSTOMER-DOMAIN npm run build
 npm run lint
 SITE_URL=https://YOUR-CUSTOMER-DOMAIN npm run check
 npm test
-npx wrangler@4.130.0 deploy --config wrangler.customer.jsonc --dry-run
+npx wrangler deploy --config wrangler.customer.jsonc --dry-run
 ```
 
 แทน YOUR-CUSTOMER-DOMAIN ด้วยโดเมนจริงก่อนใช้ ควรใช้โดเมน UAT ของลูกค้าก่อนเปลี่ยน DNS หน้าเดิม การย้ายเป็นโดเมนหลักต้องเปลี่ยน SITE_URL/routes และ build ใหม่
@@ -52,9 +52,9 @@ npx wrangler@4.130.0 deploy --config wrangler.customer.jsonc --dry-run
 ผู้ติดตั้งต้องยืนยันบัญชีที่ล็อกอินด้วย wrangler whoami และเทียบ account_id อีกครั้ง หรือใช้ API token แบบจำกัดเฉพาะบัญชี/ทรัพยากรผ่าน GitHub Environment secret ห้ามใส่ token ใน repo, log หรือแชท ไม่ได้เตรียม workflow deploy อัตโนมัติในชุดนี้
 
 ```sh
-npx wrangler@4.130.0 d1 migrations apply natee --remote --config wrangler.customer.jsonc
-npx wrangler@4.130.0 deploy --config wrangler.customer.jsonc
-npx wrangler@4.130.0 secret put SETUP_TOKEN --config wrangler.customer.jsonc
+npx wrangler d1 migrations apply natee --remote --config wrangler.customer.jsonc
+npx wrangler deploy --config wrangler.customer.jsonc
+npx wrangler secret put SETUP_TOKEN --config wrangler.customer.jsonc
 ```
 
 SETUP_TOKEN ใช้ค่าที่สุ่มอย่างปลอดภัยอย่างน้อย 32 ตัวอักษรและเก็บเป็น Cloudflare secret เท่านั้น ก่อนตั้ง secret หน้า setup จะสร้างบัญชีไม่ได้ เปิด /admin/ ด้วย HTTPS ให้ลูกค้ากรอก setup token อีเมล และรหัสผ่านใหม่ หลังสร้างแอดมินสำเร็จลบ SETUP_TOKEN จาก Worker secret แล้วตรวจ login/logout อีกครั้ง API จะไม่ยอมสร้างแอดมินแรกซ้ำเมื่อมีบัญชีแล้ว
@@ -72,7 +72,7 @@ SETUP_TOKEN ใช้ค่าที่สุ่มอย่างปลอด�
 - สำรอง D1 เป็น SQL จากบัญชีลูกค้า เก็บเข้ารหัสและจำกัดสิทธิ์ เพราะมีแฮชรหัสผ่านและข้อมูลติดต่อ
 - ดาวน์โหลดไฟล์ทุก path จากคลังสื่อ หรือใช้ Wrangler KV export workflow ที่เก็บ bytes และ metadata.mime ให้ครบ จด path เดิมเพื่อให้ข้อมูลเนื้อหาอ้างกลับได้
 - เก็บ commit/config (ไม่รวม secrets), รายการ migrations, วันที่สำรอง และไฟล์เนื้อหา JSON ด้วย
-- ตัวอย่าง export: npx wrangler@4.130.0 d1 export natee --remote --output backups/natee.sql --config wrangler.customer.jsonc
+- ตัวอย่าง export: npx wrangler d1 export natee --remote --output backups/natee.sql --config wrangler.customer.jsonc
 - ทดสอบ restore ใน D1/KV แยกของลูกค้าก่อนเขียนทับของจริง เมื่อกู้คืน session ควรล้างตาราง sessions เพื่อให้ทุกบัญชีล็อกอินใหม่
 - JSON จากแอดมินเป็นเพียงเนื้อหา ไม่รวม media, inquiries หรือ accounts ไม่มีปุ่ม restore ทั้งระบบในหน้าแอดมิน
 

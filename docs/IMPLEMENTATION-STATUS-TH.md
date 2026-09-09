@@ -36,3 +36,5 @@
 หลักฐานเป็นการตรวจตาม test cases ไม่ใช่การรับรองว่าปลอดบั๊ก 100% หรือผ่าน Free CPU quota จริง ลูกค้าต้องอนุมัติ review ก่อนเชื่อม Cloudflare และทำ UAT production ตาม HANDOVER-TH.md
 
 รอบ b9b108b / [run 34329419855](https://github.com/SPNpeet/natee/actions/runs/34329419855): browser 49 ผ่าน, 2 ไม่ผ่าน, 2 ข้าม โดย layout ทั้ง 42 ชุดและ axe ผ่านแล้ว เหลือ race ของ Escape/resize เมนูมือถือ จึงติด listener ตลอดอายุ component และทดสอบ desktop state ก่อนย่อกลับมือถือ นอกจากนี้ตรวจ audit เครื่องมือ CI เต็มชุดและขยับ Playwright เป็นรุ่นทางการ 1.63.0
+
+รอบ fd079d2 / [run 34329949504](https://github.com/SPNpeet/natee/actions/runs/34329949504) ผ่าน lint/build/check, unit6, API25, restart และ browser51 เคส; ข้าม axe ซ้ำ2เคสตาม config พบ audit high3 รายการจากสาย sharp → miniflare → wrangler จึงล็อก sharp0.35.4 ที่แก้ [GHSA-rgj7-g3m4-5g8c](https://github.com/advisories/GHSA-rgj7-g3m4-5g8c) และตรวจ toolchain ใหม่ ห้ามตีความ run นี้ว่า audit เป็นศูนย์
