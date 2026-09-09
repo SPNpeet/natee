@@ -6,9 +6,10 @@ import ContactForm from './ContactForm.jsx'
 
 const SECTIONS = ['services', 'fleet', 'pricing', 'areas', 'gallery', 'faq', 'contact']
 
+const asset = (name, suffix = '.webp') => name.startsWith('uploads/') ? name : `images/${name}${suffix}`
+
 export default function App({ lang = 'th', content = defaults }) {
   const { I18N, CONTACT, GALLERY, REVIEWS, FORM, ASSETS } = content
-  const asset = (name, suffix = '.webp') => name.startsWith('uploads/') ? name : `images/${name}${suffix}`
   const [menuOpen, setMenuOpen] = useState(false)
   const [openPrice, setOpenPrice] = useState(0)
   const [openFaq, setOpenFaq] = useState(null)

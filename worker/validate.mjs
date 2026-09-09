@@ -1,6 +1,5 @@
-import { HttpError } from './security.mjs'
-export function validateContent(seed, value) {
-  const walk = (model, input, path = '') => {
+const video = v => /^(?:[a-z0-9-]+|uploads\/[a-f0-9]{32}\.mp4)$/.test(v)
+function walk(model, input, path = '') {
     if (Array.isArray(model)) {
       if (!Array.isArray(input) || input.length > 50) throw new HttpError(422, 'รายการไม่ถูกต้อง: ' + path)
       return input.map((item, i) => walk(model[0], item, path + '.' + i))
@@ -13,6 +12,9 @@ export function validateContent(seed, value) {
     if (typeof input !== typeof model || (typeof input === 'string' && input.length > 6000) || (typeof input === 'number' && !Number.isFinite(input))) throw new HttpError(422, 'กรุณาตรวจข้อมูล: ' + path)
     return input
   }
+
+import { HttpError } from './security.mjs'
+export function validateContent(seed, value) {
   const out = walk(seed, value)
   for (const key of ['phone', 'phone2']) {
     const digits = out.CONTACT[key].replace(/\D/g, '')
@@ -36,7 +38,6 @@ export function validateContent(seed, value) {
   if (out.I18N.th.videos.length !== out.I18N.en.videos.length) throw new HttpError(422, 'จำนวนคลิปสองภาษาต้องเท่ากัน')
   const knownImages=new Set([...Object.values(seed.ASSETS),...seed.GALLERY,...seed.I18N.th.fleet.map(x=>x.image),...seed.I18N.th.videos.map(x=>x.file+'-poster')])
   const image = v => knownImages.has(v) || /^uploads\/[a-f0-9]{32}\.(?:png|jpg|webp)$/.test(v)
-  const video = v => /^(?:[a-z0-9-]+|uploads\/[a-f0-9]{32}\.mp4)$/.test(v)
   const images = [...Object.values(out.ASSETS), ...out.GALLERY, ...out.I18N.th.fleet.map(x => x.image), ...out.I18N.en.fleet.map(x => x.image)]
   if (images.some(x => !image(x))) throw new HttpError(422, 'กรุณาเลือกรูปจากคลังสื่อ')
   for (const L of Object.values(out.I18N)) {

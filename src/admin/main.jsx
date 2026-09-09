@@ -83,7 +83,9 @@ function Admin() {
     const headers={}
     if (auth?.csrf) headers['X-CSRF-Token']=auth.csrf
     if (body && !(body instanceof File)) headers['Content-Type']='application/json'
-    const response=await fetch('../api/'+path,{method,headers,body:body ? (body instanceof File ? body : JSON.stringify(body)) : undefined,credentials:'same-origin'})
+    const options={method,headers,credentials:'same-origin'}
+    if(body && !['GET','HEAD'].includes(method))options.body=body instanceof File ? body : JSON.stringify(body)
+    const response=await fetch('../api/'+path,options)
     let result
     try { result=await response.json() } catch { throw new Error('เชื่อมต่อหลังบ้านไม่ได้ กรุณาลองโหลดหน้าใหม่') }
     if (!response.ok) throw new Error(result.error || 'ทำรายการไม่สำเร็จ')

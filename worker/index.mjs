@@ -147,12 +147,12 @@ async function api(request, env, path) {
     const bytes = await readBody(request,8*1024*1024)
     const [ext,mime] = mediaType(bytes)
     if (mime.startsWith('image/') && bytes.length > 5*1024*1024) throw new HttpError(413,'รูปต้องไม่เกิน 5 MB')
-    const path='uploads/' + randomToken().slice(0,32) + '.' + ext
-    const result=await query(env,'INSERT INTO media SELECT ?,?,?,? WHERE (SELECT COALESCE(SUM(bytes),0) FROM media)+? <= 800000000',path,mime,bytes.length,new Date().toISOString(),bytes.length).run()
+    const uploadPath='uploads/' + randomToken().slice(0,32) + '.' + ext
+    const result=await query(env,'INSERT INTO media SELECT ?,?,?,? WHERE (SELECT COALESCE(SUM(bytes),0) FROM media)+? <= 800000000',uploadPath,mime,bytes.length,new Date().toISOString(),bytes.length).run()
     if (!result.meta.changes) throw new HttpError(413,'คลังสื่อเต็ม กรุณาสำรองและลบไฟล์ที่ไม่ได้ใช้')
-    try { await env.MEDIA.put(path,bytes,{metadata:{mime}}) }
-    catch { await query(env,'DELETE FROM media WHERE path=?',path).run(); throw new HttpError(503,'อัปโหลดไม่สำเร็จหรือโควต้าเต็ม กรุณาลองภายหลัง') }
-    return json({path,mime,bytes:bytes.length},201)
+    try { await env.MEDIA.put(uploadPath,bytes,{metadata:{mime}}) }
+    catch { await query(env,'DELETE FROM media WHERE uploadPath=?',uploadPath).run(); throw new HttpError(503,'อัปโหลดไม่สำเร็จหรือโควต้าเต็ม กรุณาลองภายหลัง') }
+    return json({path:uploadPath,mime,bytes:bytes.length},201)
   }
   if (path === '/api/media' && method === 'DELETE') {
     const body=await readJSON(request)
