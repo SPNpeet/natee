@@ -167,8 +167,8 @@ async function api(request, env, path) {
     const [ext,mime] = mediaType(bytes)
     if (mime.startsWith('image/') && bytes.length > 5*1024*1024) throw new HttpError(413,'รูปต้องไม่เกิน 5 MB')
     const uploadPath='uploads/' + randomToken().slice(0,32) + '.' + ext
-    const result=await query(env,'INSERT INTO media SELECT ?,?,?,? WHERE (SELECT COALESCE(SUM(bytes),0) FROM media)+? <= 800000000',uploadPath,mime,bytes.length,new Date().toISOString(),bytes.length).run()
-    if (!result.meta.changes) throw new HttpError(413,'คลังสื่อเต็ม กรุณาสำรองและลบไฟล์ที่ไม่ได้ใช้')
+    const result=await query(env,'INSERT INTO media SELECT ?,?,?,? WHERE (SELECT COALESCE(SUM(bytes),0) FROM media)+? <= 800000000 AND (SELECT COUNT(*) FROM media)<500',uploadPath,mime,bytes.length,new Date().toISOString(),bytes.length).run()
+    if (!result.meta.changes) throw new HttpError(413,'คลังสื่อเต็ม (พื้นที่หรือ 500 ไฟล์) กรุณาสำรองและลบไฟล์ที่ไม่ได้ใช้')
     try { await env.MEDIA.put(uploadPath,bytes,{metadata:{mime}}) }
     catch { await query(env,'DELETE FROM media WHERE path=?',uploadPath).run(); throw new HttpError(503,'อัปโหลดไม่สำเร็จหรือโควต้าเต็ม กรุณาลองภายหลัง') }
     return json({path:uploadPath,mime,bytes:bytes.length},201)
@@ -184,7 +184,11 @@ async function api(request, env, path) {
     await query(env,'DELETE FROM media WHERE path=?',row.path).run()
     return json({success:true})
   }
-  if (path === '/api/inquiries' && method === 'GET') return json((await query(env,'SELECT * FROM inquiries ORDER BY id DESC LIMIT 500').all()).results)
+  if (path === '/api/inquiries' && method === 'GET') {
+    const before=Number(new URL(request.url).searchParams.get('before')||Number.MAX_SAFE_INTEGER)
+    if(!Number.isSafeInteger(before)||before<1)throw new HttpError(422,'หน้าข้อความไม่ถูกต้อง')
+    return json((await query(env,'SELECT * FROM inquiries WHERE id<? ORDER BY id DESC LIMIT 500',before).all()).results)
+  }
   if (/^\/api\/inquiries\/\d+$/.test(path) && ['PATCH','DELETE'].includes(method)) {
     const id=Number(path.split('/').pop())
     if (method === 'DELETE') await query(env,'DELETE FROM inquiries WHERE id=?',id).run()

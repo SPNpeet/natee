@@ -1,4 +1,3 @@
-const video = v => /^(?:[a-z0-9-]+|uploads\/[a-f0-9]{32}\.mp4)$/.test(v)
 function walk(model, input, path = '') {
     if (Array.isArray(model)) {
       if (!Array.isArray(input) || input.length > 50) throw new HttpError(422, 'รายการไม่ถูกต้อง: ' + path)
@@ -45,6 +44,8 @@ export function validateContent(seed, value) {
   const image = v => knownImages.has(v) || /^uploads\/[a-f0-9]{32}\.(?:png|jpg|webp)$/.test(v)
   const images = [...Object.values(out.ASSETS), ...out.GALLERY, ...out.I18N.th.fleet.map(x => x.image), ...out.I18N.en.fleet.map(x => x.image)]
   if (images.some(x => !image(x))) throw new HttpError(422, 'กรุณาเลือกรูปจากคลังสื่อ')
+  const knownVideos=new Set(seed.I18N.th.videos.map(v=>v.file))
+  const video=v=>knownVideos.has(v)||/^uploads\/[a-f0-9]{32}\.mp4$/.test(v)
   for (const L of Object.values(out.I18N)) {
     for (const v of L.videos) if (!video(v.file) || (v.poster && !image(v.poster))) throw new HttpError(422, 'ไฟล์คลิปหรือภาพหน้าปกไม่ถูกต้อง')
   }

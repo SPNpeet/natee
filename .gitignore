@@ -14,3 +14,6 @@ wrangler.production.json
 playwright-report/
 test-results/
 work/
+
+wrangler.customer.jsonc
+backups/

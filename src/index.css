@@ -2321,3 +2321,6 @@ dialog.natee-lightbox::backdrop { background: #070e19; }
 @media (prefers-reduced-motion: reduce) {
   .natee-lightbox.is-open .natee-lightbox-image { animation: none; }
 }
+
+/* Keep small contact labels at the same accessible contrast as their buttons. */
+.natee-btn-small{opacity:1}

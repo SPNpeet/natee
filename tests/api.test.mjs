@@ -1,5 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
+import {readFile} from 'node:fs/promises'
 const base='http://127.0.0.1:8787'
 const email='admin@example.test',password='Natee-CI-only-passphrase-2026!'
 const setupToken='ci-only-setup-token-not-for-production-827456192038'
@@ -104,6 +105,14 @@ test('media authorization, upload validation, delivery and deletion',async t=>{
     const restored=await call('content',{method:'PUT',cookie,csrf,body:{content:original.content,version:saved.data.version}})
     assert.equal(restored.response.status,200)
   })
+  await t.test('real MP4 upload preserves bytes and supports playback ranges',async()=>{
+    const clip=await readFile('public/videos/work-video-01.mp4')
+    const sent=await fetch(base+'/api/media',{method:'POST',headers,body:clip}),media=await sent.json()
+    assert.equal(sent.status,201,JSON.stringify(media));assert.equal(media.mime,'video/mp4')
+    const range=await fetch(base+'/'+media.path,{headers:{Range:'bytes=0-1023'}})
+    assert.equal(range.status,206);assert.deepEqual(Buffer.from(await range.arrayBuffer()),clip.subarray(0,1024))
+    assert.equal((await call('media',{method:'DELETE',cookie,csrf,body:{path:media.path}})).response.status,200)
+  })
   await t.test('unused upload can be deleted',async()=>{
     const r=await fetch(base+'/api/media',{method:'POST',headers,body:png}),extra=await r.json()
     assert.equal((await call('media',{method:'DELETE',cookie,csrf,body:{path:extra.path}})).response.status,200)
@@ -119,6 +128,8 @@ test('public enquiries arrive in the private inbox and can be managed',async()=>
   const cookie=logged.response.headers.get('set-cookie').split(';')[0],csrf=logged.data.csrf
   const rows=(await call('inquiries',{cookie})).data
   const row=rows.find(r=>r.name==='CI enquiry');assert.ok(row);assert.equal(row.language,'en')
+  assert.equal((await call('inquiries?before='+row.id,{cookie})).data.some(r=>r.id>=row.id),false)
+  assert.equal((await call('inquiries?before=bad',{cookie})).response.status,422)
   assert.equal((await call('inquiries/'+row.id,{method:'PATCH',cookie,csrf,body:{}})).response.status,200)
   assert.equal((await call('inquiries',{cookie})).data.find(r=>r.id===row.id).status,'read')
   assert.equal((await call('inquiries/'+row.id,{method:'DELETE',cookie,csrf,body:{}})).response.status,200)

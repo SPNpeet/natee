@@ -14,7 +14,7 @@ test('server rejects malformed content, dangerous links and media paths',()=>{
   for(const change of [
     c=>{c.CONTACT.mapEmbed='https://evil.example/maps'},c=>{c.CONTACT.lineUrl='javascript:alert(1)'},
     c=>{c.GALLERY=['../secret']},c=>{c.I18N.en.videos=[]},c=>{c.REVIEWS.rating=9},
-    c=>{c.CONTACT.phone='bad'},c=>{c.extra='unexpected'},
+    c=>{c.CONTACT.phone='bad'},c=>{c.extra='unexpected'},c=>{c.I18N.th.videos[0].file='missing-clip'},c=>{c.BRAND.color='#ffffff'},
   ]){const data=structuredClone(seed);change(data);assert.throws(()=>validateContent(seed,data))}
 })
 test('password hashing is salted and wrong passwords fail',async()=>{

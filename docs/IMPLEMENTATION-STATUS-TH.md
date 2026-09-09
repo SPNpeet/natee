@@ -1,58 +1,36 @@
-# สถานะงานและหลักฐานตรวจรับ
+# ข้อกำหนดและหลักฐานตรวจรับ
 
-เป้าหมายล่าสุด: React web app พร้อมแอดมินใน repo เดียว ไม่มีระบบสมาชิกผู้เข้าชม และไม่ใช้ WordPress
-ปลายทางที่เตรียม: Cloudflare Workers/D1/KV แผนฟรี ในบัญชีลูกค้าเท่านั้น ยังไม่เชื่อมบัญชีหรือ deploy
+เป้าหมาย: React web app พร้อมแอดมินใน repo เดียว ผู้เข้าชมไม่ต้องมีบัญชี แอดมินมีสิทธิ์เดียว ใช้ Workers + D1 + KV ในบัญชี Cloudflare ลูกค้าแผน Free ไม่มี WordPress ใน deployment
 
-## จุดที่ 1: ล็อกอินแอดมินและสิทธิ์ฝั่งเซิร์ฟเวอร์
+## ตารางข้อกำหนด
 
-- เพิ่ม /admin/ สำหรับสร้างแอดมินครั้งแรกด้วย SETUP_TOKEN ที่ผู้ติดตั้งตั้งเป็น secret อย่างน้อย 32 ตัวอักษร
-- ไม่มีรหัสผ่านเริ่มต้นในระบบจริง ใช้รหัสผ่านอย่างน้อย 12 ตัวอักษร เก็บ salted PBKDF2-SHA256 100,000 iterations
-- เซสชันเก็บใน D1 ฝั่งเซิร์ฟเวอร์ เก็บเฉพาะแฮชของ token อายุ 8 ชั่วโมง
-- cookie เป็น HttpOnly, SameSite=Strict และ Secure เมื่อ SITE_URL ใช้ HTTPS
-- ทุก admin API ตรวจ session ฝั่ง server; คำขอแก้ไขตรวจ Origin และ CSRF token
-- จำกัดความถี่การล็อกอิน/ตั้งระบบ/เปลี่ยนรหัสผ่าน; เปลี่ยนรหัสผ่านหรือปิดบัญชีแล้วเซสชันเก่าถูกเพิกถอน
-- ผู้เข้าชมเปิดหน้าเว็บไซต์ได้ตามปกติ ไม่ต้องสมัครหรือเข้าสู่ระบบ
-- GitHub workflow ถูกเปลี่ยนเป็นตรวจอย่างเดียว ไม่มีคำสั่ง deploy
-
-## การตรวจ
-
-tests/unit.test.mjs: password hashing และ JSON validation
-tests/api.test.mjs: anonymous access, origin, setup secret, session, CSRF, logout, login
-tests/browser/auth.spec.js: เปิดหน้าสาธารณะ, login ผิด/ถูก, reload session, logout, หน้าจอ 375px และภาพหน้าจอ
-
-จุดที่ 1 ผ่านทุกขั้นที่ https://github.com/SPNpeet/natee/actions/runs/34326246219
-
-จุดที่ 2 เพิ่มการแก้เนื้อหา/คำแปล/ราคา บันทึก D1 พร้อมเลขรุ่นป้องกันการเขียนทับ และพรีเรนเดอร์หน้าเว็บสองภาษาจากข้อมูลที่บันทึก ทั้ง HTML และ SEO เปลี่ยนพร้อมกัน มีประวัติ 20 รุ่นสำหรับกู้คืนเป็นแบบร่าง โครง API/หน้า media และกล่องข้อความเชื่อมมาด้วย แต่ยังไม่ปิดงานสองส่วนนี้จนกว่าจะผ่านชุดตรวจของจุดถัดไป
-
-## ตารางข้อกำหนดที่ต้องทำต่อ
-
-| ข้อกำหนด | Implementation | หลักฐาน | คงเหลือ |
+| ข้อกำหนด | Implementation | การตรวจ/หลักฐาน | คงเหลือ |
 |---|---|---|---|
-| หน้าเว็บสองภาษาและส่วนธุรกิจเดิม | React เดิม | build/check เดิมที่ 1b558c8 ผ่าน 36 ข้อ | ตรวจ UX/action ใหม่หลังเชื่อมข้อมูล |
-| admin login และ server authorization | worker/index.mjs, worker/security.mjs, /admin/ | unit/API/browser tests | ผ่าน CI run 34326246219 ที่ commit a78311a |
-| แก้ข้อความ/ราคา/คำแปล | เตรียมโค้ดไว้ ยังไม่รวมจุดที่ 1 | ยังไม่ทดสอบ | จุดที่ 2 |
-| บันทึกข้อมูลจริงและ public render | เตรียม D1/SSR ไว้ | ยังไม่ทดสอบ | จุดที่ 2 |
-| รูป/คลิปและคลังสื่อ | เตรียม KV/API/UI ไว้ | ยังไม่ทดสอบ | จุดที่ 3 |
-| ฟอร์มและกล่องข้อความติดต่อ | เตรียมไว้ | ยังไม่ทดสอบ | จุดถัดไป |
-| คู่มือและ UAT ส่งมอบ | เริ่มตารางนี้ | ยังไม่ sign-off | ต้องทำให้ครบก่อน review รอบสุดท้าย |
-| Cloudflare บัญชีลูกค้าและโดเมน | ยังไม่เชื่อมตามคำสั่ง | ไม่มี production test | หลังผู้ใช้ตรวจรับชุดแก้ |
+| หน้าไทย/อังกฤษ เนื้อหาครบใน HTML | src/App.jsx, worker/render-page.mjs | build/check, API อ่าน HTML หลังบันทึก | ลูกค้ายืนยันข้อความ/ราคา |
+| เข้าระบบเฉพาะแอดมิน | worker/security.mjs, sessions ใน D1 | unit+API: setup, Origin, CSRF, anonymous, login/logout, revoke | HTTPS/cookie จริงหลังติดตั้ง |
+| แก้ข้อความ ราคา คำแปลและรายการ | src/admin/main.jsx | content.spec.js, admin.spec.js | UAT เจ้าของร้าน |
+| บันทึกจริงและป้องกันเขียนทับ | versioned D1 + CAS | API stale save409, persistence.mjs รีสตาร์ต process จริง | ตรวจหลัง redeploy บน cloud |
+| ประวัติ 20 รุ่นและกู้คืน | revisions + restore as draft | API history, admin UI restore/export | สำรอง/restore ระบบเต็มในบัญชีลูกค้า |
+| รูป/คลิปอัปโหลดและลบ | media API + KV + count/size/type validation | API PNG/MP4, bytes, Range, invalid/oversize, in-use deletion; media UI | KV propagation/codec อุปกรณ์จริง |
+| ฟอร์มและกล่องข้อความ | D1 inquiries, Origin/honeypot/rate limit, retention90วัน | API+browser submit/read/delete และ cursor | ผู้รับผิดชอบติดต่อกลับ ไม่มี auto-email |
+| ผู้ดูแลและรหัสผ่าน | users admin only, PBKDF2, revoke sessions | API disable/change password, UI add/disable | ลูกค้าสร้างบัญชีและรับสิทธิ์ |
+| สี/SEO/ภาพแชร์ | BRAND, SEO, ASSETS + validation | unit contrast/URL, UI save+public metadata | ตรวจ Google/แอปแชร์หลังเผยแพร่ |
+| สถิติรวม | daily_stats และ event allowlist | API private stats/accepted events | ไม่ใช่จำนวนลูกค้าหรือยอดขาย |
+| อัปเดตโค้ดแล้วข้อมูลยังใช้ได้ | merge defaults + build/site render cache key | persistence test จำลอง stale HTML แล้ว restart | production CPU และ deployment |
+| Responsive/ปุ่ม/แกลเลอรี | public controls, native dialog+focus handling | Playwright 3 engines × 7 widths × 2 languages; interaction flow | ผลชุดล่าสุดดู Actions, อุปกรณ์จริงยังรอ |
+| Accessibility | semantic controls, contrast, focus, reduced motion | axe WCAG A/AA public/admin; keyboard browser flow | ไม่ใช่การรับรอง WCAG ทั้งระบบ; iframe ภายนอกไม่สแกน |
+| คู่มือ/ติดตั้ง/ส่งมอบ | README + USER-MANUAL + INSTALL + HANDOVER | ทบทวนให้ตรงโค้ดและข้อจำกัด | customer sign-off |
+| Cloudflare ของลูกค้า Free | config example + validation-only workflow | dry-run บน GitHub runner ไม่มี cloud token | ยังไม่เชื่อม/สร้างทรัพยากร/deploy ตามคำสั่ง |
 
-เอกสารเก่าที่กล่าวว่าไม่มีหลังบ้านหรือให้ผู้จัดทำแก้ไฟล์แทน ขัดกับเป้าหมายล่าสุดและจะถูกแทนที่ก่อนส่งมอบสุดท้าย
+## หลักฐานตามจุดที่ทำ
 
+- จุด 1 auth: [run 34326246219](https://github.com/SPNpeet/natee/actions/runs/34326246219) ผ่าน
+- จุด 2 content/persistence: [run 34326759074](https://github.com/SPNpeet/natee/actions/runs/34326759074) ผ่าน
+- จุด 3 media/inquiries/accounts: [run 34327077125](https://github.com/SPNpeet/natee/actions/runs/34327077125) ผ่าน
+- จุด 4 รอบแรก [run 34328286269](https://github.com/SPNpeet/natee/actions/runs/34328286269): lint/build/check/unit/API/restart ผ่าน; browser 10 ผ่าน, 41 ไม่ผ่าน, 2 ข้ามตาม config ไม่ใช่ผลตรวจรับสุดท้าย
+- วิเคราะห์รอบแรกพบ Tab ออกจาก dialog ใน Chromium/WebKit และ contrast ป้าย LINE ต่ำไป แก้ในโค้ด ส่วน image checks สะดุดเพราะชุดทดสอบ scrollTo ไปชน smooth scrolling จึงแก้การเลื่อนใน test เป็น instant และรายงาน URL ภาพที่ยังไม่โหลด
+- รอบตรวจหลังแก้และคู่มือ: อยู่ระหว่างตรวจ ดู [Actions ของ branch](https://github.com/SPNpeet/natee/actions?query=branch%3Acodex%2Fhandover-readiness)
 
-## จุดที่ 2 ผ่านแล้ว
+ทุกการ build/run ใช้ GitHub Actions และ Cloudflare emulator ใน runner ไม่รันแอปบนเครื่องลูกค้า ภาพ/trace ที่ดาวน์โหลดใช้วิเคราะห์หลักฐานเท่านั้น Browser fixtures ไม่มีข้อมูลลูกค้าจริง และไม่ได้กดส่งข้อความ/โทรออกไปยังบุคคลภายนอก
 
-commit c8043f9 / CI https://github.com/SPNpeet/natee/actions/runs/34326759074 ผ่านทุกขั้น รวม browser แก้สองภาษาและอ่านหน้าเว็บใหม่จริง
-
-## จุดที่ 3 กำลังตรวจ
-
-เพิ่ม API/browser tests สำหรับอัปโหลด/ชนิดไฟล์/ขนาด/Range/ลบไฟล์ที่ใช้ไม่ได้, การส่งฟอร์มและจัดการกล่องข้อความ, การปิดบัญชีและเปลี่ยนรหัสผ่านที่เพิกถอนเซสชันเดิม
-
-
-## จุดที่ 3 ผ่านแล้ว
-
-commit e465053 / CI https://github.com/SPNpeet/natee/actions/runs/34327077125 ผ่านทุกขั้น
-
-## จุดที่ 4 กำลังตรวจ
-
-เพิ่มสถิติรวมการกดปุ่ม, สีเว็บไซต์และ SEO, ทดสอบรีสตาร์ต Worker/กู้ HTML ที่อ้าง bundle เก่า, รักษาแบบร่างเมื่อ session หมดอายุ, ทดสอบ Chromium/Firefox/WebKit ที่ 7 ความกว้างสองภาษา และ axe เฉพาะเนื้อหาของโปรเจกต์
+หลักฐานเป็นการตรวจตาม test cases ไม่ใช่การรับรองว่าปลอดบั๊ก 100% หรือผ่าน Free CPU quota จริง ลูกค้าต้องอนุมัติ review ก่อนเชื่อม Cloudflare และทำ UAT production ตาม HANDOVER-TH.md

@@ -11,10 +11,10 @@ for(const width of [320,375,430,768,1024,1280,1440]){
       await expect(page.locator('h1')).toBeVisible()
       await expect(page.locator('html')).toHaveAttribute('lang',lang)
       await page.evaluate(async()=>{
-        for(let y=0;y<document.body.scrollHeight;y+=700){scrollTo(0,y);await new Promise(r=>setTimeout(r,20))}
-        scrollTo(0,0)
+        for(let y=0;y<document.body.scrollHeight;y+=700){scrollTo({top:y,behavior:'instant'});await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)))}
+        scrollTo({top:0,behavior:'instant'})
       })
-      await expect.poll(()=>page.evaluate(()=>[...document.images].every(img=>img.complete&&img.naturalWidth>0))).toBe(true)
+      await expect.poll(()=>page.evaluate(()=>[...document.images].filter(img=>!img.complete||img.naturalWidth===0).map(img=>img.currentSrc||img.src))).toEqual([])
       await expect.poll(()=>page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true)
       expect(errors).toEqual([])
       if([375,1280].includes(width))await page.screenshot({path:'test-results/public-'+info.project.name+'-'+lang+'-'+width+'.png',fullPage:true})
@@ -78,7 +78,7 @@ test('all public controls, modal focus, video lifecycle and mobile menu',async({
   await expect(page.locator('body')).not.toHaveClass(/natee-no-scroll/)
   await page.locator('.natee-copy').first().click()
   await expect(page.getByRole('status')).toContainText(publicContent.CONTACT.phone)
-  await page.setViewportSize({width:375,height:812});await page.evaluate(()=>scrollTo(0,0))
+  await page.setViewportSize({width:375,height:812});await page.evaluate(()=>scrollTo({top:0,behavior:'instant'}))
   const toggle=page.locator('.natee-nav-toggle')
   await toggle.click();await expect(toggle).toHaveAttribute('aria-expanded','true')
   await page.locator('#natee-nav a').first().click();await expect(toggle).toHaveAttribute('aria-expanded','false')

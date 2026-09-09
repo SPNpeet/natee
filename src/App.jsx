@@ -67,6 +67,13 @@ export default function App({ lang = 'th', content = defaults }) {
 
     const onKey = (e) => {
       if (e.key === 'Escape') { setViewer(null); return }
+      if (e.key === 'Tab') {
+        const dialog=dialogRef.current
+        const controls=[...dialog.querySelectorAll('button, a[href], video[controls], [tabindex]:not([tabindex="-1"])')].filter(node=>!node.disabled)
+        const first=controls[0],last=controls.at(-1),focused=document.activeElement
+        if(e.shiftKey && (focused===first || !dialog.contains(focused))){e.preventDefault();last?.focus()}
+        else if(!e.shiftKey && (focused===last || !dialog.contains(focused))){e.preventDefault();first?.focus()}
+      }
       if (e.key === 'ArrowLeft') { e.preventDefault(); showNext(-1) }
       if (e.key === 'ArrowRight') { e.preventDefault(); showNext(1) }
     }
