@@ -50,6 +50,8 @@ jobs:
           echo $! > work/worker.pid
           node tests/wait-server.mjs
           node tests/persistence.mjs after
+      - name: Verify isolated fixture backup and restore
+        run: node tests/recovery.mjs
       - name: Install browsers
         run: npx playwright install --with-deps chromium firefox webkit
       - name: Browser acceptance
@@ -63,6 +65,7 @@ jobs:
             test-results/
             work/worker.log
             work/dependency-audit.json
+            work/recovery-summary.json
             package.json
             package-lock.json
           retention-days: 14
