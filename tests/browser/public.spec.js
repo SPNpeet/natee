@@ -119,3 +119,28 @@ test('automated accessibility on public content and admin editor',async({page,br
   await info.attach('admin-axe.json',{body:JSON.stringify(adminResult,null,2),contentType:'application/json'})
   expect(adminResult.violations).toEqual([])
 })
+
+test('header brand and navigation never overlap at responsive boundaries',async({page})=>{
+  for(const lang of ['th','en']){
+    await page.goto(lang==='th'?'/':'/en.html')
+    for(const width of [320,999,1000,1333,1559,1560]){
+      await page.setViewportSize({width,height:900})
+      await page.locator('.natee-brand-tagline').evaluate((node,text)=>{node.textContent=text},
+        lang==='th'?'บริการรถส่งน้ำประปาเชียงใหม่สำหรับบ้านพัก สระว่ายน้ำ และงานก่อสร้าง '.repeat(3):'Water delivery in Chiang Mai for homes, swimming pools and construction sites '.repeat(3))
+      const geometry=await page.locator('.natee-header').evaluate(header=>{
+        const rect=selector=>{const e=header.querySelector(selector);const r=e.getBoundingClientRect();return {x:r.x,y:r.y,right:r.right,bottom:r.bottom,width:r.width,height:r.height}}
+        return {brand:rect('.natee-brand'),text:rect('.natee-brand-text'),nav:rect('.natee-nav'),language:rect('.natee-lang'),toggle:rect('.natee-nav-toggle'),scroll:document.documentElement.scrollWidth,viewport:innerWidth}
+      })
+      expect(geometry.scroll).toBeLessThanOrEqual(width+1)
+      expect(geometry.text.right).toBeLessThanOrEqual(geometry.brand.right+1)
+      expect(geometry.brand.right).toBeLessThanOrEqual(geometry.language.x+1)
+      if(width>=1000){
+        expect(geometry.brand.bottom).toBeLessThanOrEqual(geometry.nav.y+1)
+        await expect(page.locator('.natee-brand-tagline')).toBeVisible()
+      }else{
+        expect(geometry.brand.right).toBeLessThanOrEqual(geometry.toggle.x+1)
+        await expect(page.locator('.natee-brand-tagline')).toBeHidden()
+      }
+    }
+  }
+})

@@ -228,16 +228,18 @@ textarea:focus-visible,
 
 .natee-brand-name {
 	font-weight: 600;
-	font-size: 19px;
-	line-height: 1.3;
+	font-size: 22px;
+	line-height: 1.35;
+	overflow-wrap: anywhere;
 }
 
 .natee-brand-tagline {
 	display: none;
 	font-size: 14px;
 	color: var(--natee-muted);
-	line-height: 1.4;
-	white-space: nowrap;
+	line-height: 1.5;
+	white-space: normal;
+	overflow-wrap: anywhere;
 }
 
 .natee-nav-toggle {
@@ -2333,3 +2335,31 @@ dialog.natee-lightbox::backdrop { background: #070e19; }
 
 /* Keep small contact labels at the same accessible contrast as their buttons. */
 .natee-btn-small{opacity:1}
+
+/* Give the brand and navigation independent space instead of shrinking text. */
+@media (min-width: 1000px) {
+  .natee-header-inner {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    grid-template-areas: "brand language call" "navigation navigation navigation";
+    column-gap: 20px;
+    row-gap: 8px;
+    padding-top: 12px;
+    padding-bottom: 8px;
+  }
+  .natee-header .natee-brand { grid-area: brand; margin-right: 0; }
+  .natee-header .natee-brand-text { max-width: 100%; }
+  .natee-header .natee-brand-tagline { display: block; }
+  .natee-header .natee-brand-logo { height: 48px; }
+  .natee-header .natee-lang { grid-area: language; }
+  .natee-header .natee-header-call { grid-area: call; }
+  .natee-header .natee-nav { grid-area: navigation; margin: 0; min-width: 0; }
+  .natee-header .natee-nav-list { justify-content: space-between; flex-wrap: wrap; }
+  .natee-header .natee-nav-list a { font-size: 16px; padding: 8px 12px; }
+  html { scroll-padding-top: 156px; }
+}
+@media (max-width: 999px) {
+  .natee-brand-name { font-size: 20px; }
+  .natee-brand-logo { height: 40px; }
+  .natee-brand { gap: 8px; }
+}
