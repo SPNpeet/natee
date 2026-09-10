@@ -1,0 +1,49 @@
+name: Export encrypted Natee production backup
+on:
+  push:
+    branches: [codex/handover-readiness]
+    paths:
+      - .github/workflows/export-production.yml
+      - scripts/export-production.mjs
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: natee-production-export
+  cancel-in-progress: false
+jobs:
+  encrypted-export:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment: natee-customer-preview
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - name: Read production and encrypt export
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          trap 'rm -rf "$RUNNER_TEMP"/natee-export-*' EXIT
+          node scripts/export-production.mjs
+      - name: Upload encrypted files only
+        uses: actions/upload-artifact@v4
+        with:
+          name: natee-encrypted-production-${{ github.run_id }}
+          path: |
+            encrypted-export/backup.tar.gz.enc
+            encrypted-export/key.rsa
+            encrypted-export/envelope.json
+            encrypted-export/summary.json
+          if-no-files-found: error
+          retention-days: 1
+      - name: Remove encrypted runner copy
+        if: always()
+        run: rm -rf encrypted-export
