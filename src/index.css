@@ -2363,3 +2363,9 @@ dialog.natee-lightbox::backdrop { background: #070e19; }
   .natee-brand-logo { height: 40px; }
   .natee-brand { gap: 8px; }
 }
+
+@media (max-width: 999px) {
+  .natee-header .natee-lang-item { min-height: 44px; }
+  .natee-hero-title { font-size: 28px; font-weight: 600; line-height: 1.5; letter-spacing: normal; }
+  .natee-section-title { line-height: 1.5; letter-spacing: normal; }
+}

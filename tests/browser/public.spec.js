@@ -144,3 +144,28 @@ test('header brand and navigation never overlap at responsive boundaries',async(
     }
   }
 })
+
+test('mobile header, menu and contact visual evidence',async({page},info)=>{
+  for(const lang of ['th','en']){
+    await page.goto(lang==='th'?'/':'/en.html')
+    for(const width of [320,375,430]){
+      await page.setViewportSize({width,height:812})
+      await page.evaluate(()=>document.fonts.ready)
+      await expect(page.locator('.natee-nav-toggle')).toBeVisible()
+      for(const selector of ['.natee-nav-toggle','.natee-lang-item','.natee-contact-toggle']){
+        for(const item of await page.locator(selector).all()){
+          const rect=await item.boundingBox()
+          expect(rect.height).toBeGreaterThanOrEqual(44)
+        }
+      }
+      await page.screenshot({path:'test-results/mobile-header-'+info.project.name+'-'+lang+'-'+width+'.png'})
+    }
+    await page.locator('.natee-nav-toggle').click()
+    await page.screenshot({path:'test-results/mobile-menu-'+info.project.name+'-'+lang+'.png'})
+    await page.locator('.natee-nav-toggle').click()
+    await page.locator('.natee-contact-toggle').click()
+    await expect(page.locator('.natee-contact-options')).toBeVisible()
+    await page.screenshot({path:'test-results/mobile-contact-'+info.project.name+'-'+lang+'.png'})
+    await page.keyboard.press('Escape')
+  }
+})
