@@ -1,3 +1,4 @@
+import { canonicalRedirect } from './canonical.mjs'
 import seed from '../server-build/seed.json'
 import buildInfo from '../server-build/build.json'
 import { withDefaults } from './content.mjs'
@@ -223,6 +224,8 @@ async function api(request, env, path) {
 }
 async function handle(request,env) {
   if (!env.SITE_URL) throw new HttpError(503,'เว็บไซต์ยังตั้งค่าไม่ครบ')
+  const redirect=canonicalRedirect(request,env.SITE_URL)
+  if (redirect) return redirect
   const url=new URL(request.url)
   const path=url.pathname
   if (path.startsWith('/api/')) return api(request,env,path)

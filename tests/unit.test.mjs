@@ -37,3 +37,20 @@ test('site URLs and JSON script escaping are safe',()=>{
   assert.ok(!safeJSON('</script>').includes('<'))
   assert.equal(JSON.parse(safeJSON('</script>')),'</script>')
 })
+
+test('canonical www redirects preserve IDN paths and query without redirecting preview or unrelated hosts',async()=>{
+  const {canonicalRedirect}=await import('../worker/canonical.mjs')
+  const site='https://xn--22cki0cqma4cdedf2ixczace9c1mmc1fh6g.com'
+  const alias=site.replace('https://','https://www.')
+  const redirected=canonicalRedirect(new Request(alias+'/en.html?source=shared'),site)
+  assert.equal(redirected.status,308)
+  assert.equal(redirected.headers.get('Location'),site+'/en.html?source=shared')
+  const post=canonicalRedirect(new Request(alias+'/api/inquiries',{method:'POST',body:'{}'}),site)
+  assert.equal(post.status,308)
+  assert.equal(post.headers.get('Location'),site+'/api/inquiries')
+  for(const url of [site+'/', 'https://natee.chaiyootauifujai.workers.dev/', 'https://evil.example/', alias+'.evil.example/'])
+    assert.equal(canonicalRedirect(new Request(url),site),null)
+  assert.equal(canonicalRedirect(new Request('https://www.natee.chaiyootauifujai.workers.dev/'),'https://natee.chaiyootauifujai.workers.dev'),null)
+  assert.equal(canonicalRedirect(new Request('http://www.localhost/'),'http://localhost'),null)
+  assert.equal(canonicalRedirect(new Request('https://example.test/path'),'https://www.example.test').headers.get('Location'),'https://www.example.test/path')
+})
