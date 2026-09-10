@@ -224,6 +224,10 @@ async function api(request, env, path) {
 }
 async function handle(request,env) {
   if (!env.SITE_URL) throw new HttpError(503,'เว็บไซต์ยังตั้งค่าไม่ครบ')
+  const maintenance=env.MIGRATION_READ_ONLY === 'true'
+  if (maintenance && new URL(request.url).pathname.startsWith('/api/') && !['GET','HEAD'].includes(request.method)) {
+    return json({error:'กำลังย้ายระบบชั่วคราว กรุณารอสักครู่แล้วลองใหม่ หรือติดต่อทางโทรศัพท์หรือ LINE'},503,{'Retry-After':'300'})
+  }
   const redirect=canonicalRedirect(request,env.SITE_URL)
   if (redirect) return redirect
   const url=new URL(request.url)
@@ -267,7 +271,7 @@ async function handle(request,env) {
       const th=renderPage(shell,render,data,'th',site)
       const en=renderPage(shell,render,data,'en',site)
       html=lang==='th'?th:en
-      if(row) await query(env,'UPDATE content SET html_th=?,html_en=?,site=?,render_version=? WHERE id=1 AND version=?',th,en,site,buildInfo.id,row.version).run()
+      if(row && !maintenance) await query(env,'UPDATE content SET html_th=?,html_en=?,site=?,render_version=? WHERE id=1 AND version=?',th,en,site,buildInfo.id,row.version).run()
     }
     return new Response(request.method === 'HEAD' ? null : html,{headers:{...securityHeaders,'Content-Type':'text/html; charset=utf-8','Cache-Control':'no-store'}})
   }
@@ -284,6 +288,7 @@ export default {
     }
   },
   async scheduled(_event,env) {
+    if (env.MIGRATION_READ_ONLY === 'true') return
     const cutoff=new Date(Date.now()-90*86400000).toISOString()
     await env.DB.batch([query(env,'DELETE FROM sessions WHERE expires<?',Date.now()),query(env,'DELETE FROM limits WHERE expires<?',Date.now()),query(env,'DELETE FROM inquiries WHERE created<?',cutoff),query(env,'DELETE FROM daily_stats WHERE day<?',cutoff.slice(0,10))])
   },
