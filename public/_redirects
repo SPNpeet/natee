@@ -1,0 +1,17 @@
+# Verified legacy WordPress pages; unknown paths remain 404.
+/contact /#natee-contact 301
+/contact/ /#natee-contact 301
+/contact-2 /#natee-contact 301
+/contact-2/ /#natee-contact 301
+/services /#natee-services 301
+/services/ /#natee-services 301
+/water-truck-services /#natee-services 301
+/water-truck-services/ /#natee-services 301
+/about /#natee-about 301
+/about/ /#natee-about 301
+/about-2 /#natee-about 301
+/about-2/ /#natee-about 301
+/home / 301
+/home/ / 301
+/home-2 / 301
+/home-2/ / 301

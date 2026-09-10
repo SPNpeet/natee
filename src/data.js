@@ -87,7 +87,7 @@ export const I18N = {
     highlights: [
       { icon: 'clock', title: 'เน้นความรวดเร็ว', text: 'เราเข้าใจดีว่าน้ำคือสิ่งจำเป็น เมื่อลูกค้าโทรสั่ง เราพร้อมประสานงานและออกรถทันที' },
       { icon: 'check', title: 'ตรงต่อเวลา', text: 'หมดกังวลเรื่องเวลานัดหมาย เราไปถึงหน้างานตรงตามเวลาที่ตกลงไว้' },
-      { icon: 'drop', title: 'น้ำสะอาด ปลอดภัย', text: 'น้ำประปาของเราผ่านมาตรฐาน สะอาด ไร้สิ่งเจือปน ใส่ใจเรื่องถังบรรจุที่ได้มาตรฐาน' },
+      { icon: 'drop', title: 'น้ำประปาสำหรับงานอุปโภค', text: 'บริการส่งน้ำประปาสำหรับเติมแท็งก์และงานอุปโภค กรุณาแจ้งลักษณะการใช้งานเพื่อสอบถามรายละเอียดก่อนสั่ง' },
       { icon: 'truck', title: 'เข้าได้ทุกพื้นที่', text: 'มีทั้งรถ 4 ล้อ และ 6 ล้อ จึงส่งน้ำได้ทุกพื้นที่ในเชียงใหม่และจังหวัดใกล้เคียง' },
     ],
 
@@ -177,7 +177,7 @@ export const I18N = {
     faqTitle: 'คำถามที่พบบ่อย',
     faq: [
       { q: 'สั่งน้ำแล้วรอนานไหม', a: 'ขึ้นอยู่กับคิวรถและระยะทาง โดยทั่วไปในเขตอำเภอเมืองจัดส่งได้ภายในวันเดียวกัน กรณีเร่งด่วนแจ้งได้ตอนโทร ทีมงานจะจัดคิวให้ก่อน' },
-      { q: 'น้ำที่ส่งเป็นน้ำอะไร ใช้ดื่มได้หรือไม่', a: 'เป็นน้ำประปาที่ผ่านมาตรฐาน สะอาด ไร้สิ่งเจือปน ใช้อุปโภคได้ทุกกรณี หากต้องการดื่มแนะนำให้ต้มหรือผ่านเครื่องกรองก่อน' },
+      { q: 'น้ำที่ส่งเป็นน้ำอะไร ใช้ดื่มได้หรือไม่', a: 'เป็นน้ำประปาสำหรับงานอุปโภค ไม่ได้จำหน่ายเป็นน้ำดื่ม กรุณาแจ้งลักษณะการใช้งานและสอบถามรายละเอียดก่อนสั่ง' },
       { q: 'คิดค่าบริการอย่างไร', a: 'คิดตามปริมาณน้ำและระยะทางจากจุดรับน้ำถึงหน้างาน แจ้งราคาทั้งหมดให้ทราบก่อนออกรถ ไม่มีค่าใช้จ่ายเพิ่มหน้างาน' },
       { q: 'รถเข้าซอยแคบได้ไหม', a: 'ได้ กรณีซอยแคบหรือทางเข้าจำกัดจะใช้รถ 4 ล้อแทนรถ 6 ล้อ แจ้งลักษณะทางเข้าตอนสั่งน้ำเพื่อให้จัดรถได้ถูกประเภท' },
       { q: 'รับส่งน้ำนอกเขตเชียงใหม่หรือไม่', a: 'รับพิจารณาเป็นกรณีไป ขึ้นอยู่กับระยะทางและปริมาณน้ำ โทรสอบถามเพื่อประเมินราคาได้' },
@@ -262,7 +262,7 @@ export const I18N = {
     highlights: [
       { icon: 'clock', title: 'We move fast', text: 'Water cannot wait. The moment you call, we arrange a truck and get moving.' },
       { icon: 'check', title: 'On time, every time', text: 'No worrying about the appointment. We arrive at the time we agreed with you.' },
-      { icon: 'drop', title: 'Clean and safe water', text: 'Our tap water meets the standard: clean and free of contaminants, carried in properly maintained tanks.' },
+      { icon: 'drop', title: 'Water for non-drinking uses', text: 'Tap-water delivery for tank filling and other non-drinking uses. Tell us your intended use and ask for details before ordering.' },
       { icon: 'truck', title: 'We reach every site', text: 'With both four wheel and six wheel trucks we can deliver anywhere in Chiang Mai and nearby provinces.' },
     ],
 
@@ -352,7 +352,7 @@ export const I18N = {
     faqTitle: 'Frequently asked questions',
     faq: [
       { q: 'How long is the wait after I order?', a: 'It depends on the queue and the distance. Inside Mueang Chiang Mai we can usually deliver the same day. Tell us when you call if it is urgent and we will move you up the queue.' },
-      { q: 'What kind of water is it? Can I drink it?', a: 'It is standard tap water: clean and free of contaminants, fine for every household use. If you want to drink it, boil it or run it through a filter first.' },
+      { q: 'What kind of water is it? Can I drink it?', a: 'We deliver tap water for non-drinking uses. It is not sold as drinking water. Tell us your intended use and ask for details before ordering.' },
       { q: 'How is the price worked out?', a: 'By the volume of water and the distance from where we load to your site. We tell you the full price before the truck leaves, with nothing added on arrival.' },
       { q: 'Can your truck get down a narrow lane?', a: 'Yes. Where access is tight we send the four wheel truck instead of the six wheel. Describe the entrance when you order so we send the right vehicle.' },
       { q: 'Do you deliver outside Chiang Mai?', a: 'We consider it case by case, depending on the distance and the volume. Call us and we will work out a price.' },
