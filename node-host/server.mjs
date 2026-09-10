@@ -1,4 +1,5 @@
 import {createServer} from 'node:http'
+import {readFileSync} from 'node:fs'
 import {Readable} from 'node:stream'
 import {pipeline} from 'node:stream/promises'
 import worker from '../node-build/worker.mjs'
@@ -6,12 +7,20 @@ import {createEnvironment} from './environment.mjs'
 process.umask(0o077)
 const env=await createEnvironment(),site=new URL(env.SITE_URL)
 const alias=(site.hostname.startsWith('www.')?site.hostname.slice(4):'www.'+site.hostname)+(site.port?':'+site.port:'')
+const deployment=JSON.parse(readFileSync(new URL('../node-build/deployment.json',import.meta.url),'utf8'))
 const trusted=new Set((process.env.TRUSTED_PROXY_IPS||'').split(',').filter(Boolean))
 const server=createServer({maxHeaderSize:16384},async(req,res)=>{
   try{
     const host=req.headers.host
     if(host!==site.host&&host!==alias){res.writeHead(421);res.end('Unknown host');return}
     if(!req.url.startsWith('/')||req.url.startsWith('//')){res.writeHead(400);res.end();return}
+    res.setHeader('X-Natee-Runtime','zcom-node')
+    if(req.url==='/.well-known/natee-health'&&['GET','HEAD'].includes(req.method)){
+      env.DB.prepare('SELECT 1 AS ok').first()
+      res.writeHead(200,{'Content-Type':'application/json','Cache-Control':'no-store'})
+      res.end(req.method==='HEAD'?undefined:JSON.stringify({status:'ok',runtime:'zcom-node',build:deployment.commit}))
+      return
+    }
     const headers=new Headers()
     for(const [key,value] of Object.entries(req.headers))if(value!==undefined&&!['connection','transfer-encoding','cf-connecting-ip'].includes(key))headers.set(key,Array.isArray(value)?value.join(','):value)
     let ip=req.socket.remoteAddress||'local-proxy'

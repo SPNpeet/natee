@@ -24,6 +24,10 @@ async function snapshot(base,cookie){
 }
 let server
 try{
+  const health=await fetch(source+'/.well-known/natee-health')
+  assert.equal(health.status,200)
+  assert.equal(health.headers.get('X-Natee-Runtime'),'zcom-node')
+  assert.equal((await health.json()).build,process.env.GITHUB_SHA)
   const cookie=await login(source),expected=await snapshot(source,cookie)
   const db=new DatabaseSync(join(process.env.DATA_DIR,'natee.sqlite'))
   await backup(db,join(dir,'natee.sqlite'));db.close()
