@@ -1,8 +1,8 @@
 /**
  * พรีเรนเดอร์หน้าเว็บเป็นไฟล์ HTML
  *
- * สร้างสองหน้า คือ index.html ภาษาไทย และ en.html ภาษาอังกฤษ
- * วางไว้ระดับเดียวกันจึงอ้างไฟล์รูปและฟอนต์แบบสัมพัทธ์ชุดเดียวกันได้
+ * สร้างสี่หน้า คือหน้าแรกและหน้าความรู้ อย่างละสองภาษา
+ * ทุกไฟล์วางไว้ระดับเดียวกันจึงอ้างไฟล์รูปและฟอนต์แบบสัมพัทธ์ชุดเดียวกันได้
  *
  * ข้อมูลสำหรับ Google ทั้งหมดสร้างจาก src/data.js แหล่งเดียว
  * จะได้ไม่มีปัญหาแก้เนื้อหาที่หนึ่งแล้วอีกที่หนึ่งค้างเป็นข้อมูลเก่า
@@ -12,6 +12,10 @@ import { pathToFileURL } from 'node:url'
 import { resolve, dirname } from 'node:path'
 
 const SITE = 'https://xn--22cki0cqma4cdedf2ixczace9c1mmc1fh6g.com'
+
+// วันที่เผยแพร่บทความ ตั้งไว้คงที่ ไม่ใช้วันที่ build
+// ถ้าใช้วันปัจจุบัน Google จะเห็นว่าบทความถูกแก้ใหม่ทุกครั้งที่ขึ้นเว็บ ทั้งที่เนื้อหาเท่าเดิม
+const ARTICLE_DATE = '2026-09-10'
 
 const dist = resolve('dist')
 const serverEntry = pathToFileURL(resolve(dist, 'server/entry-server.js')).href
@@ -24,6 +28,19 @@ const template = readFileSync(resolve(dist, 'index.html'), 'utf-8')
 const marker = '<div id="root"></div>'
 
 if (!template.includes(marker)) throw new Error('ไม่พบจุดวางเนื้อหาใน dist/index.html')
+
+const PAGES = [
+  { lang: 'th', kind: 'home', file: 'index.html' },
+  { lang: 'en', kind: 'home', file: 'en.html' },
+  { lang: 'th', kind: 'knowledge', file: 'knowledge.html' },
+  { lang: 'en', kind: 'knowledge', file: 'knowledge-en.html' },
+]
+
+/** ที่อยู่เต็มของแต่ละหน้า ใช้ทั้งใน canonical hreflang และข้อมูลโครงสร้าง */
+function pageUrl(lang, kind) {
+  const page = PAGES.find((p) => p.lang === lang && p.kind === kind)
+  return page.file === 'index.html' ? `${SITE}/` : `${SITE}/${page.file}`
+}
 
 /** ฝังไฟล์สไตล์ลงในหน้าเลย ลดการเรียกไฟล์เพิ่มหนึ่งครั้ง */
 function inlineCss(html) {
@@ -39,7 +56,6 @@ function inlineCss(html) {
 /** ข้อมูลธุรกิจสำหรับ Google สร้างจากเนื้อหาจริงในเว็บ */
 function businessSchema(lang) {
   const L = I18N[lang]
-  const url = lang === 'th' ? `${SITE}/` : `${SITE}/en.html`
 
   const schema = {
     '@context': 'https://schema.org',
@@ -47,7 +63,7 @@ function businessSchema(lang) {
     name: L.siteName,
     alternateName: lang === 'th' ? I18N.en.siteName : I18N.th.siteName,
     description: L.heroSubtitle,
-    url,
+    url: pageUrl(lang, 'home'),
     image: `${SITE}/images/og-banner.jpg`,
     logo: `${SITE}/images/logo.png`,
     telephone: `+66${CONTACT.phone.replace(/[^0-9]/g, '').slice(1)}`,
@@ -121,26 +137,72 @@ function videoSchema(lang) {
   }))
 }
 
+/** บทความความรู้เรื่องน้ำ */
+function articleSchema(lang) {
+  const L = I18N[lang]
+  const K = L.knowledge
+
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: K.title,
+    description: K.metaDescription,
+    inLanguage: lang,
+    mainEntityOfPage: { '@type': 'WebPage', '@id': pageUrl(lang, 'knowledge') },
+    image: `${SITE}/images/og-banner.jpg`,
+    datePublished: ARTICLE_DATE,
+    dateModified: ARTICLE_DATE,
+    author: { '@type': 'Organization', name: L.siteName, url: pageUrl(lang, 'home') },
+    publisher: {
+      '@type': 'Organization',
+      name: L.siteName,
+      logo: { '@type': 'ImageObject', url: `${SITE}/images/logo.png` },
+    },
+  }
+}
+
+/** เส้นทางหน้าเว็บ ช่วยให้ผลค้นหาแสดงว่าบทความอยู่ใต้หน้าแรก */
+function breadcrumbSchema(lang) {
+  const L = I18N[lang]
+
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: L.siteName, item: pageUrl(lang, 'home') },
+      { '@type': 'ListItem', position: 2, name: L.knowledge.title, item: pageUrl(lang, 'knowledge') },
+    ],
+  }
+}
+
 function scriptTag(obj) {
   return `<script type="application/ld+json">${JSON.stringify(obj)}</script>`
 }
 
-/** แทนที่ข้อมูลส่วนหัวของหน้าให้ตรงกับภาษาที่กำลังสร้าง */
-function buildHead(html, lang) {
+const HOME_TITLE = {
+  th: 'รถส่งน้ำประปาเชียงใหม่ ลำพูน ราคาถูก 24 ชั่วโมง | ธารนที',
+  en: 'Water Truck Delivery Chiang Mai and Lamphun, 24 Hours | Natee',
+}
+
+const HOME_DESCRIPTION = {
+  th: 'ธารนที รถส่งน้ำประปาเชียงใหม่และลำพูน บริการ 24 ชั่วโมง เติมแท็งก์น้ำ เติมสระว่ายน้ำ ไซต์งานก่อสร้าง ล้างถนน และงานอีเวนต์ มีทั้งรถ 4 ล้อและ 6 ล้อ โทร 064-825-3515',
+  en: 'Natee delivers clean tap water by truck across Chiang Mai and Lamphun, 24 hours a day. Tank filling, swimming pools, construction sites, gardens, road washing and events. Call 064-825-3515.',
+}
+
+/** แทนที่ข้อมูลส่วนหัวของหน้าให้ตรงกับภาษาและหน้าที่กำลังสร้าง */
+function buildHead(html, lang, kind) {
   const L = I18N[lang]
-  const url = lang === 'th' ? `${SITE}/` : `${SITE}/en.html`
-  const title = lang === 'th'
-    ? 'รถส่งน้ำประปาเชียงใหม่ ราคาถูก 24 ชั่วโมง | ธารนที'
-    : 'Water Truck Delivery Chiang Mai, 24 Hours | Natee'
-  const description = lang === 'th'
-    ? 'ธารนที รถส่งน้ำประปาเชียงใหม่ บริการ 24 ชั่วโมง เติมแท็งก์น้ำ เติมสระว่ายน้ำ ไซต์งานก่อสร้าง ล้างถนน และงานอีเวนต์ มีทั้งรถ 4 ล้อและ 6 ล้อ โทร 064-825-3515'
-    : 'Natee delivers clean tap water by truck across Chiang Mai, 24 hours a day. Tank filling, swimming pools, construction sites, gardens, road washing and events. Call 064-825-3515.'
+  const article = kind === 'knowledge'
+  const url = pageUrl(lang, kind)
+  const title = article ? L.knowledge.metaTitle : HOME_TITLE[lang]
+  const description = article ? L.knowledge.metaDescription : HOME_DESCRIPTION[lang]
 
   let out = html
 
   out = out.replace(/<title>[\s\S]*?<\/title>/, `<title>${title}</title>`)
   out = out.replace(/<meta\s+name="description"[\s\S]*?\/>/, `<meta name="description" content="${description}" />`)
   out = out.replace(/<link rel="canonical"[^>]*>/, `<link rel="canonical" href="${url}" />`)
+  out = out.replace(/<meta property="og:type"[^>]*>/, `<meta property="og:type" content="${article ? 'article' : 'website'}" />`)
   out = out.replace(/<meta property="og:title"[^>]*>/, `<meta property="og:title" content="${title}" />`)
   out = out.replace(/<meta property="og:description"[^>]*>/, `<meta property="og:description" content="${description}" />`)
   out = out.replace(/<meta property="og:url"[^>]*>/, `<meta property="og:url" content="${url}" />`)
@@ -154,41 +216,39 @@ function buildHead(html, lang) {
     `<meta property="og:locale:alternate" content="${lang === 'th' ? 'en_US' : 'th_TH'}" />`
   )
 
+  // หน้าความรู้ไม่มีรูปรถบนหัวหน้า จึงไม่ต้องสั่งโหลดล่วงหน้าให้เสียแบนด์วิดท์เปล่า
+  if (article) out = out.replace(/\n\s*<link rel="preload" as="image"[^>]*>/, '')
+
   // ผูกสองภาษาเข้าด้วยกัน ให้ Google รู้ว่าเป็นหน้าเดียวกันคนละภาษา
   const alternates = [
-    `<link rel="alternate" hreflang="th" href="${SITE}/" />`,
-    `<link rel="alternate" hreflang="en" href="${SITE}/en.html" />`,
-    `<link rel="alternate" hreflang="x-default" href="${SITE}/" />`,
+    `<link rel="alternate" hreflang="th" href="${pageUrl('th', kind)}" />`,
+    `<link rel="alternate" hreflang="en" href="${pageUrl('en', kind)}" />`,
+    `<link rel="alternate" hreflang="x-default" href="${pageUrl('th', kind)}" />`,
   ].join('\n    ')
 
-  const schema = [
-    scriptTag(businessSchema(lang)),
-    scriptTag(faqSchema(lang)),
-    ...videoSchema(lang).map(scriptTag),
-  ].join('\n    ')
+  const schema = (article
+    ? [articleSchema(lang), breadcrumbSchema(lang)]
+    : [businessSchema(lang), faqSchema(lang), ...videoSchema(lang)]
+  ).map(scriptTag).join('\n    ')
 
   out = out.replace('</head>', `  ${alternates}\n    ${schema}\n  </head>`)
-  out = out.replace(/<html lang="[^"]*"/, `<html lang="${lang}"`)
+  out = out.replace(/<html lang="[^"]*"/, `<html lang="${lang}" data-page="${kind}"`)
 
   return out
 }
 
-const pages = [
-  { lang: 'th', file: resolve(dist, 'index.html') },
-  { lang: 'en', file: resolve(dist, 'en.html') },
-]
-
-for (const page of pages) {
-  const body = render(page.lang)
+for (const page of PAGES) {
+  const body = render(page.lang, page.kind)
   let html = template.replace(marker, `<div id="root">${body}</div>`)
 
   html = inlineCss(html)
-  html = buildHead(html, page.lang)
+  html = buildHead(html, page.lang, page.kind)
 
-  mkdirSync(dirname(page.file), { recursive: true })
-  writeFileSync(page.file, html)
+  const file = resolve(dist, page.file)
+  mkdirSync(dirname(file), { recursive: true })
+  writeFileSync(file, html)
 
-  console.log(`พรีเรนเดอร์ ${page.lang} -> ${page.file.replace(dist, 'dist')} ${Math.round(html.length / 1024)} KB`)
+  console.log(`พรีเรนเดอร์ ${page.kind} ${page.lang} -> dist/${page.file} ${Math.round(html.length / 1024)} KB`)
 }
 
 rmSync(resolve(dist, 'server'), { recursive: true, force: true })

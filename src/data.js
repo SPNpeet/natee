@@ -82,8 +82,8 @@ export const I18N = {
     orCall: 'หรือโทร',
 
     heroEyebrow: 'ส่งด่วน ส่งไว ใส่ใจบริการ',
-    heroTitle: 'รถส่งน้ำประปา เชียงใหม่ ราคาถูก บริการ 24 ชั่วโมง',
-    heroSubtitle: 'บริการส่งน้ำประปาสะอาด เติมแท็งก์น้ำ เติมสระว่ายน้ำ ล้างถนน งานก่อสร้าง รดน้ำต้นไม้และสนามหญ้า รวมถึงงานอีเวนต์และงานเทศกาล ส่งตรงถึงหน้างานทุกพื้นที่ในเชียงใหม่',
+    heroTitle: 'รถส่งน้ำประปา เชียงใหม่ ลำพูน ราคาถูก บริการ 24 ชั่วโมง',
+    heroSubtitle: 'บริการส่งน้ำประปาสะอาด เติมแท็งก์น้ำ เติมสระว่ายน้ำ ล้างถนน งานก่อสร้าง รดน้ำต้นไม้และสนามหญ้า รวมถึงงานอีเวนต์และงานเทศกาล ส่งตรงถึงหน้างานทุกพื้นที่ในเชียงใหม่และลำพูน',
     heroNote: 'แจ้งปริมาณน้ำ สถานที่ และเวลาที่ต้องการ ทีมงานประเมินราคาให้ทันที',
 
     highlightsTitle: 'จุดเด่นของบริการ',
@@ -91,11 +91,11 @@ export const I18N = {
       { icon: 'clock', title: 'เน้นความรวดเร็ว', text: 'เราเข้าใจดีว่าน้ำคือสิ่งจำเป็น เมื่อลูกค้าโทรสั่ง เราพร้อมประสานงานและออกรถทันที' },
       { icon: 'check', title: 'ตรงต่อเวลา', text: 'หมดกังวลเรื่องเวลานัดหมาย เราไปถึงหน้างานตรงตามเวลาที่ตกลงไว้' },
       { icon: 'drop', title: 'น้ำสะอาด ปลอดภัย', text: 'น้ำประปาของเราผ่านมาตรฐาน สะอาด ไร้สิ่งเจือปน ใส่ใจเรื่องถังบรรจุที่ได้มาตรฐาน' },
-      { icon: 'truck', title: 'เข้าได้ทุกพื้นที่', text: 'มีทั้งรถ 4 ล้อ และ 6 ล้อ จึงส่งน้ำได้ทุกพื้นที่ในเชียงใหม่และจังหวัดใกล้เคียง' },
+      { icon: 'truck', title: 'เข้าได้ทุกพื้นที่', text: 'มีทั้งรถ 4 ล้อ และ 6 ล้อ จึงส่งน้ำได้ทุกพื้นที่ในเชียงใหม่ ลำพูน และจังหวัดใกล้เคียง' },
     ],
 
     aboutTitle: 'เรื่องน้ำประปาและความสะอาด ไว้ใจให้ ธารนที ดูแล',
-    aboutText: 'รถส่งน้ำธารนทีเกิดขึ้นจากความตั้งใจที่จะให้บริการน้ำประปาสะอาดและมีคุณภาพแก่ประชาชนในจังหวัดเชียงใหม่ ทั้งบ้านพักอาศัย ร้านค้า สถานประกอบการ งานก่อสร้าง พื้นที่ที่ต้องการน้ำสำรองในช่วงน้ำประปาไม่เพียงพอ รวมถึงการเติมสระว่ายน้ำ งานกิจกรรมพิเศษ และพื้นที่ห่างไกลที่ระบบท่อส่งน้ำยังเข้าไม่ถึง เราให้บริการด้วยความใส่ใจ รับผิดชอบ และมีมาตรฐาน',
+    aboutText: 'รถส่งน้ำธารนทีเกิดขึ้นจากความตั้งใจที่จะให้บริการน้ำประปาสะอาดและมีคุณภาพแก่ประชาชนในจังหวัดเชียงใหม่และลำพูน ทั้งบ้านพักอาศัย ร้านค้า สถานประกอบการ งานก่อสร้าง พื้นที่ที่ต้องการน้ำสำรองในช่วงน้ำประปาไม่เพียงพอ รวมถึงการเติมสระว่ายน้ำ งานกิจกรรมพิเศษ และพื้นที่ห่างไกลที่ระบบท่อส่งน้ำยังเข้าไม่ถึง เราให้บริการด้วยความใส่ใจ รับผิดชอบ และมีมาตรฐาน',
     aboutQuote: 'น้ำคือชีวิต หากไม่มีน้ำ คนอยู่ไม่ได้',
 
     servicesTitle: 'บริการของเรา',
@@ -151,12 +151,54 @@ export const I18N = {
     ],
 
     areasTitle: 'พื้นที่ให้บริการ',
-    areasSubtitle: 'ให้บริการทั่วจังหวัดเชียงใหม่และจังหวัดใกล้เคียง พื้นที่นอกเหนือจากนี้สอบถามเพิ่มเติมได้',
+    areasSubtitle: 'ให้บริการทั่วจังหวัดเชียงใหม่และจังหวัดลำพูน รวมถึงพื้นที่ใกล้เคียง พื้นที่นอกเหนือจากนี้สอบถามเพิ่มเติมได้',
     areas: [
       'อำเภอเมืองเชียงใหม่', 'อำเภอสันทราย', 'อำเภอสารภี', 'อำเภอหางดง',
-      'อำเภอสันกำแพง', 'อำเภอดอยสะเก็ด', 'อำเภอแม่ริม', 'อำเภอสันป่าตอง',
-      'อำเภอแม่แตง', 'อำเภอสะเมิง', 'อำเภอจอมทอง', 'อำเภอแม่ออน',
+      'อำเภอสันกำแพง', 'อำเภอดอยสะเก็ด', 'อำเภอแม่ริม', 'จังหวัดลำพูน',
+      'อำเภอสันป่าตอง', 'อำเภอแม่แตง', 'อำเภอสะเมิง', 'อำเภอจอมทอง', 'อำเภอแม่ออน',
     ],
+
+    knowledge: {
+      navLabel: 'ความรู้',
+      footerLink: 'บทความ ความสำคัญของน้ำประปา',
+      metaTitle: 'ความสำคัญของน้ำและน้ำประปา น้ำคือชีวิต | ธารนที',
+      metaDescription: 'รวมความรู้เรื่องน้ำและน้ำประปา ทั้งความสำคัญต่อการดำรงชีวิต การเกษตร ปศุสัตว์ อุตสาหกรรม และชุมชน พร้อมเหตุผลว่าทำไมน้ำประปาที่สะอาดจึงเปลี่ยนคุณภาพชีวิตของคนทั้งหมู่บ้าน',
+      eyebrow: 'บทความน่ารู้',
+      title: 'น้ำคือชีวิต ความสำคัญของน้ำและน้ำประปา',
+      subtitle: 'เรื่องที่ควรรู้เกี่ยวกับน้ำและระบบน้ำประปา ตั้งแต่การดำรงชีวิตประจำวัน ไปจนถึงการเกษตร ปศุสัตว์ อุตสาหกรรม และการกระจายน้ำให้ทั่วถึงทั้งชุมชน',
+      quote: 'น้ำคือชีวิต หากไม่มีน้ำ คนอยู่ไม่ได้',
+      quoteBy: 'พระราชดำรัส พระบาทสมเด็จพระบรมชนกาธิเบศร มหาภูมิพลอดุลยเดชมหาราช บรมนาถบพิตร',
+      intro: 'น้ำคือปัจจัยพื้นฐานที่สำคัญที่สุดของสิ่งมีชีวิตทุกชนิดบนโลก มนุษย์ขาดอาหารได้หลายสัปดาห์ แต่ขาดน้ำได้ไม่เกินสามวัน น้ำจึงไม่ใช่เพียงของใช้ประจำวัน แต่เป็นเงื่อนไขของการมีชีวิตอยู่',
+      tocTitle: 'หัวข้อในหน้านี้',
+      groupsTitle: 'ความสำคัญของน้ำต่อสิ่งมีชีวิตและโลก',
+      groups: [
+        { icon: 'drop', title: 'การดำรงชีวิต', text: 'ร่างกายมนุษย์มีน้ำเป็นส่วนประกอบหลัก น้ำช่วยควบคุมอุณหภูมิ ย่อยอาหาร และลำเลียงสารอาหารไปเลี้ยงทุกส่วนของร่างกาย' },
+        { icon: 'leaf', title: 'เกษตรกรรมและอาหาร', text: 'น้ำคือหัวใจของการเพาะปลูกและการเลี้ยงสัตว์ ซึ่งเป็นแหล่งอาหารของคนทั้งประเทศ ไม่มีน้ำก็ไม่มีผลผลิต' },
+        { icon: 'pool', title: 'ระบบนิเวศ', text: 'แหล่งน้ำเป็นทั้งจุดกำเนิดและที่อยู่อาศัยของสัตว์น้ำและสิ่งมีชีวิตอีกนับไม่ถ้วน ทำหน้าที่รักษาสมดุลของธรรมชาติ' },
+      ],
+      usesTitle: 'การใช้น้ำในแต่ละภาคส่วน',
+      uses: [
+        { icon: 'tank', title: 'อุปโภคและบริโภค', text: 'ดื่ม ประกอบอาหาร ชำระล้างร่างกาย ซักผ้า ล้างจาน และงานบ้านแทบทุกอย่างในชีวิตประจำวัน' },
+        { icon: 'factory', title: 'อุตสาหกรรม', text: 'ใช้ในกระบวนการผลิต หล่อเย็นเครื่องจักร และล้างทำความสะอาดภายในโรงงาน' },
+        { icon: 'leaf', title: 'เกษตรและปศุสัตว์', text: 'รดน้ำแปลงเพาะปลูก ให้สัตว์กิน อาบน้ำให้สัตว์ และฉีดพรมคอกให้เย็นชุ่มชื้นในหน้าแล้ง' },
+      ],
+      benefitsTitle: 'ความสำคัญของน้ำประปา',
+      benefitsSubtitle: 'เจ็ดเหตุผลที่ระบบน้ำประปาสะอาดเปลี่ยนคุณภาพชีวิตของคนทั้งชุมชน',
+      benefits: [
+        { title: 'มีน้ำพอใช้ตลอดทั้งปี', text: 'ระบบประปาจ่ายน้ำได้สม่ำเสมอ ทำให้มีน้ำเพียงพอต่อการดำรงชีวิต โดยเฉพาะช่วงหน้าแล้งที่น้ำมักไม่พอกับความต้องการ' },
+        { title: 'มีน้ำสำหรับงานอุปโภค', text: 'ล้างรถ ล้างจาน ซักผ้า รดน้ำต้นไม้ ทำความสะอาดบ้านและร้านค้า ล้วนต้องใช้น้ำที่ไหลได้ตลอดเวลา' },
+        { title: 'มีน้ำสำหรับบริโภค', text: 'น้ำประปานำมาบริโภคได้ แต่ควรผ่านเครื่องกรองก่อนทุกครั้ง เพราะน้ำที่ยังไม่ผ่านการกรองอาจมีตะกอนหรือสิ่งเจือปนที่ไม่ควรดื่มโดยตรง' },
+        { title: 'มีน้ำสำหรับการเกษตร', text: 'แปลงเพาะปลูกขนาดเล็กและสวนครัวใช้น้ำประปาได้สะดวก ส่วนแปลงขนาดใหญ่ควรมีแหล่งน้ำสำรอง เพราะหน้าร้อนน้ำประปาอาจไม่พอสำหรับทั้งหมู่บ้าน' },
+        { title: 'มีน้ำสำหรับโรงงานอุตสาหกรรม', text: 'โรงงานต้องใช้น้ำปริมาณมากและต้องสะอาดพอที่จะเข้าสู่กระบวนการผลิต ระบบน้ำของโรงงานจึงต้องวางแผนอย่างพิถีพิถัน' },
+        { title: 'มีน้ำสำหรับปศุสัตว์', text: 'สัตว์เลี้ยงต้องกินน้ำทุกวัน ยิ่งหน้าแล้งที่สระและคลองแห้งลง น้ำประปายิ่งจำเป็น ทั้งสำหรับให้กิน อาบ และฉีดพรมคอกให้เย็น' },
+        { title: 'มีน้ำใช้ทั่วถึงทั้งชุมชน', text: 'เมื่อหมู่บ้านมีระบบประปา น้ำจะถูกจ่ายไปถึงทุกหลังคาเรือนอย่างเท่าเทียม ไม่ใช่เฉพาะบ้านที่อยู่ใกล้แหล่งน้ำเท่านั้น' },
+      ],
+      summaryTitle: 'สรุปเรื่องความสำคัญของน้ำประปา',
+      summaryText: 'น้ำประปาที่สะอาดและมีให้ใช้อย่างสม่ำเสมอ คือพื้นฐานของคุณภาพชีวิตทั้งของคนและสัตว์ เมื่อใดที่น้ำในระบบไม่พอ ไม่ว่าจะเป็นหน้าแล้ง ท่อประปาซ่อม หรือพื้นที่ที่ท่อยังไปไม่ถึง การมีรถส่งน้ำที่เรียกได้ทันทีจะช่วยให้บ้าน ร้านค้า และไซต์งานเดินต่อไปได้โดยไม่ต้องหยุดรอ',
+      ctaTitle: 'ต้องการน้ำประปาส่งถึงที่',
+      ctaText: 'ธารนที รถส่งน้ำประปาเชียงใหม่และลำพูน บริการตลอด 24 ชั่วโมง โทรหาเราได้ทุกเวลา',
+      backLabel: 'กลับไปหน้าแรก',
+    },
 
     videos: [
       { file: 'work-video-01', caption: 'เติมน้ำให้ร้านค้าและคาเฟ่' },
@@ -183,7 +225,7 @@ export const I18N = {
       { q: 'น้ำที่ส่งเป็นน้ำอะไร ใช้ดื่มได้หรือไม่', a: 'เป็นน้ำประปาที่ผ่านมาตรฐาน สะอาด ไร้สิ่งเจือปน ใช้อุปโภคได้ทุกกรณี หากต้องการดื่มแนะนำให้ต้มหรือผ่านเครื่องกรองก่อน' },
       { q: 'คิดค่าบริการอย่างไร', a: 'คิดตามปริมาณน้ำและระยะทางจากจุดรับน้ำถึงหน้างาน แจ้งราคาทั้งหมดให้ทราบก่อนออกรถ ไม่มีค่าใช้จ่ายเพิ่มหน้างาน' },
       { q: 'รถเข้าซอยแคบได้ไหม', a: 'ได้ กรณีซอยแคบหรือทางเข้าจำกัดจะใช้รถ 4 ล้อแทนรถ 6 ล้อ แจ้งลักษณะทางเข้าตอนสั่งน้ำเพื่อให้จัดรถได้ถูกประเภท' },
-      { q: 'รับส่งน้ำนอกเขตเชียงใหม่หรือไม่', a: 'รับพิจารณาเป็นกรณีไป ขึ้นอยู่กับระยะทางและปริมาณน้ำ โทรสอบถามเพื่อประเมินราคาได้' },
+      { q: 'รับส่งน้ำนอกเขตเชียงใหม่และลำพูนหรือไม่', a: 'รับพิจารณาเป็นกรณีไป ขึ้นอยู่กับระยะทางและปริมาณน้ำ โทรสอบถามเพื่อประเมินราคาได้' },
       { q: 'ชำระเงินอย่างไร', a: 'ชำระเงินสดหน้างานหรือโอนผ่านธนาคาร กรณีลูกค้าองค์กรที่ต้องการวางบิลแจ้งล่วงหน้าได้' },
     ],
 
@@ -255,8 +297,8 @@ export const I18N = {
     orCall: 'or call',
 
     heroEyebrow: 'Fast, on time, and we care about every job',
-    heroTitle: 'Water truck delivery in Chiang Mai, 24 hours a day',
-    heroSubtitle: 'Clean tap water delivered to storage tanks, swimming pools, construction sites, gardens and lawns, road washing, festivals and events. We deliver anywhere in Chiang Mai.',
+    heroTitle: 'Water truck delivery in Chiang Mai and Lamphun, 24 hours a day',
+    heroSubtitle: 'Clean tap water delivered to storage tanks, swimming pools, construction sites, gardens and lawns, road washing, festivals and events. We deliver anywhere in Chiang Mai and Lamphun.',
     heroNote: 'Tell us how much water you need, where, and when. We quote you straight away.',
 
     highlightsTitle: 'Why customers choose us',
@@ -264,11 +306,11 @@ export const I18N = {
       { icon: 'clock', title: 'We move fast', text: 'Water cannot wait. The moment you call, we arrange a truck and get moving.' },
       { icon: 'check', title: 'On time, every time', text: 'No worrying about the appointment. We arrive at the time we agreed with you.' },
       { icon: 'drop', title: 'Clean and safe water', text: 'Our tap water meets the standard: clean and free of contaminants, carried in properly maintained tanks.' },
-      { icon: 'truck', title: 'We reach every site', text: 'With both four wheel and six wheel trucks we can deliver anywhere in Chiang Mai and nearby provinces.' },
+      { icon: 'truck', title: 'We reach every site', text: 'With both four wheel and six wheel trucks we can deliver anywhere in Chiang Mai, Lamphun and nearby provinces.' },
     ],
 
     aboutTitle: 'Clean water you can rely on, delivered by Natee',
-    aboutText: 'Natee started with one goal: to bring clean, good quality tap water to people across Chiang Mai. We serve homes, shops, businesses, construction sites, places that need backup water when the mains run short, swimming pools, special events, and areas the pipe network has not reached. We work with care, responsibility and proper standards.',
+    aboutText: 'Natee started with one goal: to bring clean, good quality tap water to people across Chiang Mai and Lamphun. We serve homes, shops, businesses, construction sites, places that need backup water when the mains run short, swimming pools, special events, and areas the pipe network has not reached. We work with care, responsibility and proper standards.',
     aboutQuote: 'Water is life. Without water, people cannot live.',
 
     servicesTitle: 'What we deliver',
@@ -324,12 +366,54 @@ export const I18N = {
     ],
 
     areasTitle: 'Where we deliver',
-    areasSubtitle: 'We serve the whole of Chiang Mai province and nearby areas. Ask us about anywhere else.',
+    areasSubtitle: 'We serve the whole of Chiang Mai and Lamphun provinces, plus the areas nearby. Ask us about anywhere else.',
     areas: [
       'Mueang Chiang Mai', 'San Sai', 'Saraphi', 'Hang Dong',
-      'San Kamphaeng', 'Doi Saket', 'Mae Rim', 'San Pa Tong',
-      'Mae Taeng', 'Samoeng', 'Chom Thong', 'Mae On',
+      'San Kamphaeng', 'Doi Saket', 'Mae Rim', 'Lamphun province',
+      'San Pa Tong', 'Mae Taeng', 'Samoeng', 'Chom Thong', 'Mae On',
     ],
+
+    knowledge: {
+      navLabel: 'Water facts',
+      footerLink: 'Article: why tap water matters',
+      metaTitle: 'Why Water and Tap Water Matter | Natee',
+      metaDescription: 'A plain guide to why water and a clean tap water supply matter, for daily life, farming, livestock, industry and whole communities, written by the Natee water truck team in Chiang Mai.',
+      eyebrow: 'Good to know',
+      title: 'Water is life: why water and tap water matter',
+      subtitle: 'What is worth knowing about water and a piped water supply, from everyday household use to farming, livestock, industry, and getting water to every home in a village.',
+      quote: 'Water is life. Without water, people cannot live.',
+      quoteBy: 'His Majesty King Bhumibol Adulyadej the Great',
+      intro: 'Water is the most basic requirement of every living thing on earth. A person can go weeks without food, but no more than three days without water. Water is not simply another household supply, it is the condition for staying alive.',
+      tocTitle: 'On this page',
+      groupsTitle: 'Why water matters to life and to the planet',
+      groups: [
+        { icon: 'drop', title: 'Staying alive', text: 'The human body is mostly water. It regulates temperature, digests food, and carries nutrients to every part of the body.' },
+        { icon: 'leaf', title: 'Farming and food', text: 'Water is at the heart of growing crops and raising animals, which feed the whole country. No water means no harvest.' },
+        { icon: 'pool', title: 'Ecosystems', text: 'Rivers, lakes and ponds are where aquatic life begins and lives. They hold the balance of the natural world together.' },
+      ],
+      usesTitle: 'How each sector uses water',
+      uses: [
+        { icon: 'tank', title: 'Household use', text: 'Drinking, cooking, washing, laundry, dishes, and almost every other daily task at home.' },
+        { icon: 'factory', title: 'Industry', text: 'Production processes, cooling machinery, and cleaning inside the plant.' },
+        { icon: 'leaf', title: 'Farming and livestock', text: 'Watering crops, drinking water for animals, washing them, and damping down pens to keep them cool in the dry season.' },
+      ],
+      benefitsTitle: 'Why a piped water supply matters',
+      benefitsSubtitle: 'Seven reasons a clean tap water supply changes daily life for a whole community',
+      benefits: [
+        { title: 'Enough water all year round', text: 'A piped supply delivers water steadily, so there is enough for daily life even in the dry season when demand outstrips what is available.' },
+        { title: 'Water for household chores', text: 'Washing the car, the dishes and the laundry, watering plants, cleaning the house and the shop all need water that runs on demand.' },
+        { title: 'Water for drinking', text: 'Tap water can be used for drinking, but always filter it first. Unfiltered water may carry sediment or contaminants that should not be drunk straight.' },
+        { title: 'Water for farming', text: 'Small plots and kitchen gardens can rely on tap water. Larger fields should keep their own reserve, because in hot weather the mains may not cover a whole village.' },
+        { title: 'Water for factories', text: 'Plants use large volumes, and it has to be clean enough to enter the production line, so an industrial water system needs careful planning.' },
+        { title: 'Water for livestock', text: 'Animals drink every day. In the dry season, when ponds and canals run low, tap water becomes essential for drinking, washing and cooling the pens.' },
+        { title: 'Water that reaches the whole village', text: 'Once a village has a piped supply, water reaches every household equally, not only the homes closest to the source.' },
+      ],
+      summaryTitle: 'In summary',
+      summaryText: 'A clean, reliable water supply is the foundation of a decent life for people and animals alike. Whenever the mains fall short, in a drought, during pipe repairs, or in places the network has not reached, a water truck you can call straight away keeps homes, shops and work sites running instead of waiting.',
+      ctaTitle: 'Need water delivered to your door',
+      ctaText: 'Natee delivers tap water by truck across Chiang Mai and Lamphun, 24 hours a day. Call us any time.',
+      backLabel: 'Back to the home page',
+    },
 
     videos: [
       { file: 'work-video-01', caption: 'Filling tanks for shops and cafes' },
@@ -356,7 +440,7 @@ export const I18N = {
       { q: 'What kind of water is it? Can I drink it?', a: 'It is standard tap water: clean and free of contaminants, fine for every household use. If you want to drink it, boil it or run it through a filter first.' },
       { q: 'How is the price worked out?', a: 'By the volume of water and the distance from where we load to your site. We tell you the full price before the truck leaves, with nothing added on arrival.' },
       { q: 'Can your truck get down a narrow lane?', a: 'Yes. Where access is tight we send the four wheel truck instead of the six wheel. Describe the entrance when you order so we send the right vehicle.' },
-      { q: 'Do you deliver outside Chiang Mai?', a: 'We consider it case by case, depending on the distance and the volume. Call us and we will work out a price.' },
+      { q: 'Do you deliver outside Chiang Mai and Lamphun?', a: 'We consider it case by case, depending on the distance and the volume. Call us and we will work out a price.' },
       { q: 'How do I pay?', a: 'Cash on delivery or bank transfer. Business customers who need an invoice can arrange it with us in advance.' },
     ],
 
