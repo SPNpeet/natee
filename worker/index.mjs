@@ -1,3 +1,4 @@
+import { migrationReadOnly, migrationResponse } from './migration.mjs'
 import { canonicalRedirect } from './canonical.mjs'
 import seed from '../server-build/seed.json'
 import buildInfo from '../server-build/build.json'
@@ -224,10 +225,9 @@ async function api(request, env, path) {
 }
 async function handle(request,env) {
   if (!env.SITE_URL) throw new HttpError(503,'เว็บไซต์ยังตั้งค่าไม่ครบ')
-  const maintenance=env.MIGRATION_READ_ONLY === 'true'
-  if (maintenance && new URL(request.url).pathname.startsWith('/api/') && !['GET','HEAD'].includes(request.method)) {
-    return json({error:'กำลังย้ายระบบชั่วคราว กรุณารอสักครู่แล้วลองใหม่ หรือติดต่อทางโทรศัพท์หรือ LINE'},503,{'Retry-After':'300'})
-  }
+  const maintenance=migrationReadOnly(env)
+  const paused=migrationResponse(request,env,securityHeaders)
+  if (paused) return paused
   const redirect=canonicalRedirect(request,env.SITE_URL)
   if (redirect) return redirect
   const url=new URL(request.url)
@@ -288,7 +288,7 @@ export default {
     }
   },
   async scheduled(_event,env) {
-    if (env.MIGRATION_READ_ONLY === 'true') return
+    if (migrationReadOnly(env)) return
     const cutoff=new Date(Date.now()-90*86400000).toISOString()
     await env.DB.batch([query(env,'DELETE FROM sessions WHERE expires<?',Date.now()),query(env,'DELETE FROM limits WHERE expires<?',Date.now()),query(env,'DELETE FROM inquiries WHERE created<?',cutoff),query(env,'DELETE FROM daily_stats WHERE day<?',cutoff.slice(0,10))])
   },

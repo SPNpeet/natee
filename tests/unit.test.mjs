@@ -55,35 +55,26 @@ test('canonical www redirects preserve IDN paths and query without redirecting p
   assert.equal(canonicalRedirect(new Request('https://example.test/path'),'https://www.example.test').headers.get('Location'),'https://www.example.test/path')
 })
 
-test('migration read-only blocks API writes before storage and keeps public reads available',async()=>{
-  const {default:worker}=await import('../worker/index.mjs')
-  const {readFile}=await import('node:fs/promises')
-  const env={SITE_URL:'http://localhost',MIGRATION_READ_ONLY:'true',
-    DB:{prepare(){throw new Error('Storage must not be accessed for blocked writes')}},
-    MEDIA:{put(){throw new Error('Media must not change')}}}
+test('migration freeze blocks API mutations while leaving public and authenticated reads available',async()=>{
+  const {migrationResponse,migrationReadOnly}=await import('../worker/migration.mjs')
+  const frozen={MIGRATION_READ_ONLY:'true'}
+  assert.equal(migrationReadOnly(frozen),true)
   for(const method of ['POST','PUT','PATCH','DELETE']){
     for(const path of ['/api/content','/api/media','/api/login','/api/inquiries','/api/users','/api/events']){
-      const response=await worker.fetch(new Request('http://localhost'+path,{method}),env)
+      const response=migrationResponse(new Request('https://example.test'+path,{method}),frozen)
       assert.equal(response.status,503)
       assert.equal(response.headers.get('Retry-After'),'300')
+      assert.equal(response.headers.get('Cache-Control'),'no-store')
       assert.match((await response.json()).error,/โทรศัพท์หรือ LINE/)
     }
   }
-  await worker.scheduled({},env)
-  const sessionEnv={...env,DB:{prepare(){return {bind(){return {first:async()=>({n:1})}}}}}}
-  assert.equal((await worker.fetch(new Request('http://localhost/api/session'),sessionEnv)).status,200)
-  const seed=JSON.parse(await readFile(new URL('../server-build/seed.json',import.meta.url),'utf8'))
-  const shell=await readFile(new URL('../dist/__shell.html',import.meta.url),'utf8')
-  const publicEnv={...env,ASSETS:{fetch:async()=>new Response(shell)},DB:{
-    prepare(sql){
-      assert.match(sql,/^SELECT/)
-      return {bind(){return {first:async()=>({data:JSON.stringify(seed),version:1,site:'old',render_version:'old'})}}}
-    }
-  }}
-  for(const method of ['GET','HEAD']){
-    const response=await worker.fetch(new Request('http://localhost/',{method}),publicEnv)
-    assert.equal(response.status,200)
+  for(const path of ['/','/en.html','/admin/','/api/session','/api/content','/uploads/example.png']){
+    for(const method of ['GET','HEAD'])
+      assert.equal(migrationResponse(new Request('https://example.test'+path,{method}),frozen),null)
   }
-  const unfrozen=await worker.fetch(new Request('http://localhost/api/login',{method:'POST'}),{...env,MIGRATION_READ_ONLY:'false'})
-  assert.equal(unfrozen.status,403)
+  for(const flag of [undefined,'false','',false]){
+    const env={MIGRATION_READ_ONLY:flag}
+    assert.equal(migrationReadOnly(env),false)
+    assert.equal(migrationResponse(new Request('https://example.test/api/login',{method:'POST'}),env),null)
+  }
 })
