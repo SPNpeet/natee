@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict'
+import {stripVTControlCharacters} from 'node:util'
 import {mkdtempSync,readFileSync,writeFileSync,rmSync} from 'node:fs'
 import {tmpdir} from 'node:os'
 import {join} from 'node:path'
@@ -23,7 +24,7 @@ function cli(args){
     const output=String(error.stderr||'')+String(error.stdout||'')
     const categories=['FOREIGN KEY constraint failed','no such table','already exists','SQLITE_ERROR','Statement too long','Unknown argument']
     const category=categories.filter(value=>output.includes(value)).join(', ')||'unclassified CLI error'
-    const safeMessage=(output.replace(/\x1b\[[0-9;]*m/g,'').match(/(?:ERROR|Error:)[^\r\n]*/g)||[]).map(line=>line.replace(/'[^']*'|"[^"]*"/g,'[redacted]').replace(/[A-Za-z0-9_-]{30,}/g,'[redacted]').slice(0,240)).join(' ')
+    const safeMessage=(stripVTControlCharacters(output).match(/(?:ERROR|Error:)[^\r\n]*/g)||[]).map(line=>line.replace(/'[^']*'|"[^"]*"/g,'[redacted]').replace(/[A-Za-z0-9_-]{30,}/g,'[redacted]').slice(0,240)).join(' ')
     throw new Error('Isolated recovery CLI step failed: '+args.slice(0,2).join(' ')+' ('+category+') '+safeMessage,{cause:new Error('CLI exit '+error.status)})
   }
 }
