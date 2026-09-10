@@ -1673,41 +1673,54 @@ a.natee-contact-item:hover {
 	gap: 4px;
 }
 
-/* แถบติดต่อค้างล่างจอ */
-.natee-sticky {
-	position: fixed;
-	left: 0;
-	right: 0;
-	bottom: 0;
-	z-index: 120;
-	display: grid;
-	grid-auto-flow: column;
-	grid-auto-columns: 1fr;
-	background: #fff;
-	border-top: 1px solid var(--natee-line);
-	box-shadow: 0 -4px 18px rgba(15, 28, 46, 0.09);
-	padding-bottom: env(safe-area-inset-bottom);
+.natee-floating-contact {
+  position: fixed;
+  right: max(16px, env(safe-area-inset-right));
+  bottom: calc(16px + env(safe-area-inset-bottom));
+  z-index: 120;
 }
-
-.natee-sticky-item {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	gap: 8px;
-	min-height: 58px;
-	text-decoration: none;
-	font-weight: 600;
-	font-size: 16px;
-	color: #fff;
+.natee-contact-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 52px;
+  padding: 12px 18px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--natee-brand);
+  color: #fff;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 18px rgba(15, 28, 46, 0.22);
 }
-
-.natee-sticky-call {
-	background: var(--natee-brand);
+.natee-contact-toggle:hover { background: var(--natee-brand-dark); }
+.natee-contact-options {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 10px);
+  width: max-content;
+  max-width: calc(100vw - 32px);
+  padding: 8px;
+  border: 1px solid var(--natee-line);
+  border-radius: 18px;
+  background: #fff;
+  box-shadow: 0 6px 24px rgba(15, 28, 46, 0.16);
 }
-
-.natee-sticky-line {
-	background: var(--natee-line-green);
+.natee-contact-options a {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 48px;
+  padding: 10px 16px;
+  border-radius: 12px;
+  text-decoration: none;
+  font-weight: 600;
+  color: #fff;
 }
+.natee-floating-call { background: var(--natee-brand); }
+.natee-floating-line { background: var(--natee-line-green); margin-top: 6px; }
 
 /* เนื้อหาบทความ */
 .natee-content p,
@@ -1982,12 +1995,8 @@ a.natee-contact-item:hover {
 		grid-template-columns: repeat(3, minmax(0, 1fr));
 	}
 
-	.natee-sticky {
-		display: none;
-	}
-
 	.natee-footer {
-		padding-bottom: 40px;
+		padding-bottom: 100px;
 	}
 }
 

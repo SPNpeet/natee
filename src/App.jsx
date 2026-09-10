@@ -10,6 +10,9 @@ const SECTIONS = ['services', 'fleet', 'pricing', 'areas', 'gallery', 'faq', 'co
 export default function App({ lang = 'th', content = defaults }) {
   const { I18N, CONTACT, GALLERY, REVIEWS, FORM, ASSETS, BRAND } = content
   const [menuOpen, setMenuOpen] = useState(false)
+  const [contactOpen, setContactOpen] = useState(false)
+  const contactRef = useRef(null)
+  const contactToggleRef = useRef(null)
   const [openPrice, setOpenPrice] = useState(0)
   const [openFaq, setOpenFaq] = useState(null)
   const [viewer, setViewer] = useState(null)
@@ -117,6 +120,27 @@ export default function App({ lang = 'th', content = defaults }) {
       wide.removeEventListener('change', onResize)
     }
   }, [])
+
+  useEffect(() => {
+    if (!contactOpen) return
+    const closeOutside = (event) => {
+      if (!contactRef.current?.contains(event.target)) setContactOpen(false)
+    }
+    const closeEscape = (event) => {
+      if (event.key === 'Escape') {
+        setContactOpen(false)
+        contactToggleRef.current?.focus()
+      }
+    }
+    document.addEventListener('pointerdown', closeOutside)
+    document.addEventListener('focusin', closeOutside)
+    document.addEventListener('keydown', closeEscape)
+    return () => {
+      document.removeEventListener('pointerdown', closeOutside)
+      document.removeEventListener('focusin', closeOutside)
+      document.removeEventListener('keydown', closeEscape)
+    }
+  }, [contactOpen])
 
   const swipe = useRef(null)
   const onTouchStart = (e) => { swipe.current = { x: e.touches[0].clientX, y: e.touches[0].clientY } }
@@ -675,15 +699,22 @@ export default function App({ lang = 'th', content = defaults }) {
         </div>
       </footer>
 
-      <div className="natee-sticky" role="complementary" aria-label={L.contactTitle}>
-        <a className="natee-sticky-item natee-sticky-call" href={CONTACT.phoneHref}
-          onClick={() => track('call_click', { place: 'sticky', language: lang })}>
-          <Icon name="phone" /><span>{L.callLabel}</span>
-        </a>
-        <a className="natee-sticky-item natee-sticky-line" href={CONTACT.lineUrl} target="_blank" rel="noopener"
-          onClick={() => track('line_click', { place: 'sticky', language: lang })}>
-          <Icon name="line" /><span>{L.lineLabel}</span>
-        </a>
+      <div className="natee-floating-contact" ref={contactRef} role="complementary" aria-label={L.contactTitle}>
+        <button className="natee-contact-toggle" type="button" ref={contactToggleRef}
+          aria-expanded={contactOpen} aria-controls="natee-contact-options"
+          onClick={() => setContactOpen(open => !open)}>
+          <Icon name="phone" /><span>{lang === 'th' ? 'ติดต่อ' : 'Contact'}</span>
+        </button>
+        <div className="natee-contact-options" id="natee-contact-options" hidden={!contactOpen}>
+          <a className="natee-floating-call" href={CONTACT.phoneHref}
+            onClick={() => { track('call_click', { place: 'floating', language: lang }); setContactOpen(false) }}>
+            <Icon name="phone" /><span>{L.callLabel}</span>
+          </a>
+          <a className="natee-floating-line" href={CONTACT.lineUrl} target="_blank" rel="noopener"
+            onClick={() => { track('line_click', { place: 'floating', language: lang }); setContactOpen(false) }}>
+            <Icon name="line" /><span>{L.lineLabel}</span>
+          </a>
+        </div>
       </div>
 
       {current && (
