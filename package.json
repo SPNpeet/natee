@@ -9,7 +9,8 @@
     "lint": "oxlint",
     "preview": "vite preview",
     "check": "node scripts/check.mjs",
-    "test": "node --test tests/unit.test.mjs"
+    "test": "node --test tests/unit.test.mjs",
+    "build:node": "npm run build && vite build --config vite.node.config.js"
   },
   "dependencies": {
     "preact": "^10.29.8",

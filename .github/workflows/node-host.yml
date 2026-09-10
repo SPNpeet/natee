@@ -1,0 +1,64 @@
+name: Validate and package Z.com Node host
+on:
+  push:
+    branches: [codex/handover-readiness]
+    paths: ['node-host/**', 'tests/**', 'src/**', 'worker/**', 'scripts/**', 'public/**', 'app.cjs', 'vite.node.config.js', 'package*.json', '.github/workflows/node-host.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: node-host-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      SITE_URL: http://127.0.0.1:8787
+      PORT: 8787
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run build:node
+      - run: npm run check
+      - run: node --test tests/node-adapter.test.mjs
+      - name: Start Node server with isolated runner data
+        run: |
+          mkdir -p work
+          echo "DATA_DIR=$RUNNER_TEMP/natee-node-data" >> "$GITHUB_ENV"
+          DATA_DIR="$RUNNER_TEMP/natee-node-data" SETUP_TOKEN=ci-only-setup-token-not-for-production-827456192038 node app.cjs > work/node-server.log 2>&1 &
+          node tests/wait-server.mjs
+      - name: Full API acceptance against Node
+        run: node --test tests/api.test.mjs
+      - name: Isolated Node backup and restore
+        run: node tests/node-recovery.mjs
+      - run: npx playwright install --with-deps chromium firefox webkit
+      - name: Browser acceptance against Node
+        run: npx playwright test
+      - name: Package runtime without credentials or databases
+        run: |
+          mkdir -p "$RUNNER_TEMP/natee-package/worker"
+          cp -R dist node-build node-host app.cjs "$RUNNER_TEMP/natee-package/"
+          cp -R worker/migrations "$RUNNER_TEMP/natee-package/worker/"
+          cd "$RUNNER_TEMP/natee-package"
+          zip -qr "$GITHUB_WORKSPACE/work/natee-zcom-node24.zip" .
+      - uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: natee-zcom-node24-${{ github.sha }}
+          path: work/natee-zcom-node24.zip
+          retention-days: 7
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: natee-node-test-evidence-${{ github.sha }}
+          path: |
+            playwright-report/
+            test-results/
+            work/node-server.log
+          retention-days: 7
