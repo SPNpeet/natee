@@ -203,7 +203,34 @@ check('มีลำพูนในพื้นที่ให้บริกา�
 check('ลำพูนถูกส่งให้ Google ในข้อมูลพื้นที่บริการด้วย',
   blocks.some((b) => b[1].includes('จังหวัดลำพูน')))
 
-console.log('\n8. ขนาดที่ผู้เข้าชมต้องโหลด')
+console.log('\n8. จุดที่เคยพลาดมาแล้ว')
+
+// คำบรรยายใต้คลิปเป็นตัวหนังสีขาวทับภาพหน้าปก
+// เคยใช้เงาจางเกินไป วัดจริงจากพิกเซลได้แค่ 2.27 ต่อ 1 ซึ่งอ่านไม่ออก
+const overlay = html.match(/\.natee-video-caption\{[^}]*?linear-gradient\(([^;]*?)\)[;}]/)
+const stops = overlay
+  ? [...overlay[1].matchAll(/(#[0-9a-f]{6,8}|rgba?\([^)]*\))\s*([0-9.]+)%/gi)].map((m) => ({
+      // สไตล์ที่ถูกย่อแล้วเขียนความทึบเป็นเลขฐานสิบหกสองหลักท้ายรหัสสี
+      alpha: m[1].startsWith('#')
+        ? (m[1].length >= 9 ? parseInt(m[1].slice(7, 9), 16) / 255 : 1)
+        : Number((m[1].match(/[0-9.]+/g) || [])[3] ?? 1),
+      pos: Number(m[2]),
+    }))
+  : []
+
+// วัดจากปลายด้านที่โปร่งใสเสมอ เครื่องมือย่อไฟล์สลับทิศทางไล่สีได้
+const ordered = stops.length > 1 && stops[0].alpha > stops[stops.length - 1].alpha
+  ? stops.map((s) => ({ alpha: s.alpha, pos: 100 - s.pos })).toReversed()
+  : stops
+const solidEarly = ordered.some((s) => s.pos <= 30 && s.alpha >= 0.85)
+check('เงาใต้คลิปเข้มพอตลอดแถวตัวหนังสือ', solidEarly,
+  'เงาต้องทึบตั้งแต่หนึ่งในสามแรก ถ้าเข้มเฉพาะขอบล่าง คำบรรยายจะอ่านไม่ออกบนภาพหน้าปกที่สว่าง')
+
+// หน้า 404 ของ GitHub Pages ถูกเรียกจากที่อยู่ไหนก็ได้ จึงชี้กลับหน้าแรกด้วยเส้นทางสัมพัทธ์ไม่ได้
+const notFound = readFileSync(resolve(dist, '404.html'), 'utf-8')
+check('หน้าหาไม่เจอพากลับหน้าแรกได้แม้เว็บอยู่ใต้โฟลเดอร์ย่อย', notFound.includes('github.io'))
+
+console.log('\n9. ขนาดที่ผู้เข้าชมต้องโหลด')
 const biggest = pageFiles
   .map((f) => ({ f, kb: Buffer.byteLength(pages[f]) / 1024 }))
   .toSorted((a, b) => b.kb - a.kb)[0]

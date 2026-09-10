@@ -1082,7 +1082,11 @@ textarea:focus-visible,
 	font-size: 15px;
 	line-height: 1.45;
 	font-weight: 500;
-	background: linear-gradient(to top, rgba(8, 16, 28, 0.86), rgba(8, 16, 28, 0));
+	/*
+	 * เงาต้องเข้มพอตลอดแถวตัวหนังสือ ไม่ใช่เข้มเฉพาะขอบล่าง
+	 * ภาพหน้าปกบางคลิปสว่าง ตัวอักษรขาวบนเงาจาง ๆ วัดได้แค่ 2.27 ต่อ 1 ซึ่งอ่านไม่ออกกลางแดด
+	 */
+	background: linear-gradient(to top, rgba(8, 16, 28, 0.92) 0%, rgba(8, 16, 28, 0.88) 72%, rgba(8, 16, 28, 0) 100%);
 }
 
 .natee-gallery-cell {
