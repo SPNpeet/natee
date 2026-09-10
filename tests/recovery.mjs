@@ -60,6 +60,9 @@ try{
     writeFileSync(file,bytes,{mode:0o600})
     media.push({path:item.path,mime:item.mime,file,hash:hash(bytes),bytes:bytes.length})
   }
+  // Rendered HTML is a rebuildable cache and can exceed D1's SQL statement limit.
+  // Clear only the isolated fixture cache; the restored worker regenerates it.
+  cli(['d1','execute','natee','--local','--command',"UPDATE content SET html_th='',html_en='',site='',render_version='';"])
   // Create all tables before importing rows: a referenced table may sort after
   // its child in a full dump, and deferred constraints cannot fix a missing table.
   const schema=join(directory,'schema.sql'),data=join(directory,'data.sql')
