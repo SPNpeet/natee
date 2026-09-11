@@ -98,16 +98,16 @@ jobs:
           npx wrangler deploy --config wrangler.customer.jsonc
       - name: Check public HTTPS pages
         run: |
-          curl --fail --silent --show-error --retry 5 --retry-all-errors --retry-delay 5 "$SITE_URL/" -o /tmp/natee-home.html
-          curl --fail --silent --show-error "$SITE_URL/en.html" -o /tmp/natee-en.html
-          curl --fail --silent --show-error "$SITE_URL/admin/" -o /tmp/natee-admin.html
-          curl --fail --silent --show-error "$SITE_URL/sitemap.xml" -o /tmp/natee-sitemap.xml
+          curl --fail --silent --show-error --retry 5 --retry-all-errors --retry-delay 5 --retry 5 --retry-all-errors --retry-delay 5 "$SITE_URL/" -o /tmp/natee-home.html
+          curl --fail --silent --show-error --retry 5 --retry-all-errors --retry-delay 5 "$SITE_URL/en.html" -o /tmp/natee-en.html
+          curl --fail --silent --show-error --retry 5 --retry-all-errors --retry-delay 5 "$SITE_URL/admin/" -o /tmp/natee-admin.html
+          curl --fail --silent --show-error --retry 5 --retry-all-errors --retry-delay 5 "$SITE_URL/sitemap.xml" -o /tmp/natee-sitemap.xml
           test -s /tmp/natee-home.html
           test -s /tmp/natee-en.html
           test -s /tmp/natee-admin.html
           grep -F "$SITE_URL" /tmp/natee-sitemap.xml
-          curl --fail --silent --show-error "$SITE_URL/knowledge.html" -o /tmp/natee-knowledge.html
-          curl --fail --silent --show-error "$SITE_URL/knowledge-en.html" -o /tmp/natee-knowledge-en.html
+          curl --fail --silent --show-error --retry 5 --retry-all-errors --retry-delay 5 "$SITE_URL/knowledge.html" -o /tmp/natee-knowledge.html
+          curl --fail --silent --show-error --retry 5 --retry-all-errors --retry-delay 5 "$SITE_URL/knowledge-en.html" -o /tmp/natee-knowledge-en.html
           grep -q 'data-page="knowledge"' /tmp/natee-knowledge.html
           grep -q 'data-page="knowledge"' /tmp/natee-knowledge-en.html
           grep -q 'จังหวัดลำพูน' /tmp/natee-home.html
