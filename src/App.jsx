@@ -637,9 +637,6 @@ export default function App({ lang = 'th', page = 'home' }) {
             <ul className="natee-footer-areas">
               {L.areas.slice(0, 8).map((area) => <li key={area}>{area}</li>)}
             </ul>
-            <p className="natee-footer-link">
-              <a href={knowledgeHref}>{L.knowledge.footerLink}</a>
-            </p>
           </div>
         </div>
 

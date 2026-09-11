@@ -1622,6 +1622,8 @@ a.natee-contact-item:hover {
 	margin-top: 6px;
 	font-size: 16px;
 	color: #a8b6c8;
+	/* ไม่ปล่อยคำโดดไว้บรรทัดสุดท้าย เช่น ชั่วโมง ที่หลุดจาก 24 */
+	text-wrap: pretty;
 }
 
 .natee-footer-heading {
@@ -1653,8 +1655,8 @@ a.natee-contact-item:hover {
 
 .natee-footer-areas {
 	display: grid;
-	grid-template-columns: repeat(2, minmax(0, 1fr));
-	gap: 6px 14px;
+	grid-template-columns: repeat(auto-fill, minmax(10em, 1fr));
+	gap: 8px 16px;
 	font-size: 15px;
 	color: #a8b6c8;
 }
@@ -2470,6 +2472,12 @@ a.natee-contact-item:hover {
 	margin-top: 38px;
 }
 
+/* กล่องท้ายบทความมีลิงก์กลับหน้าแรกเพิ่มมา ถ้าใช้สองคอลัมน์แบบหน้าแรก ปุ่มจะถูกบีบเป็นแท่งแคบ ๆ */
+.natee-article-cta .natee-cta-inner {
+	grid-template-columns: minmax(0, 1fr);
+	gap: 14px;
+}
+
 .natee-article-back {
 	margin-top: 4px;
 }
@@ -2486,22 +2494,6 @@ a.natee-contact-item:hover {
 
 .natee-article-back a:hover {
 	text-decoration: underline;
-}
-
-.natee-footer-link {
-	margin-top: 14px;
-}
-
-.natee-footer-link a {
-	color: #fff;
-	font-weight: 600;
-	text-decoration: none;
-	border-bottom: 1px solid rgba(255, 255, 255, 0.45);
-	padding-bottom: 2px;
-}
-
-.natee-footer-link a:hover {
-	border-bottom-color: #fff;
 }
 
 @media (min-width: 720px) {
@@ -2535,5 +2527,82 @@ a.natee-contact-item:hover {
 	.natee-nav-list a.is-current {
 		background: var(--natee-brand-soft);
 		color: var(--natee-brand-dark);
+	}
+}
+
+/* รูปประกอบบทความ ใช้รูปงานจริงของร้าน */
+.natee-article-figure {
+	margin: 22px 0 0;
+}
+
+.natee-article-hero {
+	margin-top: 0;
+	margin-bottom: 26px;
+}
+
+.natee-article-img {
+	display: block;
+	width: 100%;
+	height: auto;
+	aspect-ratio: 16 / 9;
+	object-fit: cover;
+	border-radius: var(--natee-radius);
+	background: var(--natee-bg-soft);
+}
+
+.natee-article-caption {
+	margin-top: 8px;
+	font-size: 15px;
+	line-height: 1.6;
+	color: var(--natee-muted);
+}
+
+.natee-use-list {
+	margin-top: 18px;
+	display: grid;
+	gap: 16px;
+}
+
+.natee-use {
+	border: 1px solid var(--natee-line);
+	border-radius: var(--natee-radius);
+	background: #fff;
+	overflow: hidden;
+}
+
+.natee-use .natee-article-img {
+	aspect-ratio: 16 / 10;
+	border-radius: 0;
+}
+
+.natee-use-body {
+	padding: 14px 16px 18px;
+}
+
+.natee-use-title {
+	font-size: 19px;
+}
+
+.natee-use-text {
+	margin-top: 6px;
+	color: var(--natee-muted);
+}
+
+/* จอกว้างวางรูปซ้ายข้อความขวา แทนการบีบเป็นสามคอลัมน์ ข้อความจะได้ไม่แน่นเป็นก้อน */
+@media (min-width: 720px) {
+	.natee-use {
+		display: grid;
+		grid-template-columns: 240px minmax(0, 1fr);
+		align-items: center;
+	}
+
+	.natee-use .natee-article-img {
+		height: 100%;
+		aspect-ratio: auto;
+		min-height: 160px;
+	}
+
+	.natee-use-body {
+		padding: 18px 22px;
 	}
 }

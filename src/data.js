@@ -160,7 +160,6 @@ export const I18N = {
 
     knowledge: {
       navLabel: 'ความรู้',
-      footerLink: 'บทความ ความสำคัญของน้ำประปา',
       metaTitle: 'ความสำคัญของน้ำและน้ำประปา น้ำคือชีวิต | ธารนที',
       metaDescription: 'รวมความรู้เรื่องน้ำและน้ำประปา ทั้งความสำคัญต่อการดำรงชีวิต การเกษตร ปศุสัตว์ อุตสาหกรรม และชุมชน พร้อมเหตุผลว่าทำไมน้ำประปาที่สะอาดจึงเปลี่ยนคุณภาพชีวิตของคนทั้งหมู่บ้าน',
       eyebrow: 'บทความน่ารู้',
@@ -169,6 +168,9 @@ export const I18N = {
       quote: 'น้ำคือชีวิต หากไม่มีน้ำ คนอยู่ไม่ได้',
       quoteBy: 'พระราชดำรัส พระบาทสมเด็จพระบรมชนกาธิเบศร มหาภูมิพลอดุลยเดชมหาราช บรมนาถบพิตร',
       intro: 'น้ำคือปัจจัยพื้นฐานที่สำคัญที่สุดของสิ่งมีชีวิตทุกชนิดบนโลก มนุษย์ขาดอาหารได้หลายสัปดาห์ แต่ขาดน้ำได้ไม่เกินสามวัน น้ำจึงไม่ใช่เพียงของใช้ประจำวัน แต่เป็นเงื่อนไขของการมีชีวิตอยู่',
+      heroImage: 'work-02',
+      heroAlt: 'รถส่งน้ำธารนทีกำลังเติมน้ำเข้าแท็งก์เก็บน้ำของลูกค้า',
+      heroCaption: 'น้ำประปาส่งตรงถึงแท็งก์เก็บน้ำของลูกค้า ด้วยรถส่งน้ำธารนที',
       tocTitle: 'หัวข้อในหน้านี้',
       groupsTitle: 'ความสำคัญของน้ำต่อสิ่งมีชีวิตและโลก',
       groups: [
@@ -178,12 +180,15 @@ export const I18N = {
       ],
       usesTitle: 'การใช้น้ำในแต่ละภาคส่วน',
       uses: [
-        { icon: 'tank', title: 'อุปโภคและบริโภค', text: 'ดื่ม ประกอบอาหาร ชำระล้างร่างกาย ซักผ้า ล้างจาน และงานบ้านแทบทุกอย่างในชีวิตประจำวัน' },
-        { icon: 'factory', title: 'อุตสาหกรรม', text: 'ใช้ในกระบวนการผลิต หล่อเย็นเครื่องจักร และล้างทำความสะอาดภายในโรงงาน' },
-        { icon: 'leaf', title: 'เกษตรและปศุสัตว์', text: 'รดน้ำแปลงเพาะปลูก ให้สัตว์กิน อาบน้ำให้สัตว์ และฉีดพรมคอกให้เย็นชุ่มชื้นในหน้าแล้ง' },
+        { image: 'work-04', alt: 'เติมน้ำเข้าแท็งก์หน้าห้องแถว', title: 'อุปโภคและบริโภค', text: 'ดื่ม ประกอบอาหาร ชำระล้างร่างกาย ซักผ้า ล้างจาน และงานบ้านแทบทุกอย่างในชีวิตประจำวัน' },
+        { image: 'work-08', alt: 'ใช้น้ำล้างพื้นภายในอาคารโกดัง', title: 'อุตสาหกรรม', text: 'ใช้ในกระบวนการผลิต หล่อเย็นเครื่องจักร และล้างทำความสะอาดภายในโรงงาน' },
+        { image: 'work-09', alt: 'รถส่งน้ำจอดส่งน้ำใต้ร่มไม้ในสวน', title: 'เกษตรและปศุสัตว์', text: 'รดน้ำแปลงเพาะปลูก ให้สัตว์กิน อาบน้ำให้สัตว์ และฉีดพรมคอกให้เย็นชุ่มชื้นในหน้าแล้ง' },
       ],
       benefitsTitle: 'ความสำคัญของน้ำประปา',
       benefitsSubtitle: 'เจ็ดเหตุผลที่ระบบน้ำประปาสะอาดเปลี่ยนคุณภาพชีวิตของคนทั้งชุมชน',
+      benefitsImage: 'work-05',
+      benefitsAlt: 'แท็งก์เก็บน้ำสีน้ำเงินสองใบข้างอาคาร',
+      benefitsCaption: 'แท็งก์สำรองน้ำช่วยให้มีน้ำใช้ต่อเนื่อง แม้ในช่วงหน้าแล้งที่น้ำประปาไหลไม่พอ',
       benefits: [
         { title: 'มีน้ำพอใช้ตลอดทั้งปี', text: 'ระบบประปาจ่ายน้ำได้สม่ำเสมอ ทำให้มีน้ำเพียงพอต่อการดำรงชีวิต โดยเฉพาะช่วงหน้าแล้งที่น้ำมักไม่พอกับความต้องการ' },
         { title: 'มีน้ำสำหรับงานอุปโภค', text: 'ล้างรถ ล้างจาน ซักผ้า รดน้ำต้นไม้ ทำความสะอาดบ้านและร้านค้า ล้วนต้องใช้น้ำที่ไหลได้ตลอดเวลา' },
@@ -194,6 +199,9 @@ export const I18N = {
         { title: 'มีน้ำใช้ทั่วถึงทั้งชุมชน', text: 'เมื่อหมู่บ้านมีระบบประปา น้ำจะถูกจ่ายไปถึงทุกหลังคาเรือนอย่างเท่าเทียม ไม่ใช่เฉพาะบ้านที่อยู่ใกล้แหล่งน้ำเท่านั้น' },
       ],
       summaryTitle: 'สรุปเรื่องความสำคัญของน้ำประปา',
+      summaryImage: 'work-06',
+      summaryAlt: 'พนักงานธารนทีฉีดน้ำล้างถนนในเวลากลางคืน',
+      summaryCaption: 'ธารนทีให้บริการตลอด 24 ชั่วโมง รวมถึงงานล้างถนนในเวลากลางคืน',
       summaryText: 'น้ำประปาที่สะอาดและมีให้ใช้อย่างสม่ำเสมอ คือพื้นฐานของคุณภาพชีวิตทั้งของคนและสัตว์ เมื่อใดที่น้ำในระบบไม่พอ ไม่ว่าจะเป็นหน้าแล้ง ท่อประปาซ่อม หรือพื้นที่ที่ท่อยังไปไม่ถึง การมีรถส่งน้ำที่เรียกได้ทันทีจะช่วยให้บ้าน ร้านค้า และไซต์งานเดินต่อไปได้โดยไม่ต้องหยุดรอ',
       ctaTitle: 'ต้องการน้ำประปาส่งถึงที่',
       ctaText: 'ธารนที รถส่งน้ำประปาเชียงใหม่และลำพูน บริการตลอด 24 ชั่วโมง โทรหาเราได้ทุกเวลา',
@@ -375,7 +383,6 @@ export const I18N = {
 
     knowledge: {
       navLabel: 'Water facts',
-      footerLink: 'Article: why tap water matters',
       metaTitle: 'Why Water and Tap Water Matter | Natee',
       metaDescription: 'A plain guide to why water and a clean tap water supply matter, for daily life, farming, livestock, industry and whole communities, written by the Natee water truck team in Chiang Mai.',
       eyebrow: 'Good to know',
@@ -384,6 +391,9 @@ export const I18N = {
       quote: 'Water is life. Without water, people cannot live.',
       quoteBy: 'His Majesty King Bhumibol Adulyadej the Great',
       intro: 'Water is the most basic requirement of every living thing on earth. A person can go weeks without food, but no more than three days without water. Water is not simply another household supply, it is the condition for staying alive.',
+      heroImage: 'work-02',
+      heroAlt: 'A Natee water truck filling a customer storage tank',
+      heroCaption: 'Tap water delivered straight into a customer storage tank by a Natee truck',
       tocTitle: 'On this page',
       groupsTitle: 'Why water matters to life and to the planet',
       groups: [
@@ -393,12 +403,15 @@ export const I18N = {
       ],
       usesTitle: 'How each sector uses water',
       uses: [
-        { icon: 'tank', title: 'Household use', text: 'Drinking, cooking, washing, laundry, dishes, and almost every other daily task at home.' },
-        { icon: 'factory', title: 'Industry', text: 'Production processes, cooling machinery, and cleaning inside the plant.' },
-        { icon: 'leaf', title: 'Farming and livestock', text: 'Watering crops, drinking water for animals, washing them, and damping down pens to keep them cool in the dry season.' },
+        { image: 'work-04', alt: 'Filling storage tanks in front of a shophouse', title: 'Household use', text: 'Drinking, cooking, washing, laundry, dishes, and almost every other daily task at home.' },
+        { image: 'work-08', alt: 'Washing down a warehouse floor with water', title: 'Industry', text: 'Production processes, cooling machinery, and cleaning inside the plant.' },
+        { image: 'work-09', alt: 'A water truck delivering to a garden under the trees', title: 'Farming and livestock', text: 'Watering crops, drinking water for animals, washing them, and damping down pens to keep them cool in the dry season.' },
       ],
       benefitsTitle: 'Why a piped water supply matters',
       benefitsSubtitle: 'Seven reasons a clean tap water supply changes daily life for a whole community',
+      benefitsImage: 'work-05',
+      benefitsAlt: 'Two blue water storage tanks beside a building',
+      benefitsCaption: 'Storage tanks keep water on hand through the dry season, when the mains cannot keep up',
       benefits: [
         { title: 'Enough water all year round', text: 'A piped supply delivers water steadily, so there is enough for daily life even in the dry season when demand outstrips what is available.' },
         { title: 'Water for household chores', text: 'Washing the car, the dishes and the laundry, watering plants, cleaning the house and the shop all need water that runs on demand.' },
@@ -409,6 +422,9 @@ export const I18N = {
         { title: 'Water that reaches the whole village', text: 'Once a village has a piped supply, water reaches every household equally, not only the homes closest to the source.' },
       ],
       summaryTitle: 'In summary',
+      summaryImage: 'work-06',
+      summaryAlt: 'A Natee crew washing a road at night',
+      summaryCaption: 'Natee works around the clock, including night-time road washing',
       summaryText: 'A clean, reliable water supply is the foundation of a decent life for people and animals alike. Whenever the mains fall short, in a drought, during pipe repairs, or in places the network has not reached, a water truck you can call straight away keeps homes, shops and work sites running instead of waiting.',
       ctaTitle: 'Need water delivered to your door',
       ctaText: 'Natee delivers tap water by truck across Chiang Mai and Lamphun, 24 hours a day. Call us any time.',

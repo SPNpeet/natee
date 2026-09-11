@@ -193,6 +193,14 @@ check('หน้าความรู้ไม่มีข้อมูลขอ�
 check('หน้าแรกกับหน้าความรู้ลิงก์ถึงกันสองทาง',
   html.includes('href="knowledge.html"') && kth.includes('href="index.html"'))
 
+const articleImages = (page) => [...page.matchAll(/<img[^>]*class="natee-article-img"[^>]*>/g)].map((m) => m[0])
+const imgsOk = (page) => {
+  const imgs = articleImages(page)
+  return imgs.length >= 6 && imgs.every((tag) => /alt="[^"]{8,}"/.test(tag) && /width="[0-9]+"/.test(tag))
+}
+check(`หน้าความรู้มีรูปประกอบ ${articleImages(kth).length} รูป พร้อมคำอธิบายรูปครบทั้งสองภาษา`,
+  imgsOk(kth) && imgsOk(ken))
+
 const sitemap = readFileSync(resolve(dist, 'sitemap.xml'), 'utf-8')
 check('แผนผังเว็บมีครบทุกหน้า',
   pageFiles.every((f) => f === 'index.html' || sitemap.includes(`/${f}<`)))
