@@ -1,7 +1,7 @@
 name: Deploy Natee customer preview
 on:
   push:
-    branches: [codex/handover-readiness]
+    branches: [main]
     paths: [.github/workflows/customer-preview.yml]
   workflow_dispatch:
 permissions:
@@ -19,7 +19,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: a4141c1d7dc57992c44f07025b73d2b07f0c603d
+          ref: 05c6f0b33dc944dabf442dc9c52ec3e4e0e122d5
           persist-credentials: false
       - uses: actions/setup-node@v4
         with:
@@ -43,6 +43,8 @@ jobs:
                 "/",
                 "/index.html",
                 "/en.html",
+                "/knowledge.html",
+                "/knowledge-en.html",
                 "/admin",
                 "/admin/*",
                 "/api/*",
@@ -104,3 +106,9 @@ jobs:
           test -s /tmp/natee-en.html
           test -s /tmp/natee-admin.html
           grep -F "$SITE_URL" /tmp/natee-sitemap.xml
+          curl --fail --silent --show-error "$SITE_URL/knowledge.html" -o /tmp/natee-knowledge.html
+          curl --fail --silent --show-error "$SITE_URL/knowledge-en.html" -o /tmp/natee-knowledge-en.html
+          grep -q 'data-page="knowledge"' /tmp/natee-knowledge.html
+          grep -q 'data-page="knowledge"' /tmp/natee-knowledge-en.html
+          grep -q 'จังหวัดลำพูน' /tmp/natee-home.html
+          grep -F "$SITE_URL/knowledge.html" /tmp/natee-sitemap.xml
