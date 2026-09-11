@@ -2,7 +2,7 @@ import { migrationReadOnly, migrationResponse } from './migration.mjs'
 import { canonicalRedirect } from './canonical.mjs'
 import seed from '../server-build/seed.json'
 import buildInfo from '../server-build/build.json'
-import { withDefaults } from './content.mjs'
+import { mergeContent } from './content.mjs'
 import { render } from '../server-build/entry-server.js'
 import { renderPage, sitemap } from './render-page.mjs'
 import { randomToken, digest, equal, hashPassword, verifyPassword, HttpError, readBody, readJSON } from './security.mjs'
@@ -24,7 +24,7 @@ async function limit(env, key, max, seconds) {
 }
 async function currentContent(env) {
   const row = await query(env, 'SELECT version,data,updated FROM content WHERE id=1').first()
-  return row ? { version: row.version, content: withDefaults(seed,JSON.parse(row.data)), updated: row.updated } : { version: 0, content: seed, updated: null }
+  return row ? { version: row.version, content: mergeContent(seed,JSON.parse(row.data)), updated: row.updated } : { version: 0, content: seed, updated: null }
 }
 function originCheck(request, env) {
   const origin = new URL(env.SITE_URL).origin
@@ -160,7 +160,7 @@ async function api(request, env, path) {
   if (/^\/api\/revisions\/\d+$/.test(path) && method === 'GET') {
     const row=await query(env,'SELECT data FROM revisions WHERE version=?',Number(path.split('/').pop())).first()
     if (!row) throw new HttpError(404,'ไม่พบข้อมูลรุ่นนี้')
-    return json({content:withDefaults(seed,JSON.parse(row.data))})
+    return json({content:mergeContent(seed,JSON.parse(row.data))})
   }
   if (path === '/api/media' && method === 'GET') return json((await query(env,'SELECT * FROM media ORDER BY created DESC LIMIT 500').all()).results)
   if (path === '/api/media' && method === 'POST') {
@@ -267,11 +267,28 @@ async function handle(request,env) {
     let html=row?.['html_'+lang]
     if (!html || row?.site !== site || row?.render_version !== buildInfo.id) {
       const shell=await (await env.ASSETS.fetch(new URL('/__shell.html',url))).text()
-      const data=row ? withDefaults(seed,JSON.parse(row.data)) : seed
+      const data=row ? mergeContent(seed,JSON.parse(row.data)) : seed
       const th=renderPage(shell,render,data,'th',site)
       const en=renderPage(shell,render,data,'en',site)
       html=lang==='th'?th:en
       if(row && !maintenance) await query(env,'UPDATE content SET html_th=?,html_en=?,site=?,render_version=? WHERE id=1 AND version=?',th,en,site,buildInfo.id,row.version).run()
+    }
+    return new Response(request.method === 'HEAD' ? null : html,{headers:{...securityHeaders,'Content-Type':'text/html; charset=utf-8','Cache-Control':'no-store'}})
+  }
+  // หน้าความรู้สร้างจากเนื้อหาชุดเดียวกับหน้าแรก เบอร์โทรหรือพื้นที่ที่แก้ในหลังบ้านจึงตรงกันทุกหน้า
+  // ผลที่สร้างแล้วเก็บในแคชของ Cloudflare ผูกกับรุ่นเนื้อหาและรุ่นโค้ด จึงไม่ต้องเพิ่มคอลัมน์ในฐานข้อมูล
+  // โฮสต์ที่ไม่มีแคชจะสร้างใหม่ทุกครั้งแทน
+  if (path === '/knowledge.html' || path === '/knowledge-en.html') {
+    const lang=path === '/knowledge-en.html' ? 'en' : 'th'
+    const row=await query(env,'SELECT version,data FROM content WHERE id=1').first()
+    const cache=globalThis.caches?.default
+    const key=new Request(url.origin+'/__render/knowledge-'+lang+'-'+(row?.version||0)+'-'+buildInfo.id+'-'+encodeURIComponent(site))
+    let html=cache ? await (await cache.match(key))?.text() : undefined
+    if (!html) {
+      const shell=await (await env.ASSETS.fetch(new URL('/__shell.html',url))).text()
+      const data=row ? mergeContent(seed,JSON.parse(row.data)) : seed
+      html=renderPage(shell,render,data,lang,site,'knowledge')
+      if (cache) await cache.put(key,new Response(html,{headers:{'Content-Type':'text/html; charset=utf-8','Cache-Control':'public,max-age=86400'}}))
     }
     return new Response(request.method === 'HEAD' ? null : html,{headers:{...securityHeaders,'Content-Type':'text/html; charset=utf-8','Cache-Control':'no-store'}})
   }

@@ -4,10 +4,12 @@ import * as defaults from './data.js'
 import { brandCSS, imageAsset as asset } from './brand.js'
 import { track } from './track.js'
 import ContactForm from './ContactForm.jsx'
+import ContactButtons from './ContactButtons.jsx'
+import Knowledge from './Knowledge.jsx'
 
 const SECTIONS = ['services', 'fleet', 'pricing', 'areas', 'gallery', 'faq', 'contact']
 
-export default function App({ lang = 'th', content = defaults }) {
+export default function App({ lang = 'th', content = defaults, page = 'home' }) {
   const { I18N, CONTACT, GALLERY, REVIEWS, FORM, ASSETS, BRAND } = content
   const [menuOpen, setMenuOpen] = useState(false)
   const [contactOpen, setContactOpen] = useState(false)
@@ -25,7 +27,14 @@ export default function App({ lang = 'th', content = defaults }) {
   const viewerOpen = viewer !== null
 
   const L = I18N[lang]
-  const otherLangHref = lang === 'th' ? 'en.html' : 'index.html'
+  const home = page === 'home'
+  const homeHref = lang === 'th' ? 'index.html' : 'en.html'
+  const knowledgeHref = lang === 'th' ? 'knowledge.html' : 'knowledge-en.html'
+
+  // สลับภาษาแล้วต้องอยู่หน้าเดิมเสมอ ไม่ใช่เด้งกลับหน้าแรกทุกครั้ง
+  const otherLangHref = home
+    ? (lang === 'th' ? 'en.html' : 'index.html')
+    : (lang === 'th' ? 'knowledge-en.html' : 'knowledge.html')
 
   const media = [
     ...L.videos.map((v, i) => ({
@@ -175,7 +184,7 @@ export default function App({ lang = 'th', content = defaults }) {
 
       <header className="natee-header">
         <div className="natee-container natee-header-inner">
-          <a className="natee-brand" href="#natee-hero">
+          <a className="natee-brand" href={home ? '#natee-hero' : homeHref}>
             <img className="natee-brand-logo" src={asset(ASSETS.logo)} alt={L.siteName} width="240" height="338" />
             <span className="natee-brand-text">
               <span className="natee-brand-name">{L.siteName}</span>
@@ -198,9 +207,19 @@ export default function App({ lang = 'th', content = defaults }) {
             <ul className="natee-nav-list">
               {SECTIONS.map((id) => (
                 <li key={id}>
-                  <a href={`#natee-${id}`} onClick={() => setMenuOpen(false)}>{L.nav[id]}</a>
+                  <a href={`${home ? '' : homeHref}#natee-${id}`} onClick={() => setMenuOpen(false)}>{L.nav[id]}</a>
                 </li>
               ))}
+              <li>
+                <a
+                  href={knowledgeHref}
+                  className={home ? undefined : 'is-current'}
+                  aria-current={home ? undefined : 'page'}
+                  onClick={() => setMenuOpen(false)}
+                >
+                  {L.knowledge.navLabel}
+                </a>
+              </li>
             </ul>
           </nav>
 
@@ -231,437 +250,443 @@ export default function App({ lang = 'th', content = defaults }) {
       </header>
 
       <main id="natee-main" className="natee-main">
-        <section className="natee-hero" id="natee-hero">
-          <div className="natee-container natee-hero-inner">
-            <div className="natee-hero-text">
-              <p className="natee-eyebrow">{L.heroEyebrow}</p>
-              <h1 className="natee-hero-title">{L.heroTitle}</h1>
-              <p className="natee-hero-subtitle">{L.heroSubtitle}</p>
+        {home ? (
+          <>
+          <section className="natee-hero" id="natee-hero">
+            <div className="natee-container natee-hero-inner">
+              <div className="natee-hero-text">
+                <p className="natee-eyebrow">{L.heroEyebrow}</p>
+                <h1 className="natee-hero-title">{L.heroTitle}</h1>
+                <p className="natee-hero-subtitle">{L.heroSubtitle}</p>
 
-              {REVIEWS.count > 0 && (
-                <p className="natee-rating">
-                  <span className="natee-rating-score">{REVIEWS.rating.toFixed(1)}</span>
-                  <span className="natee-rating-stars" aria-hidden="true">★★★★★</span>
-                  <span className="natee-rating-text">
-                    {REVIEWS.url ? (
-                      <a href={REVIEWS.url} target="_blank" rel="noopener">
-                        {REVIEWS.count} {L.reviewsLabel}
-                      </a>
-                    ) : (
-                      <>{REVIEWS.count} {L.reviewsLabel}</>
-                    )}
-                  </span>
+                {REVIEWS.count > 0 && (
+                  <p className="natee-rating">
+                    <span className="natee-rating-score">{REVIEWS.rating.toFixed(1)}</span>
+                    <span className="natee-rating-stars" aria-hidden="true">★★★★★</span>
+                    <span className="natee-rating-text">
+                      {REVIEWS.url ? (
+                        <a href={REVIEWS.url} target="_blank" rel="noopener">
+                          {REVIEWS.count} {L.reviewsLabel}
+                        </a>
+                      ) : (
+                        <>{REVIEWS.count} {L.reviewsLabel}</>
+                      )}
+                    </span>
+                  </p>
+                )}
+
+                <ContactButtons CONTACT={CONTACT} L={L} place="hero" />
+
+                <p className="natee-hero-second-phone">
+                  {L.orCall}{' '}
+                  <a className="natee-nowrap" href={CONTACT.phone2Href} onClick={() => track('call_click', { place: 'hero-secondary', language: lang })}>{CONTACT.phone2}</a>
                 </p>
-              )}
 
-              <ContactButtons CONTACT={CONTACT} L={L} place="hero" />
+                <p className="natee-hero-note">
+                  <Icon name="check" className="natee-icon natee-icon-inline" />
+                  <span>{L.heroNote}</span>
+                </p>
+              </div>
 
-              <p className="natee-hero-second-phone">
-                {L.orCall}{' '}
-                <a className="natee-nowrap" href={CONTACT.phone2Href} onClick={() => track('call_click', { place: 'hero-secondary', language: lang })}>{CONTACT.phone2}</a>
-              </p>
-
-              <p className="natee-hero-note">
-                <Icon name="check" className="natee-icon natee-icon-inline" />
-                <span>{L.heroNote}</span>
-              </p>
+              <div className="natee-hero-media">
+                <img
+                  className="natee-hero-image"
+                  src={asset(ASSETS.hero)}
+                  srcSet={ASSETS.hero.startsWith('uploads/') ? undefined : `${asset(ASSETS.hero, '-sm.webp')} 560w, ${asset(ASSETS.hero)} 1200w`}
+                  sizes="(max-width: 719px) 92vw, (max-width: 999px) 46vw, 560px"
+                  alt={L.heroTitle}
+                  width="1200"
+                  height="675"
+                  fetchPriority="high"
+                  decoding="async"
+                />
+              </div>
             </div>
+          </section>
 
-            <div className="natee-hero-media">
-              <img
-                className="natee-hero-image"
-                src={asset(ASSETS.hero)}
-                srcSet={ASSETS.hero.startsWith('uploads/') ? undefined : `${asset(ASSETS.hero, '-sm.webp')} 560w, ${asset(ASSETS.hero)} 1200w`}
-                sizes="(max-width: 719px) 92vw, (max-width: 999px) 46vw, 560px"
-                alt={L.heroTitle}
-                width="1200"
-                height="675"
-                fetchPriority="high"
-                decoding="async"
-              />
+          <section className="natee-section natee-highlights" id="natee-highlights" aria-labelledby="natee-highlights-title">
+            <div className="natee-container">
+              <h2 className="natee-screen-reader" id="natee-highlights-title">{L.highlightsTitle}</h2>
+              <ul className="natee-highlight-grid">
+                {L.highlights.map((item) => (
+                  <li className="natee-highlight" key={item.title}>
+                    <span className="natee-highlight-icon"><Icon name={item.icon} /></span>
+                    <h3 className="natee-highlight-title">{item.title}</h3>
+                    <p className="natee-highlight-text">{item.text}</p>
+                  </li>
+                ))}
+              </ul>
             </div>
-          </div>
-        </section>
+          </section>
 
-        <section className="natee-section natee-highlights" id="natee-highlights" aria-labelledby="natee-highlights-title">
-          <div className="natee-container">
-            <h2 className="natee-screen-reader" id="natee-highlights-title">{L.highlightsTitle}</h2>
-            <ul className="natee-highlight-grid">
-              {L.highlights.map((item) => (
-                <li className="natee-highlight" key={item.title}>
-                  <span className="natee-highlight-icon"><Icon name={item.icon} /></span>
-                  <h3 className="natee-highlight-title">{item.title}</h3>
-                  <p className="natee-highlight-text">{item.text}</p>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </section>
-
-        <section className="natee-section natee-about" id="natee-about">
-          <div className="natee-container natee-about-inner">
-            <div className="natee-about-media">
-              <img
-                className="natee-about-image"
-                src={asset(ASSETS.about)}
-                srcSet={ASSETS.about.startsWith('uploads/') ? undefined : `${asset(ASSETS.about, '-sm.webp')} 560w, ${asset(ASSETS.about)} 960w`}
-                sizes="(max-width: 719px) 92vw, 46vw"
-                alt={L.aboutTitle}
-                width="960"
-                height="720"
-                loading="lazy"
-                decoding="async"
-              />
+          <section className="natee-section natee-about" id="natee-about">
+            <div className="natee-container natee-about-inner">
+              <div className="natee-about-media">
+                <img
+                  className="natee-about-image"
+                  src={asset(ASSETS.about)}
+                  srcSet={ASSETS.about.startsWith('uploads/') ? undefined : `${asset(ASSETS.about, '-sm.webp')} 560w, ${asset(ASSETS.about)} 960w`}
+                  sizes="(max-width: 719px) 92vw, 46vw"
+                  alt={L.aboutTitle}
+                  width="960"
+                  height="720"
+                  loading="lazy"
+                  decoding="async"
+                />
+              </div>
+              <div className="natee-about-body">
+                <h2 className="natee-section-title">{L.aboutTitle}</h2>
+                <p className="natee-about-text">{L.aboutText}</p>
+                <p className="natee-about-quote">{L.aboutQuote}</p>
+              </div>
             </div>
-            <div className="natee-about-body">
-              <h2 className="natee-section-title">{L.aboutTitle}</h2>
-              <p className="natee-about-text">{L.aboutText}</p>
-              <p className="natee-about-quote">{L.aboutQuote}</p>
-            </div>
-          </div>
-        </section>
+          </section>
 
-        <section className="natee-section natee-services" id="natee-services">
-          <div className="natee-container">
-            <header className="natee-section-head">
-              <h2 className="natee-section-title">{L.servicesTitle}</h2>
-              <p className="natee-section-subtitle">{L.servicesSubtitle}</p>
-            </header>
-            <ul className="natee-card-grid">
-              {L.services.map((item) => (
-                <li className="natee-card" key={item.title}>
-                  <div className="natee-card-icon"><Icon name={item.icon} className="natee-icon natee-icon-lg" /></div>
-                  <div className="natee-card-body">
-                    <h3 className="natee-card-title">{item.title}</h3>
-                    <p className="natee-card-text">{item.text}</p>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </section>
-
-        <section className="natee-section natee-fleet" id="natee-fleet">
-          <div className="natee-container">
-            <header className="natee-section-head">
-              <h2 className="natee-section-title">{L.fleetTitle}</h2>
-              <p className="natee-section-subtitle">{L.fleetSubtitle}</p>
-            </header>
-            <div className="natee-fleet-grid">
-              {L.fleet.map((truck) => (
-                <article className="natee-fleet-item" key={truck.name}>
-                  <div className="natee-fleet-media">
-                    <img
-                      className="natee-fleet-image"
-                      src={asset(truck.image)}
-                      srcSet={truck.image.startsWith('uploads/') ? undefined : `${asset(truck.image, '-sm.webp')} 560w, ${asset(truck.image)} 1200w`}
-                      sizes="(max-width: 719px) 92vw, 46vw"
-                      alt={truck.name}
-                      width="1200"
-                      height="675"
-                      loading="lazy"
-                      decoding="async"
-                    />
-                  </div>
-                  <div className="natee-fleet-body">
-                    <h3 className="natee-fleet-name">{truck.name}</h3>
-                    <p className="natee-fleet-capacity">{truck.capacity}</p>
-                    <p className="natee-fleet-text">{truck.text}</p>
-                  </div>
-                </article>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        <section className="natee-section natee-pricing" id="natee-pricing">
-          <div className="natee-container">
-            <header className="natee-section-head">
-              <h2 className="natee-section-title">{L.pricingTitle}</h2>
-              <p className="natee-section-subtitle">{L.pricingSubtitle}</p>
-            </header>
-
-            <div className="natee-price-list">
-              {L.pricing.map((row, index) => (
-                <div className={`natee-price-card${openPrice === index ? ' is-open' : ''}`} key={row.name}>
-                  <button
-                    type="button"
-                    className="natee-price-summary"
-                    aria-expanded={openPrice === index}
-                    aria-controls={openPrice === index ? `natee-price-body-${index}` : undefined}
-                    onClick={() => setOpenPrice(openPrice === index ? null : index)}
-                  >
-                    <span className="natee-price-info">
-                      <span className="natee-price-name">{row.name}</span>
-                      <span className="natee-price-detail">{row.detail}</span>
-                    </span>
-                    <span className="natee-price-side">
-                      <span className="natee-price-value">{row.price}</span>
-                      <Icon name="chevron" className="natee-icon natee-price-chevron" />
-                    </span>
-                  </button>
-
-                  {openPrice === index && (
-                    <div className="natee-price-body" id={`natee-price-body-${index}`}>
-                      <ul className="natee-price-includes">
-                        {row.includes.map((line) => (
-                          <li key={line}>
-                            <Icon name="check" className="natee-icon natee-icon-inline" />
-                            <span>{line}</span>
-                          </li>
-                        ))}
-                      </ul>
-                      <div className="natee-price-actions">
-                        <a className="natee-btn natee-btn-call natee-btn-sm" href={CONTACT.phoneHref}
-                          onClick={() => track('call_click', { place: 'pricing', language: lang })}>
-                          <Icon name="phone" />
-                          <span>{L.priceCallNow}</span>
-                        </a>
-                        <a className="natee-btn natee-btn-line natee-btn-sm" href={CONTACT.lineUrl} target="_blank" rel="noopener"
-                          onClick={() => track('line_click', { place: 'pricing', language: lang })}>
-                          <Icon name="line" />
-                          <span>{L.lineLabel}</span>
-                        </a>
-                      </div>
+          <section className="natee-section natee-services" id="natee-services">
+            <div className="natee-container">
+              <header className="natee-section-head">
+                <h2 className="natee-section-title">{L.servicesTitle}</h2>
+                <p className="natee-section-subtitle">{L.servicesSubtitle}</p>
+              </header>
+              <ul className="natee-card-grid">
+                {L.services.map((item) => (
+                  <li className="natee-card" key={item.title}>
+                    <div className="natee-card-icon"><Icon name={item.icon} className="natee-icon natee-icon-lg" /></div>
+                    <div className="natee-card-body">
+                      <h3 className="natee-card-title">{item.title}</h3>
+                      <p className="natee-card-text">{item.text}</p>
                     </div>
-                  )}
-                </div>
-              ))}
+                  </li>
+                ))}
+              </ul>
             </div>
+          </section>
 
-            <p className="natee-price-note">{L.pricingNote}</p>
-          </div>
-        </section>
-
-        <section className="natee-section natee-steps" id="natee-steps">
-          <div className="natee-container">
-            <header className="natee-section-head">
-              <h2 className="natee-section-title">{L.stepsTitle}</h2>
-            </header>
-            <ol className="natee-step-list">
-              {L.steps.map((step, index) => (
-                <li className="natee-step" key={step.title}>
-                  <span className="natee-step-number" aria-hidden="true">{index + 1}</span>
-                  <h3 className="natee-step-title">{step.title}</h3>
-                  <p className="natee-step-text">{step.text}</p>
-                </li>
-              ))}
-            </ol>
-          </div>
-        </section>
-
-        <section className="natee-section natee-areas" id="natee-areas">
-          <div className="natee-container">
-            <header className="natee-section-head">
-              <h2 className="natee-section-title">{L.areasTitle}</h2>
-              <p className="natee-section-subtitle">{L.areasSubtitle}</p>
-            </header>
-            <ul className="natee-area-list">
-              {L.areas.map((area) => (
-                <li className="natee-area" key={area}>
-                  <Icon name="pin" className="natee-icon natee-icon-inline" />
-                  <span>{area}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </section>
-
-        <section className="natee-section natee-gallery-section" id="natee-gallery">
-          <div className="natee-container">
-            <header className="natee-section-head">
-              <h2 className="natee-section-title">{L.galleryTitle}</h2>
-              <p className="natee-section-subtitle">{L.gallerySubtitle}</p>
-            </header>
-
-            <ul className="natee-video-row">
-              {media.filter((m) => m.type === 'video').map((item, index) => (
-                <li className="natee-video-cell" key={item.key}>
-                  <button
-                    type="button"
-                    className="natee-media-link natee-video-link"
-                    onClick={(event) => { viewerOpener.current = event.currentTarget; setViewer(index); track('video_open', { clip: item.key, language: lang }) }}
-                    aria-label={`${L.videoPlay} ${item.alt}`}
-                  >
-                    <img className="natee-video-poster" src={item.poster} alt={item.alt} width="432" height="768" loading="lazy" decoding="async" />
-                    <span className="natee-video-play" aria-hidden="true"><Icon name="play" /></span>
-                    <span className="natee-video-caption">{item.alt}</span>
-                  </button>
-                </li>
-              ))}
-            </ul>
-
-            <ul className="natee-gallery-grid">
-              {media.filter((m) => m.type === 'image').map((item, index) => (
-                <li className="natee-gallery-cell" key={item.key}>
-                  <button
-                    type="button"
-                    className="natee-media-link natee-gallery-link"
-                    onClick={(event) => { viewerOpener.current = event.currentTarget; setViewer(L.videos.length + index) }}
-                    aria-label={`${L.galleryOpen} ${index + 1} ${L.viewerOf} ${GALLERY.length}`}
-                  >
-                    <img
-                      className="natee-gallery-image"
-                      src={item.thumb}
-                      srcSet={`${item.thumb} 560w, ${item.src} 1100w`}
-                      sizes="(max-width: 719px) 45vw, (max-width: 999px) 30vw, 180px"
-                      alt={item.alt}
-                      width="560"
-                      height="420"
-                      loading="lazy"
-                      decoding="async"
-                    />
-                    <span className="natee-gallery-zoom" aria-hidden="true"><Icon name="zoom" /></span>
-                  </button>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </section>
-
-        <section className="natee-section natee-faq" id="natee-faq">
-          <div className="natee-container natee-narrow">
-            <header className="natee-section-head">
-              <h2 className="natee-section-title">{L.faqTitle}</h2>
-            </header>
-            <div className="natee-faq-list">
-              {L.faq.map((item, index) => (
-                <div className={`natee-faq-item${openFaq === index ? ' is-open' : ''}`} key={item.q}>
-                  <button
-                    type="button"
-                    className="natee-faq-question"
-                    aria-expanded={openFaq === index}
-                    aria-controls={openFaq === index ? `natee-faq-answer-${index}` : undefined}
-                    onClick={() => setOpenFaq(openFaq === index ? null : index)}
-                  >
-                    <span>{item.q}</span>
-                    <Icon name="chevron" className="natee-icon natee-faq-chevron" />
-                  </button>
-                  {openFaq === index && (
-                    <div className="natee-faq-answer" id={`natee-faq-answer-${index}`}><p>{item.a}</p></div>
-                  )}
-                </div>
-              ))}
+          <section className="natee-section natee-fleet" id="natee-fleet">
+            <div className="natee-container">
+              <header className="natee-section-head">
+                <h2 className="natee-section-title">{L.fleetTitle}</h2>
+                <p className="natee-section-subtitle">{L.fleetSubtitle}</p>
+              </header>
+              <div className="natee-fleet-grid">
+                {L.fleet.map((truck) => (
+                  <article className="natee-fleet-item" key={truck.name}>
+                    <div className="natee-fleet-media">
+                      <img
+                        className="natee-fleet-image"
+                        src={asset(truck.image)}
+                        srcSet={truck.image.startsWith('uploads/') ? undefined : `${asset(truck.image, '-sm.webp')} 560w, ${asset(truck.image)} 1200w`}
+                        sizes="(max-width: 719px) 92vw, 46vw"
+                        alt={truck.name}
+                        width="1200"
+                        height="675"
+                        loading="lazy"
+                        decoding="async"
+                      />
+                    </div>
+                    <div className="natee-fleet-body">
+                      <h3 className="natee-fleet-name">{truck.name}</h3>
+                      <p className="natee-fleet-capacity">{truck.capacity}</p>
+                      <p className="natee-fleet-text">{truck.text}</p>
+                    </div>
+                  </article>
+                ))}
+              </div>
             </div>
-          </div>
-        </section>
+          </section>
 
-        <section className="natee-cta" id="natee-cta">
-          <div className="natee-container natee-cta-inner">
-            <div className="natee-cta-text">
-              <h2 className="natee-cta-title">{L.ctaTitle}</h2>
-              <p className="natee-cta-subtitle">{L.ctaSubtitle}</p>
+          <section className="natee-section natee-pricing" id="natee-pricing">
+            <div className="natee-container">
+              <header className="natee-section-head">
+                <h2 className="natee-section-title">{L.pricingTitle}</h2>
+                <p className="natee-section-subtitle">{L.pricingSubtitle}</p>
+              </header>
+
+              <div className="natee-price-list">
+                {L.pricing.map((row, index) => (
+                  <div className={`natee-price-card${openPrice === index ? ' is-open' : ''}`} key={row.name}>
+                    <button
+                      type="button"
+                      className="natee-price-summary"
+                      aria-expanded={openPrice === index}
+                      aria-controls={openPrice === index ? `natee-price-body-${index}` : undefined}
+                      onClick={() => setOpenPrice(openPrice === index ? null : index)}
+                    >
+                      <span className="natee-price-info">
+                        <span className="natee-price-name">{row.name}</span>
+                        <span className="natee-price-detail">{row.detail}</span>
+                      </span>
+                      <span className="natee-price-side">
+                        <span className="natee-price-value">{row.price}</span>
+                        <Icon name="chevron" className="natee-icon natee-price-chevron" />
+                      </span>
+                    </button>
+
+                    {openPrice === index && (
+                      <div className="natee-price-body" id={`natee-price-body-${index}`}>
+                        <ul className="natee-price-includes">
+                          {row.includes.map((line) => (
+                            <li key={line}>
+                              <Icon name="check" className="natee-icon natee-icon-inline" />
+                              <span>{line}</span>
+                            </li>
+                          ))}
+                        </ul>
+                        <div className="natee-price-actions">
+                          <a className="natee-btn natee-btn-call natee-btn-sm" href={CONTACT.phoneHref}
+                            onClick={() => track('call_click', { place: 'pricing', language: lang })}>
+                            <Icon name="phone" />
+                            <span>{L.priceCallNow}</span>
+                          </a>
+                          <a className="natee-btn natee-btn-line natee-btn-sm" href={CONTACT.lineUrl} target="_blank" rel="noopener"
+                            onClick={() => track('line_click', { place: 'pricing', language: lang })}>
+                            <Icon name="line" />
+                            <span>{L.lineLabel}</span>
+                          </a>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+
+              <p className="natee-price-note">{L.pricingNote}</p>
             </div>
-            <ContactButtons CONTACT={CONTACT} L={L} place="cta" />
-          </div>
-        </section>
+          </section>
 
-        <section className="natee-section natee-contact" id="natee-contact">
-          <div className="natee-container">
-            <header className="natee-section-head">
-              <h2 className="natee-section-title">{L.contactTitle}</h2>
-              <p className="natee-section-subtitle">{L.contactSubtitle}</p>
-            </header>
+          <section className="natee-section natee-steps" id="natee-steps">
+            <div className="natee-container">
+              <header className="natee-section-head">
+                <h2 className="natee-section-title">{L.stepsTitle}</h2>
+              </header>
+              <ol className="natee-step-list">
+                {L.steps.map((step, index) => (
+                  <li className="natee-step" key={step.title}>
+                    <span className="natee-step-number" aria-hidden="true">{index + 1}</span>
+                    <h3 className="natee-step-title">{step.title}</h3>
+                    <p className="natee-step-text">{step.text}</p>
+                  </li>
+                ))}
+              </ol>
+            </div>
+          </section>
 
-            <div className="natee-contact-grid">
-              <div className="natee-contact-info">
-                <ul className="natee-contact-list">
-                  {[CONTACT.phone, CONTACT.phone2].map((number, i) => (
-                    <li key={number}>
-                      <a className="natee-contact-item" href={i === 0 ? CONTACT.phoneHref : CONTACT.phone2Href}
-                        onClick={() => track('call_click', { place: 'contact', language: lang })}>
-                        <span className="natee-contact-icon"><Icon name="phone" /></span>
+          <section className="natee-section natee-areas" id="natee-areas">
+            <div className="natee-container">
+              <header className="natee-section-head">
+                <h2 className="natee-section-title">{L.areasTitle}</h2>
+                <p className="natee-section-subtitle">{L.areasSubtitle}</p>
+              </header>
+              <ul className="natee-area-list">
+                {L.areas.map((area) => (
+                  <li className="natee-area" key={area}>
+                    <Icon name="pin" className="natee-icon natee-icon-inline" />
+                    <span>{area}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </section>
+
+          <section className="natee-section natee-gallery-section" id="natee-gallery">
+            <div className="natee-container">
+              <header className="natee-section-head">
+                <h2 className="natee-section-title">{L.galleryTitle}</h2>
+                <p className="natee-section-subtitle">{L.gallerySubtitle}</p>
+              </header>
+
+              <ul className="natee-video-row">
+                {media.filter((m) => m.type === 'video').map((item, index) => (
+                  <li className="natee-video-cell" key={item.key}>
+                    <button
+                      type="button"
+                      className="natee-media-link natee-video-link"
+                      onClick={(event) => { viewerOpener.current = event.currentTarget; setViewer(index); track('video_open', { clip: item.key, language: lang }) }}
+                      aria-label={`${L.videoPlay} ${item.alt}`}
+                    >
+                      <img className="natee-video-poster" src={item.poster} alt={item.alt} width="432" height="768" loading="lazy" decoding="async" />
+                      <span className="natee-video-play" aria-hidden="true"><Icon name="play" /></span>
+                      <span className="natee-video-caption">{item.alt}</span>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+
+              <ul className="natee-gallery-grid">
+                {media.filter((m) => m.type === 'image').map((item, index) => (
+                  <li className="natee-gallery-cell" key={item.key}>
+                    <button
+                      type="button"
+                      className="natee-media-link natee-gallery-link"
+                      onClick={(event) => { viewerOpener.current = event.currentTarget; setViewer(L.videos.length + index) }}
+                      aria-label={`${L.galleryOpen} ${index + 1} ${L.viewerOf} ${GALLERY.length}`}
+                    >
+                      <img
+                        className="natee-gallery-image"
+                        src={item.thumb}
+                        srcSet={`${item.thumb} 560w, ${item.src} 1100w`}
+                        sizes="(max-width: 719px) 45vw, (max-width: 999px) 30vw, 180px"
+                        alt={item.alt}
+                        width="560"
+                        height="420"
+                        loading="lazy"
+                        decoding="async"
+                      />
+                      <span className="natee-gallery-zoom" aria-hidden="true"><Icon name="zoom" /></span>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </section>
+
+          <section className="natee-section natee-faq" id="natee-faq">
+            <div className="natee-container natee-narrow">
+              <header className="natee-section-head">
+                <h2 className="natee-section-title">{L.faqTitle}</h2>
+              </header>
+              <div className="natee-faq-list">
+                {L.faq.map((item, index) => (
+                  <div className={`natee-faq-item${openFaq === index ? ' is-open' : ''}`} key={item.q}>
+                    <button
+                      type="button"
+                      className="natee-faq-question"
+                      aria-expanded={openFaq === index}
+                      aria-controls={openFaq === index ? `natee-faq-answer-${index}` : undefined}
+                      onClick={() => setOpenFaq(openFaq === index ? null : index)}
+                    >
+                      <span>{item.q}</span>
+                      <Icon name="chevron" className="natee-icon natee-faq-chevron" />
+                    </button>
+                    {openFaq === index && (
+                      <div className="natee-faq-answer" id={`natee-faq-answer-${index}`}><p>{item.a}</p></div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
+
+          <section className="natee-cta" id="natee-cta">
+            <div className="natee-container natee-cta-inner">
+              <div className="natee-cta-text">
+                <h2 className="natee-cta-title">{L.ctaTitle}</h2>
+                <p className="natee-cta-subtitle">{L.ctaSubtitle}</p>
+              </div>
+              <ContactButtons CONTACT={CONTACT} L={L} place="cta" />
+            </div>
+          </section>
+
+          <section className="natee-section natee-contact" id="natee-contact">
+            <div className="natee-container">
+              <header className="natee-section-head">
+                <h2 className="natee-section-title">{L.contactTitle}</h2>
+                <p className="natee-section-subtitle">{L.contactSubtitle}</p>
+              </header>
+
+              <div className="natee-contact-grid">
+                <div className="natee-contact-info">
+                  <ul className="natee-contact-list">
+                    {[CONTACT.phone, CONTACT.phone2].map((number, i) => (
+                      <li key={number}>
+                        <a className="natee-contact-item" href={i === 0 ? CONTACT.phoneHref : CONTACT.phone2Href}
+                          onClick={() => track('call_click', { place: 'contact', language: lang })}>
+                          <span className="natee-contact-icon"><Icon name="phone" /></span>
+                          <span>
+                            <span className="natee-contact-label">{L.labelPhone}</span>
+                            <span className="natee-contact-value natee-nowrap">{number}</span>
+                          </span>
+                        </a>
+                        <button type="button" className="natee-copy" onClick={() => copyPhone(number)} aria-label={`${L.copyPhone} ${number}`}>{L.copyPhone}</button>
+                      </li>
+                    ))}
+
+                    <li>
+                      <a className="natee-contact-item" href={CONTACT.lineUrl} target="_blank" rel="noopener"
+                        onClick={() => track('line_click', { place: 'contact', language: lang })}>
+                        <span className="natee-contact-icon"><Icon name="line" /></span>
                         <span>
-                          <span className="natee-contact-label">{L.labelPhone}</span>
-                          <span className="natee-contact-value natee-nowrap">{number}</span>
+                          <span className="natee-contact-label">{L.labelLine}</span>
+                          <span className="natee-contact-value">{CONTACT.lineId}</span>
                         </span>
                       </a>
-                      <button type="button" className="natee-copy" onClick={() => copyPhone(number)} aria-label={`${L.copyPhone} ${number}`}>{L.copyPhone}</button>
                     </li>
-                  ))}
 
-                  <li>
-                    <a className="natee-contact-item" href={CONTACT.lineUrl} target="_blank" rel="noopener"
-                      onClick={() => track('line_click', { place: 'contact', language: lang })}>
-                      <span className="natee-contact-icon"><Icon name="line" /></span>
-                      <span>
-                        <span className="natee-contact-label">{L.labelLine}</span>
-                        <span className="natee-contact-value">{CONTACT.lineId}</span>
+                    <li>
+                      <a className="natee-contact-item" href={CONTACT.facebookUrl} target="_blank" rel="noopener">
+                        <span className="natee-contact-icon"><Icon name="facebook" /></span>
+                        <span>
+                          <span className="natee-contact-label">{L.labelFacebook}</span>
+                          <span className="natee-contact-value">{L.labelPage} {L.siteName}</span>
+                        </span>
+                      </a>
+                    </li>
+
+                    <li>
+                      <a className="natee-contact-item" href={`mailto:${CONTACT.email}`}>
+                        <span className="natee-contact-icon"><Icon name="mail" /></span>
+                        <span>
+                          <span className="natee-contact-label">{L.labelEmail}</span>
+                          <span className="natee-contact-value">{CONTACT.email}</span>
+                        </span>
+                      </a>
+                    </li>
+
+                    <li>
+                      <span className="natee-contact-item">
+                        <span className="natee-contact-icon"><Icon name="pin" /></span>
+                        <span>
+                          <span className="natee-contact-label">{L.labelLocation}</span>
+                          <span className="natee-contact-value">{L.address}</span>
+                        </span>
                       </span>
-                    </a>
-                  </li>
+                    </li>
 
-                  <li>
-                    <a className="natee-contact-item" href={CONTACT.facebookUrl} target="_blank" rel="noopener">
-                      <span className="natee-contact-icon"><Icon name="facebook" /></span>
-                      <span>
-                        <span className="natee-contact-label">{L.labelFacebook}</span>
-                        <span className="natee-contact-value">{L.labelPage} {L.siteName}</span>
+                    <li>
+                      <span className="natee-contact-item">
+                        <span className="natee-contact-icon"><Icon name="clock" /></span>
+                        <span>
+                          <span className="natee-contact-label">{L.labelHours}</span>
+                          <span className="natee-contact-value">{L.hours}</span>
+                        </span>
                       </span>
-                    </a>
-                  </li>
+                    </li>
+                  </ul>
 
-                  <li>
-                    <a className="natee-contact-item" href={`mailto:${CONTACT.email}`}>
-                      <span className="natee-contact-icon"><Icon name="mail" /></span>
-                      <span>
-                        <span className="natee-contact-label">{L.labelEmail}</span>
-                        <span className="natee-contact-value">{CONTACT.email}</span>
-                      </span>
-                    </a>
-                  </li>
-
-                  <li>
-                    <span className="natee-contact-item">
-                      <span className="natee-contact-icon"><Icon name="pin" /></span>
-                      <span>
-                        <span className="natee-contact-label">{L.labelLocation}</span>
-                        <span className="natee-contact-value">{L.address}</span>
-                      </span>
-                    </span>
-                  </li>
-
-                  <li>
-                    <span className="natee-contact-item">
-                      <span className="natee-contact-icon"><Icon name="clock" /></span>
-                      <span>
-                        <span className="natee-contact-label">{L.labelHours}</span>
-                        <span className="natee-contact-value">{L.hours}</span>
-                      </span>
-                    </span>
-                  </li>
-                </ul>
-
-                <div className="natee-qr">
-                  <img src={asset(ASSETS.qr)} alt={`${L.labelLine} ${L.siteName}`} width="480" height="480" loading="lazy" decoding="async" />
-                  <div className="natee-qr-text">
-                    <p className="natee-qr-title">{L.labelLine} {L.siteName}</p>
-                    <p className="natee-qr-note">{L.ctaSubtitle}</p>
-                    <p className="natee-qr-id">LINE ID: <span className="natee-nowrap">{CONTACT.lineId}</span></p>
+                  <div className="natee-qr">
+                    <img src={asset(ASSETS.qr)} alt={`${L.labelLine} ${L.siteName}`} width="480" height="480" loading="lazy" decoding="async" />
+                    <div className="natee-qr-text">
+                      <p className="natee-qr-title">{L.labelLine} {L.siteName}</p>
+                      <p className="natee-qr-note">{L.ctaSubtitle}</p>
+                      <p className="natee-qr-id">LINE ID: <span className="natee-nowrap">{CONTACT.lineId}</span></p>
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              <div className="natee-contact-map">
-                <ContactForm L={L} config={FORM} />
+                <div className="natee-contact-map">
+                  <ContactForm L={L} config={FORM} />
 
-                <div className="natee-map">
-                  <iframe
-                    src={CONTACT.mapEmbed}
-                    title={`${L.mapTitle} ${L.siteName}`}
-                    loading="lazy"
-                    referrerPolicy="no-referrer-when-downgrade"
-                    allowFullScreen
-                  />
+                  <div className="natee-map">
+                    <iframe
+                      src={CONTACT.mapEmbed}
+                      title={`${L.mapTitle} ${L.siteName}`}
+                      loading="lazy"
+                      referrerPolicy="no-referrer-when-downgrade"
+                      allowFullScreen
+                    />
+                  </div>
+                  <a className="natee-map-link" href={CONTACT.mapUrl} target="_blank" rel="noopener">
+                    <Icon name="pin" className="natee-icon natee-icon-inline" />
+                    <span>{L.mapLink}</span>
+                  </a>
                 </div>
-                <a className="natee-map-link" href={CONTACT.mapUrl} target="_blank" rel="noopener">
-                  <Icon name="pin" className="natee-icon natee-icon-inline" />
-                  <span>{L.mapLink}</span>
-                </a>
               </div>
             </div>
-          </div>
-        </section>
+          </section>
+          </>
+        ) : (
+          <Knowledge L={L} CONTACT={CONTACT} homeHref={homeHref} />
+        )}
       </main>
 
       <footer className="natee-footer">
@@ -769,36 +794,5 @@ export default function App({ lang = 'th', content = defaults }) {
 
       {toast && <div className="natee-toast" role="status">{toast}</div>}
     </>
-  )
-}
-
-function ContactButtons({ CONTACT, L, place = 'hero' }) {
-  return (
-    <div className="natee-actions">
-      <a
-        className="natee-btn natee-btn-call"
-        href={CONTACT.phoneHref}
-        onClick={() => track('call_click', { place, language: L.lang })}
-      >
-        <Icon name="phone" />
-        <span className="natee-btn-label">
-          <span className="natee-btn-small">{L.callLabel}</span>
-          <span className="natee-nowrap">{CONTACT.phone}</span>
-        </span>
-      </a>
-      <a
-        className="natee-btn natee-btn-line"
-        href={CONTACT.lineUrl}
-        target="_blank"
-        rel="noopener"
-        onClick={() => track('line_click', { place, language: L.lang })}
-      >
-        <Icon name="line" />
-        <span className="natee-btn-label">
-          <span className="natee-btn-small">{L.lineLabel}</span>
-          <span className="natee-nowrap">{CONTACT.lineId}</span>
-        </span>
-      </a>
-    </div>
   )
 }

@@ -67,6 +67,8 @@ const need = [
   'sitemap.xml',
   '404.html',
   'en.html',
+  'knowledge.html',
+  'knowledge-en.html',
   'images/logo.webp',
   'images/icon-32.png',
   'images/icon-180.png',
@@ -98,19 +100,27 @@ const heavy = clips
   .filter((v) => v.mb > 3)
 check('ไม่มีคลิปไหนใหญ่เกิน 3 MB', heavy.length === 0, heavy.map((v) => `${v.n} ${v.mb.toFixed(1)} MB`).join(', '))
 
-console.log('\n4. ลิงก์ในหน้าเว็บ')
-const absolute = [...html.matchAll(/(?:src|href)="(\/[^/][^"]*)"/g)].map((m) => m[1])
-check('ไม่มีลิงก์ที่ขึ้นต้นด้วยขีดทับ', absolute.length === 0,
+console.log('\n4. ลิงก์ในทุกหน้าของเว็บ')
+const pageFiles = ['index.html', 'en.html', 'knowledge.html', 'knowledge-en.html']
+const pages = Object.fromEntries(pageFiles.map((f) => [f, readFileSync(resolve(dist, f), 'utf-8')]))
+
+const absolute = pageFiles.flatMap((f) =>
+  [...pages[f].matchAll(/(?:src|href)="(\/[^/][^"]*)"/g)].map((m) => `${f} ${m[1]}`))
+check(`ไม่มีลิงก์ที่ขึ้นต้นด้วยขีดทับ ทั้ง ${pageFiles.length} หน้า`, absolute.length === 0,
   `เส้นทางแบบนี้จะพังเมื่อเว็บอยู่ใต้โฟลเดอร์ย่อย เช่น ${absolute.slice(0, 3).join(', ')}`)
 
 const cssFonts = [...html.matchAll(/url\((\/?[^)]*fonts[^)]*)\)/g)].map((m) => m[1])
 check('เส้นทางฟอนต์ในสไตล์เป็นแบบสัมพัทธ์', cssFonts.length > 0 && cssFonts.every((u) => !u.startsWith('/')),
   cssFonts.filter((u) => u.startsWith('/')).join(', '))
-const srcs = [...html.matchAll(/(?:src|href)="(?!http|#|mailto:|tel:|data:)([^"]+)"/g)].map((m) => m[1])
-const broken = [...new Set(srcs)]
-  .map((u) => u.replace(/^\.\//, '').replace(/^\//, ''))
-  .filter((u) => u && !existsSync(resolve(dist, u.split(/[?#]/)[0])))
-check('ไม่มีลิงก์ไฟล์ที่ชี้ไปยังของที่ไม่มีอยู่', broken.length === 0, broken.join(', '))
+
+const broken = pageFiles.flatMap((f) => {
+  const srcs = [...pages[f].matchAll(/(?:src|href)="(?!http|#|mailto:|tel:|data:)([^"]+)"/g)].map((m) => m[1])
+  return [...new Set(srcs)]
+    .map((u) => u.replace(/^\.\//, '').replace(/^\//, ''))
+    .filter((u) => u && !existsSync(resolve(dist, u.split(/[?#]/)[0])))
+    .map((u) => `${f} -> ${u}`)
+})
+check(`ไม่มีลิงก์ไฟล์ที่ชี้ไปยังของที่ไม่มีอยู่ ทั้ง ${pageFiles.length} หน้า`, broken.length === 0, broken.join(', '))
 
 console.log('\n5. เนื้อหาสองภาษา')
 const en = readFileSync(resolve(dist, 'en.html'), 'utf-8')
@@ -162,9 +172,90 @@ check('คะแนนรีวิวขึ้นเว็บก็ต่อเ�
 check('ฟอร์มแสดงตามค่าเปิดใช้งาน',
   html.includes('<form') === /enabled:\s*true/.test(dataSrc))
 
-console.log('\n6. ขนาดที่ผู้เข้าชมต้องโหลด')
-const htmlKb = Buffer.byteLength(html) / 1024
-check(`หน้าแรกรวมสไตล์ ${htmlKb.toFixed(0)} KB ไม่เกิน 250 KB`, htmlKb < 250)
+console.log('\n6. หน้าความรู้เรื่องน้ำ')
+const kth = pages['knowledge.html']
+const ken = pages['knowledge-en.html']
+
+check('หน้าความรู้ถูกเรนเดอร์ลงไฟล์จริง',
+  kth.includes('ความสำคัญของน้ำประปา') && ken.includes('Why a piped water supply matters'))
+check('หน้าความรู้มีหัวข้อหลักอันเดียว',
+  (kth.match(/<h1/g) || []).length === 1 && (ken.match(/<h1/g) || []).length === 1)
+check('หน้าความรู้ตั้งภาษาถูกทั้งสองหน้า',
+  /<html[^>]*lang="th"/.test(kth) && /<html[^>]*lang="en"/.test(ken))
+// ถ้าไม่มีป้ายนี้ สคริปต์ฝั่งเบราว์เซอร์จะวาดหน้าแรกทับบทความทันทีที่โหลดเสร็จ
+check('หน้าความรู้บอกชนิดหน้าให้สคริปต์ฝั่งเบราว์เซอร์',
+  /<html[^>]*data-page="knowledge"/.test(kth) && /<html[^>]*data-page="home"/.test(html))
+check('หน้าความรู้มี canonical ของตัวเอง',
+  /rel="canonical" href="[^"]*\/knowledge\.html"/.test(kth) && /rel="canonical" href="[^"]*\/knowledge-en\.html"/.test(ken))
+check('หน้าความรู้สองภาษาผูก hreflang ถึงกันเอง ไม่ชี้กลับหน้าแรก',
+  /hreflang="en" href="[^"]*knowledge-en\.html"/.test(kth) && /hreflang="th" href="[^"]*knowledge\.html"/.test(ken))
+check('ปุ่มสลับภาษาในหน้าความรู้อยู่หน้าเดิม ไม่เด้งกลับหน้าแรก',
+  kth.includes('href="knowledge-en.html"') && ken.includes('href="knowledge.html"'))
+
+const kBlocks = [...kth.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)]
+let kTypes = []
+let kOk = true
+for (const b of kBlocks) {
+  try { kTypes.push(JSON.parse(b[1])['@type']) } catch { kOk = false }
+}
+check(`ข้อมูลโครงสร้างหน้าความรู้อ่านได้ (${kTypes.join(', ')})`,
+  kOk && kTypes.includes('Article') && kTypes.includes('BreadcrumbList'))
+check('หน้าความรู้ไม่มีข้อมูลของหน้าแรกติดมา',
+  !kTypes.includes('FAQPage') && !kTypes.includes('VideoObject'))
+check('หน้าแรกกับหน้าความรู้ลิงก์ถึงกันสองทาง',
+  html.includes('href="knowledge.html"') && kth.includes('href="index.html"'))
+
+const articleImages = (page) => [...page.matchAll(/<img[^>]*class="natee-article-img"[^>]*>/g)].map((m) => m[0])
+const imgsOk = (page) => {
+  const imgs = articleImages(page)
+  return imgs.length >= 6 && imgs.every((tag) => /alt="[^"]{8,}"/.test(tag) && /width="[0-9]+"/.test(tag))
+}
+check(`หน้าความรู้มีรูปประกอบ ${articleImages(kth).length} รูป พร้อมคำอธิบายรูปครบทั้งสองภาษา`,
+  imgsOk(kth) && imgsOk(ken))
+
+const sitemapXml = readFileSync(resolve(dist, 'sitemap.xml'), 'utf-8')
+check('แผนผังเว็บมีครบทุกหน้า',
+  pageFiles.every((f) => f === 'index.html' || sitemapXml.includes(`/${f}<`)))
+
+console.log('\n7. พื้นที่ให้บริการ')
+check('มีลำพูนในพื้นที่ให้บริการทั้งสองภาษา',
+  html.includes('จังหวัดลำพูน') && en.includes('Lamphun province'))
+check('ลำพูนถูกส่งให้ Google ในข้อมูลพื้นที่บริการด้วย',
+  blocks.some((b) => b[1].includes('จังหวัดลำพูน')))
+
+console.log('\n8. จุดที่เคยพลาดมาแล้ว')
+
+// คำบรรยายใต้คลิปเป็นตัวหนังสือสีขาวทับภาพหน้าปก
+// เคยใช้เงาจางเกินไป วัดจริงจากพิกเซลได้แค่ 2.27 ต่อ 1 ซึ่งอ่านไม่ออก
+const overlay = html.match(/\.natee-video-caption\{[^}]*?linear-gradient\(([^;]*?)\)[;}]/)
+const stops = overlay
+  ? [...overlay[1].matchAll(/(#[0-9a-f]{6,8}|rgba?\([^)]*\))\s*([0-9.]+)%/gi)].map((m) => ({
+      // สไตล์ที่ถูกย่อแล้วเขียนความทึบเป็นเลขฐานสิบหกสองหลักท้ายรหัสสี
+      alpha: m[1].startsWith('#')
+        ? (m[1].length >= 9 ? parseInt(m[1].slice(7, 9), 16) / 255 : 1)
+        : Number((m[1].match(/[0-9.]+/g) || [])[3] ?? 1),
+      pos: Number(m[2]),
+    }))
+  : []
+
+// วัดจากปลายด้านที่โปร่งใสเสมอ เครื่องมือย่อไฟล์สลับทิศทางไล่สีได้
+const ordered = stops.length > 1 && stops[0].alpha > stops[stops.length - 1].alpha
+  ? stops.map((s) => ({ alpha: s.alpha, pos: 100 - s.pos })).toReversed()
+  : stops
+const solidEarly = ordered.some((s) => s.pos <= 30 && s.alpha >= 0.85)
+check('เงาใต้คลิปเข้มพอตลอดแถวตัวหนังสือ', solidEarly,
+  'เงาต้องทึบตั้งแต่หนึ่งในสามแรก ถ้าเข้มเฉพาะขอบล่าง คำบรรยายจะอ่านไม่ออกบนภาพหน้าปกที่สว่าง')
+
+// ร้านส่งน้ำประปาสำหรับงานอุปโภค ไม่ได้ขายน้ำดื่ม คำอ้างเรื่องคุณภาพที่ไม่มีหลักฐานต้องไม่กลับมาบนหน้าเว็บ
+const claims = ['ไร้สิ่งเจือปน', 'ผ่านมาตรฐาน', 'ใช้อุปโภคได้ทุกกรณี', 'นำมาบริโภคได้', 'free of contaminants', 'meets the standard', 'can be used for drinking', 'safe to drink']
+const claimsFound = pageFiles.flatMap((f) => claims.filter((w) => pages[f].toLowerCase().includes(w.toLowerCase())).map((w) => `${f}: ${w}`))
+check('ไม่มีคำอ้างเรื่องคุณภาพน้ำที่ไม่มีหลักฐานรองรับ', claimsFound.length === 0, claimsFound.join(', '))
+
+console.log('\n9. ขนาดที่ผู้เข้าชมต้องโหลด')
+const biggest = pageFiles
+  .map((f) => ({ f, kb: Buffer.byteLength(pages[f]) / 1024 }))
+  .toSorted((a, b) => b.kb - a.kb)[0]
+check(`หน้าที่หนักที่สุด ${biggest.f} รวมสไตล์ ${biggest.kb.toFixed(0)} KB ไม่เกิน 250 KB`, biggest.kb < 250)
 
 console.log(`\nผ่าน ${pass} ข้อ ไม่ผ่าน ${fail} ข้อ`)
 process.exit(fail > 0 ? 1 : 0)

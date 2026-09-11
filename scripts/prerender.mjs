@@ -18,8 +18,9 @@ mkdirSync('server-build', { recursive: true })
 writeFileSync('server-build/seed.json', JSON.stringify(content))
 writeFileSync('server-build/build.json', JSON.stringify({ id: createHash('sha256').update(template).digest('hex') }))
 writeFileSync(resolve(dist, '__shell.html'), template)
-for (const [lang, file] of [['th', 'index.html'], ['en', 'en.html']]) {
-  writeFileSync(resolve(dist, file), renderPage(template, render, content, lang, site))
+const pages = [['th', 'index.html', 'home'], ['en', 'en.html', 'home'], ['th', 'knowledge.html', 'knowledge'], ['en', 'knowledge-en.html', 'knowledge']]
+for (const [lang, file, page] of pages) {
+  writeFileSync(resolve(dist, file), renderPage(template, render, content, lang, site, page))
   console.log('Prerendered ' + file)
 }
 writeFileSync(resolve(dist, 'robots.txt'), 'User-agent: *\nAllow: /\nDisallow: /admin/\nDisallow: /api/\nSitemap: ' + site + '/sitemap.xml\n')

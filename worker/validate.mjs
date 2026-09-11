@@ -42,7 +42,8 @@ export function validateContent(seed, value) {
   if (out.I18N.th.videos.length !== out.I18N.en.videos.length) throw new HttpError(422, 'จำนวนคลิปสองภาษาต้องเท่ากัน')
   const knownImages=new Set([...Object.values(seed.ASSETS),...seed.GALLERY,...seed.I18N.th.fleet.map(x=>x.image),...seed.I18N.th.videos.map(x=>x.file+'-poster')])
   const image = v => knownImages.has(v) || /^uploads\/[a-f0-9]{32}\.(?:png|jpg|webp)$/.test(v)
-  const images = [...Object.values(out.ASSETS), ...out.GALLERY, ...out.I18N.th.fleet.map(x => x.image), ...out.I18N.en.fleet.map(x => x.image)]
+  const articleImages = Object.values(out.I18N).flatMap(L => [L.knowledge.heroImage, L.knowledge.benefitsImage, L.knowledge.summaryImage, ...L.knowledge.uses.map(x => x.image)])
+  const images = [...Object.values(out.ASSETS), ...out.GALLERY, ...out.I18N.th.fleet.map(x => x.image), ...out.I18N.en.fleet.map(x => x.image), ...articleImages]
   if (images.some(x => !image(x))) throw new HttpError(422, 'กรุณาเลือกรูปจากคลังสื่อ')
   const knownVideos=new Set(seed.I18N.th.videos.map(v=>v.file))
   const video=v=>knownVideos.has(v)||/^uploads\/[a-f0-9]{32}\.mp4$/.test(v)

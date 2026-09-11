@@ -14,10 +14,11 @@ const labels = {
   name:'ชื่อ',title:'หัวข้อ',text:'รายละเอียด',detail:'รายละเอียด',price:'ราคา',includes:'สิ่งที่ได้รับ',image:'รูปภาพ',icon:'ไอคอน',
   capacity:'ความจุ',q:'คำถาม',a:'คำตอบ',file:'คลิปวิดีโอ',poster:'ภาพหน้าปก',caption:'คำบรรยาย',
   highlights:'จุดเด่น',services:'บริการ',fleet:'ประเภทรถ',pricing:'รายการราคา',steps:'ขั้นตอนใช้บริการ',areas:'พื้นที่ให้บริการ',videos:'คลิปผลงาน',faq:'คำถามที่พบบ่อย',nav:'ชื่อเมนู',
+  knowledge:'บทความ',navLabel:'ชื่อในเมนู',metaTitle:'ชื่อหน้าบนผลค้นหา',metaDescription:'คำอธิบายบนผลค้นหา',eyebrow:'ป้ายเหนือหัวข้อ',subtitle:'คำโปรย',quote:'คำพูดยกมา',quoteBy:'ที่มาของคำพูด',intro:'ย่อหน้าแรก',heroImage:'รูปหัวบทความ',heroAlt:'คำอธิบายรูปหัวบทความ',heroCaption:'คำบรรยายใต้รูปหัวบทความ',tocTitle:'หัวข้อสารบัญ',groupsTitle:'หัวข้อความสำคัญของน้ำ',groups:'ความสำคัญของน้ำ',usesTitle:'หัวข้อการใช้น้ำ',uses:'การใช้น้ำแต่ละภาคส่วน',benefitsTitle:'หัวข้อความสำคัญของน้ำประปา',benefitsSubtitle:'คำโปรยความสำคัญของน้ำประปา',benefits:'ความสำคัญของน้ำประปา',benefitsImage:'รูปประกอบความสำคัญของน้ำประปา',benefitsAlt:'คำอธิบายรูปความสำคัญของน้ำประปา',benefitsCaption:'คำบรรยายรูปความสำคัญของน้ำประปา',summaryTitle:'หัวข้อสรุป',summaryText:'ข้อความสรุป',summaryImage:'รูปประกอบสรุป',summaryAlt:'คำอธิบายรูปสรุป',summaryCaption:'คำบรรยายรูปสรุป',ctaText:'ข้อความชวนติดต่อ',backLabel:'ข้อความลิงก์กลับหน้าแรก',alt:'คำอธิบายรูป',
 }
 const sections = [
   ['stats','สถิติ'],['contact','ข้อมูลร้าน'],['home','หน้าแรก'],['services','บริการ'],['fleet','ประเภทรถ'],['pricing','ราคา'],
-  ['steps','ขั้นตอน'],['areas','พื้นที่บริการ'],['gallery','ผลงาน'],['faq','คำถามที่พบบ่อย'],
+  ['steps','ขั้นตอน'],['areas','พื้นที่บริการ'],['gallery','ผลงาน'],['faq','คำถามที่พบบ่อย'],['knowledge','บทความความรู้'],
   ['texts','ข้อความและปุ่ม'],['seo','ค้นหาและแชร์'],['settings','แบบฟอร์มและรีวิว'],['inbox','ข้อความติดต่อ'],['media','คลังสื่อ'],['history','ประวัติ'],['users','ผู้ดูแล'],['account','บัญชีของฉัน'],
 ]
 const clone = value => structuredClone(value)
@@ -30,9 +31,9 @@ function updateAt(object,path,value) {
 }
 const initial = (path) => path.reduce((o,k)=>o?.[k],seed)
 const titleFor = (key,model) => labels[key] || ('ข้อความเดิม: '+String(model ?? '').slice(0,55))
-const imageFields = new Set(['image','logo','hero','about','qr','poster','share','GALLERY'])
+const imageFields = new Set(['image','logo','hero','about','qr','poster','share','GALLERY','heroImage','benefitsImage','summaryImage'])
 const bundledImages=['og-banner','logo','truck-4wheel','truck-6wheel','line-qr',...Array.from({length:12},(_,i)=>'work-'+String(i+1).padStart(2,'0')),...Array.from({length:4},(_,i)=>'work-video-'+String(i+1).padStart(2,'0')+'-poster')]
-const icons=['tank','pool','construction','leaf','road','event','truck','clock','shield','check','water','pin']
+const icons=['tank','pool','construction','leaf','road','event','truck','clock','shield','check','water','pin','drop','factory']
 function Field({value,path,onChange,media,upload,model}) {
   const key=String(path.at(-1))
   const label=titleFor(key,model)
@@ -153,6 +154,7 @@ function Admin() {
         {section==='contact'&&<>{field(['CONTACT'])}{['siteName','tagline','address','hours'].map(key=>field(['I18N',lang,key]))}{field(['ASSETS'])}{field(['BRAND'])}</>}
         {section==='home'&&<>{['heroEyebrow','heroTitle','heroSubtitle','heroNote','aboutTitle','aboutText','aboutQuote','highlights'].map(key=>field(['I18N',lang,key]))}</>}
         {['services','fleet','pricing','steps','areas','faq'].includes(section)&&field(['I18N',lang,section])}
+        {section==='knowledge'&&<><p>บทความในหน้าความรู้ รูปเลือกจากคลังสื่อได้ ทุกรูปต้องมีคำอธิบายรูปสำหรับผู้ใช้ที่มองไม่เห็น</p>{field(['I18N',lang,'knowledge'])}</>}
         {section==='gallery'&&<><p>รูปใช้ร่วมกันสองภาษา คลิปต้องมีจำนวนเท่ากันทั้งไทยและอังกฤษ</p>{field(['GALLERY'])}{field(['I18N',lang,'videos'])}</>}
         {section==='texts'&&<>{field(['I18N',lang,'nav'])}{Object.keys(data.I18N[lang]).filter(key=>typeof data.I18N[lang][key]==='string'&&key!=='lang').map(key=>field(['I18N',lang,key]))}</>}
         {section==='seo'&&<><p>เว้นว่างเพื่อใช้หัวข้อและรายละเอียดหน้าแรกอัตโนมัติ แก้ภาพแชร์ได้ใน “ข้อมูลร้าน”</p>{field(['SEO',lang])}</>}

@@ -12,6 +12,8 @@
       "/",
       "/index.html",
       "/en.html",
+      "/knowledge.html",
+      "/knowledge-en.html",
       "/admin",
       "/admin/*",
       "/api/*",

@@ -1092,7 +1092,11 @@ textarea:focus-visible,
 	font-size: 15px;
 	line-height: 1.45;
 	font-weight: 500;
-	background: linear-gradient(to top, rgba(8, 16, 28, 0.86), rgba(8, 16, 28, 0));
+	/*
+	 * เงาต้องเข้มพอตลอดแถวตัวหนังสือ ไม่ใช่เข้มเฉพาะขอบล่าง
+	 * ภาพหน้าปกบางคลิปสว่าง ตัวอักษรขาวบนเงาจาง ๆ วัดได้แค่ 2.27 ต่อ 1 ซึ่งอ่านไม่ออกกลางแดด
+	 */
+	background: linear-gradient(to top, rgba(8, 16, 28, 0.92) 0%, rgba(8, 16, 28, 0.88) 72%, rgba(8, 16, 28, 0) 100%);
 }
 
 .natee-gallery-cell {
@@ -1628,6 +1632,8 @@ a.natee-contact-item:hover {
 	margin-top: 6px;
 	font-size: 16px;
 	color: #a8b6c8;
+	/* ไม่ปล่อยคำโดดไว้บรรทัดสุดท้าย เช่น ชั่วโมง ที่หลุดจาก 24 */
+	text-wrap: pretty;
 }
 
 .natee-footer-heading {
@@ -1659,8 +1665,8 @@ a.natee-contact-item:hover {
 
 .natee-footer-areas {
 	display: grid;
-	grid-template-columns: repeat(2, minmax(0, 1fr));
-	gap: 6px 14px;
+	grid-template-columns: repeat(auto-fill, minmax(10em, 1fr));
+	gap: 8px 16px;
 	font-size: 15px;
 	color: #a8b6c8;
 }
@@ -2043,16 +2049,6 @@ a.natee-contact-item:hover {
 	}
 }
 
-/*
- * คำโปรยใต้ชื่อร้านแสดงเฉพาะจอที่กว้างพอจริง ๆ
- * ถ้าแสดงเร็วกว่านี้ ส่วนหัวจะยาวเกินกรอบเนื้อหาแล้วดันปุ่มโทรล้นออกนอกจอ
- */
-@media (min-width: 1560px) {
-	.natee-brand-tagline {
-		display: block;
-	}
-}
-
 /* จอใหญ่ คุมความสูงแถวคลิปไม่ให้กินพื้นที่มากเกินไป */
 @media (min-width: 1000px) {
 	.natee-video-row {
@@ -2368,4 +2364,330 @@ dialog.natee-lightbox::backdrop { background: #070e19; }
   .natee-header .natee-lang-item { min-height: 44px; }
   .natee-hero-title { font-size: 28px; font-weight: 600; line-height: 1.5; letter-spacing: normal; }
   .natee-section-title { line-height: 1.5; letter-spacing: normal; }
+}
+
+/* ---------------------------------------------------------------
+ * หน้าความรู้เรื่องน้ำ
+ * ใช้ส่วนหัวและส่วนท้ายร่วมกับหน้าแรก ที่เพิ่มมาคือส่วนตัวบทความ
+ * --------------------------------------------------------------- */
+.natee-article-head {
+	background: var(--natee-bg-soft);
+	border-bottom: 1px solid var(--natee-line);
+	padding: 30px 0 34px;
+}
+
+.natee-article-title {
+	font-size: 30px;
+	font-weight: 700;
+}
+
+.natee-article-subtitle {
+	margin-top: 12px;
+	color: var(--natee-muted);
+	font-size: 18px;
+	max-width: 60ch;
+}
+
+.natee-article-body {
+	padding-top: 30px;
+	padding-bottom: 10px;
+}
+
+.natee-article-intro {
+	font-size: 19px;
+	line-height: 1.85;
+}
+
+.natee-article-quote {
+	margin: 22px 0 0;
+	padding: 18px 20px;
+	border-left: 4px solid var(--natee-brand);
+	background: var(--natee-brand-soft);
+	border-radius: 0 12px 12px 0;
+}
+
+.natee-article-quote-text {
+	font-size: 20px;
+	font-weight: 700;
+	color: var(--natee-brand-dark);
+}
+
+.natee-article-quote-by {
+	display: block;
+	margin-top: 8px;
+	font-size: 15px;
+	font-style: normal;
+	color: var(--natee-muted);
+}
+
+.natee-toc {
+	margin-top: 26px;
+	padding: 16px 18px;
+	border: 1px solid var(--natee-line);
+	border-radius: var(--natee-radius);
+	background: #fff;
+}
+
+.natee-toc-title {
+	font-size: 15px;
+	font-weight: 700;
+	color: var(--natee-muted);
+	letter-spacing: 0.01em;
+}
+
+.natee-toc-list {
+	margin-top: 8px;
+	display: grid;
+	gap: 2px;
+}
+
+.natee-toc-list a {
+	display: block;
+	padding: 7px 0;
+	font-weight: 600;
+	text-decoration: none;
+	border-bottom: 1px solid var(--natee-line);
+}
+
+.natee-toc-list li:last-child a {
+	border-bottom: none;
+}
+
+.natee-toc-list a:hover {
+	text-decoration: underline;
+}
+
+.natee-article-section {
+	margin-top: 34px;
+	scroll-margin-top: 90px;
+}
+
+.natee-article-heading {
+	font-size: 25px;
+	font-weight: 700;
+}
+
+.natee-article-lead {
+	margin-top: 10px;
+	color: var(--natee-muted);
+}
+
+.natee-article-text {
+	margin-top: 12px;
+}
+
+.natee-fact-list {
+	margin-top: 18px;
+	display: grid;
+	gap: 14px;
+}
+
+.natee-fact {
+	display: flex;
+	gap: 14px;
+	align-items: flex-start;
+	padding: 16px 18px;
+	border: 1px solid var(--natee-line);
+	border-radius: var(--natee-radius);
+	background: #fff;
+}
+
+.natee-fact-icon {
+	flex: none;
+	width: 44px;
+	height: 44px;
+	border-radius: 12px;
+	background: var(--natee-brand-soft);
+	color: var(--natee-brand);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.natee-fact-title {
+	font-size: 19px;
+}
+
+.natee-fact-text {
+	margin-top: 6px;
+	color: var(--natee-muted);
+}
+
+.natee-point-list {
+	margin-top: 18px;
+	display: grid;
+	gap: 14px;
+	counter-reset: none;
+}
+
+.natee-point {
+	display: flex;
+	gap: 14px;
+	align-items: flex-start;
+	padding: 16px 18px;
+	border: 1px solid var(--natee-line);
+	border-radius: var(--natee-radius);
+	background: #fff;
+}
+
+.natee-point-number {
+	flex: none;
+	width: 38px;
+	height: 38px;
+	border-radius: 999px;
+	background: var(--natee-brand);
+	color: #fff;
+	font-weight: 700;
+	font-size: 17px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.natee-point-title {
+	font-size: 19px;
+}
+
+.natee-point-text {
+	margin-top: 6px;
+	color: var(--natee-muted);
+}
+
+.natee-article-cta {
+	margin-top: 38px;
+}
+
+/* กล่องท้ายบทความมีลิงก์กลับหน้าแรกเพิ่มมา ถ้าใช้สองคอลัมน์แบบหน้าแรก ปุ่มจะถูกบีบเป็นแท่งแคบ ๆ */
+.natee-article-cta .natee-cta-inner {
+	grid-template-columns: minmax(0, 1fr);
+	gap: 14px;
+}
+
+.natee-article-back {
+	margin-top: 4px;
+}
+
+.natee-article-back a {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	color: #fff;
+	font-weight: 600;
+	text-decoration: none;
+	padding: 6px 0;
+}
+
+.natee-article-back a:hover {
+	text-decoration: underline;
+}
+
+@media (min-width: 720px) {
+	.natee-article-head {
+		padding: 40px 0 44px;
+	}
+
+	.natee-article-title {
+		font-size: 36px;
+	}
+
+	.natee-article-body {
+		padding-top: 36px;
+	}
+
+	.natee-toc-list {
+		grid-template-columns: 1fr 1fr;
+		gap: 0 24px;
+	}
+
+	.natee-fact-list {
+		gap: 16px;
+	}
+}
+
+@media (min-width: 1000px) {
+	.natee-article-title {
+		font-size: 40px;
+	}
+
+	.natee-nav-list a.is-current {
+		background: var(--natee-brand-soft);
+		color: var(--natee-brand-dark);
+	}
+}
+
+/* รูปประกอบบทความ ใช้รูปงานจริงของร้าน */
+.natee-article-figure {
+	margin: 22px 0 0;
+}
+
+.natee-article-hero {
+	margin-top: 0;
+	margin-bottom: 26px;
+}
+
+.natee-article-img {
+	display: block;
+	width: 100%;
+	height: auto;
+	aspect-ratio: 16 / 9;
+	object-fit: cover;
+	border-radius: var(--natee-radius);
+	background: var(--natee-bg-soft);
+}
+
+.natee-article-caption {
+	margin-top: 8px;
+	font-size: 15px;
+	line-height: 1.6;
+	color: var(--natee-muted);
+}
+
+.natee-use-list {
+	margin-top: 18px;
+	display: grid;
+	gap: 16px;
+}
+
+.natee-use {
+	border: 1px solid var(--natee-line);
+	border-radius: var(--natee-radius);
+	background: #fff;
+	overflow: hidden;
+}
+
+.natee-use .natee-article-img {
+	aspect-ratio: 16 / 10;
+	border-radius: 0;
+}
+
+.natee-use-body {
+	padding: 14px 16px 18px;
+}
+
+.natee-use-title {
+	font-size: 19px;
+}
+
+.natee-use-text {
+	margin-top: 6px;
+	color: var(--natee-muted);
+}
+
+/* จอกว้างวางรูปซ้ายข้อความขวา แทนการบีบเป็นสามคอลัมน์ ข้อความจะได้ไม่แน่นเป็นก้อน */
+@media (min-width: 720px) {
+	.natee-use {
+		display: grid;
+		grid-template-columns: 240px minmax(0, 1fr);
+		align-items: center;
+	}
+
+	.natee-use .natee-article-img {
+		height: 100%;
+		aspect-ratio: auto;
+		min-height: 160px;
+	}
+
+	.natee-use-body {
+		padding: 18px 22px;
+	}
 }

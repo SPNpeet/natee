@@ -68,6 +68,17 @@ test('content persists, renders on the server and rejects stale saves',async t=>
     const html=await (await fetch(base+'/')).text()
     assert.ok(!html.includes(safe.I18N.th.heroTitle));assert.ok(html.includes('&lt;/script&gt;'))
   })
+  await t.test('knowledge pages render saved content in both languages',async()=>{
+    const current=(await call('content',{cookie})).data
+    const content=structuredClone(current.content)
+    content.I18N.th.knowledge.title='บทความทดสอบการบันทึกจริง'
+    content.I18N.en.knowledge.title='Saved article acceptance test'
+    const saved=await call('content',{method:'PUT',body:{content,version},cookie,csrf})
+    assert.equal(saved.response.status,200,JSON.stringify(saved.data));version=saved.data.version
+    const th=await fetch(base+'/knowledge.html');assert.equal(th.status,200)
+    const thHtml=await th.text();assert.ok(thHtml.includes(content.I18N.th.knowledge.title));assert.match(thHtml,/data-page="knowledge"/)
+    assert.ok((await (await fetch(base+'/knowledge-en.html')).text()).includes(content.I18N.en.knowledge.title))
+  })
   await t.test('history is available and original content can be restored',async()=>{
     const history=await call('revisions',{cookie});assert.ok(history.data.length>=2)
     const saved=await call('content',{method:'PUT',body:{content:original.content,version},cookie,csrf})

@@ -5,7 +5,9 @@ const seed=JSON.parse(JSON.stringify(defaults))
 import { validateContent,mediaType } from '../worker/validate.mjs'
 import { hashPassword,verifyPassword,readJSON } from '../worker/security.mjs'
 import { siteConfig } from '../scripts/site-config.mjs'
-import { safeJSON } from '../worker/render-page.mjs'
+import { safeJSON, metadata, sitemap } from '../worker/render-page.mjs'
+import { mergeContent } from '../worker/content.mjs'
+import upgrades from '../worker/content-upgrades.mjs'
 test('public content validates and telephone links follow displayed numbers',()=>{
   const input=structuredClone(seed);input.CONTACT.phone='081-234-5678'
   assert.equal(validateContent(seed,input).CONTACT.phoneHref,'tel:0812345678')
@@ -77,4 +79,26 @@ test('migration freeze blocks API mutations while leaving public and authenticat
     assert.equal(migrationReadOnly(env),false)
     assert.equal(migrationResponse(new Request('https://example.test/api/login',{method:'POST'}),env),null)
   }
+})
+test('saved fields that still match an old default follow the new default, owner edits stay',()=>{
+  const list=[{path:['I18N','th','areasSubtitle'],from:'old subtitle'},{path:['I18N','th','heroTitle'],from:'old title'}]
+  const saved=structuredClone(seed);saved.I18N.th.areasSubtitle='old subtitle';saved.I18N.th.heroTitle='owner title'
+  const merged=mergeContent(seed,saved,list)
+  assert.equal(merged.I18N.th.areasSubtitle,seed.I18N.th.areasSubtitle)
+  assert.equal(merged.I18N.th.heroTitle,'owner title')
+})
+test('every registered default upgrade points at a field that still exists',()=>{
+  assert.ok(upgrades.length>0)
+  for(const {path} of upgrades)assert.notEqual(path.reduce((o,k)=>o?.[k],seed),undefined,path.join('.'))
+})
+test('knowledge images must come from the media library',()=>{
+  assert.doesNotThrow(()=>validateContent(seed,structuredClone(seed)))
+  const data=structuredClone(seed);data.I18N.th.knowledge.heroImage='../secret'
+  assert.throws(()=>validateContent(seed,data))
+})
+test('knowledge pages get their own address, language pair and article data',()=>{
+  const m=metadata(seed,'en','https://example.test','knowledge')
+  assert.equal(m.url,'https://example.test/knowledge-en.html');assert.equal(m.type,'article')
+  assert.deepEqual(m.schemas.map(s=>s['@type']),['Article','BreadcrumbList'])
+  assert.match(sitemap('https://example.test'),/knowledge-en\.html<\/loc>/)
 })
