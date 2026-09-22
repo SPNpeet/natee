@@ -251,6 +251,23 @@ const claims = ['ไร้สิ่งเจือปน', 'ผ่านมา�
 const claimsFound = pageFiles.flatMap((f) => claims.filter((w) => pages[f].toLowerCase().includes(w.toLowerCase())).map((w) => `${f}: ${w}`))
 check('ไม่มีคำอ้างเรื่องคุณภาพน้ำที่ไม่มีหลักฐานรองรับ', claimsFound.length === 0, claimsFound.join(', '))
 
+// ลิงก์ของเว็บเก่าบน Google Sites ที่ยังค้างในผลค้นหา ต้องพาไปหน้าใหม่ ไม่ใช่ขึ้น 404
+// Google Sites ตัดวรรณยุกต์และสระบนล่างออกจากชื่อหน้า หน้าแรกจึงเป็น หนาแรก
+const legacyRules = new Map(readFileSync(resolve(dist, '_redirects'), 'utf8').split('\n')
+  .map((line) => line.trim().split(/\s+/)).filter((p) => p.length === 3 && p[0].startsWith('/'))
+  .map((p) => [decodeURIComponent(p[0]), p[1]]))
+const legacyPages = { 'หนาแรก': '/', 'เกยวกบเรา': '/#natee-about', 'ความสำคญของนำประปา': '/knowledge.html',
+  'รถนำประปา': '/#natee-fleet', 'บรการ': '/#natee-services', 'ตดตอเรา': '/#natee-contact' }
+const legacyWrong = Object.entries(legacyPages).filter(([name, target]) =>
+  legacyRules.get('/' + name) !== target || legacyRules.get('/' + name + '/') !== target)
+const targetMissing = [...new Set(legacyRules.values())].filter((t) => {
+  const [file, hash] = t.split('#')
+  const page = file === '/' ? html : pages[file.slice(1)]
+  return !page || (hash && !page.includes(`id="${hash}"`))
+})
+check('ลิงก์หน้าเก่าบน Google Sites พาไปหน้าใหม่ครบ 6 หน้า', legacyWrong.length === 0, legacyWrong.map(([n]) => n).join(', '))
+check('ทุกปลายทางของลิงก์เก่ามีหน้าและหัวข้ออยู่จริง', targetMissing.length === 0, targetMissing.join(', '))
+
 console.log('\n9. ขนาดที่ผู้เข้าชมต้องโหลด')
 const biggest = pageFiles
   .map((f) => ({ f, kb: Buffer.byteLength(pages[f]) / 1024 }))
