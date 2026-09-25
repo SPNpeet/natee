@@ -22,15 +22,26 @@ function changed(a, b) {
 }
 
 const savedChanges = changed(seed, saved)
-const shownChanges = changed(seed, mergeContent(seed, structuredClone(saved)))
+const merged = mergeContent(seed, structuredClone(saved))
+const shownChanges = changed(seed, merged)
 const droppedByUpgrade = savedChanges.filter((k) => !shownChanges.includes(k))
 const text = JSON.stringify(saved)
+
+// หน้าเว็บจริงต้องแสดงเนื้อหาชุดเดียวกับที่รวมค่าตั้งต้นแล้ว ถ้าต่างกันแปลว่าหน้าเว็บไม่ได้อ่านจากฐานข้อมูลนี้
+let liveVsMerged = -1
+const site = process.argv[3]
+if (site) {
+  const html = await (await fetch(site + '/')).text()
+  const block = html.match(/<script id="natee-content" type="application\/json">([\s\S]*?)<\/script>/)
+  if (block) liveVsMerged = changed(merged, JSON.parse(block[1])).length
+}
 
 const result = {
   saved_changes: savedChanges.length,
   shown_changes: shownChanges.length,
   dropped_by_upgrade: droppedByUpgrade.length,
   uploads_in_saved: (text.match(/uploads\//g) || []).length,
+  live_vs_merged: liveVsMerged,
 }
 writeFileSync('content-diff.env', Object.entries(result).map(([k, v]) => k + '=' + v).join('\n') + '\n')
 console.log(result)

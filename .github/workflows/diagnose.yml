@@ -92,7 +92,7 @@ jobs:
           npm run build
           npx wrangler d1 execute natee --remote --config wrangler.customer.jsonc --json --command "SELECT data FROM content WHERE id=1" > saved.json
           node -e "const r=require('./saved.json');const row=(Array.isArray(r)?r:[r]).flatMap(x=>x.results||[])[0];require('fs').writeFileSync('saved-content.json',row.data)"
-          node scripts/diagnose-content.mjs saved-content.json | tee -a "$GITHUB_STEP_SUMMARY"
+          node scripts/diagnose-content.mjs saved-content.json https://xn--22cki0cqma4cdedf2ixczace9c1mmc1fh6g.com | tee -a "$GITHUB_STEP_SUMMARY"
           cat content-diff.env >> "$GITHUB_ENV"
           cat content-diff.env >> "$GITHUB_STEP_SUMMARY"
       - name: The saved content differs from the defaults
@@ -107,6 +107,26 @@ jobs:
       - name: The saved content points at an uploaded image
         continue-on-error: true
         run: test "${uploads_in_saved:-x}" -ge 1
+      - name: The live page shows exactly the saved content
+        continue-on-error: true
+        run: test "${live_vs_merged:-x}" -eq 0
+      - name: Send one analytics ping to the live website and watch this database
+        run: |
+          site=https://xn--22cki0cqma4cdedf2ixczace9c1mmc1fh6g.com
+          read_count() {
+            npx wrangler d1 execute natee --remote --config wrangler.customer.jsonc --json --command "SELECT IFNULL((SELECT count FROM daily_stats WHERE day=date('now') AND event='language_switch' AND place='other' AND language='en'),0) AS pings" > pings.json
+            node -e "const r=require('./pings.json');console.log((Array.isArray(r)?r:[r]).flatMap(x=>x.results||[])[0].pings)"
+          }
+          before=$(read_count)
+          curl --fail --silent --show-error -X POST "$site/api/events" -H "Origin: $site" -H 'Content-Type: application/json' --data '{"name":"language_switch","place":"diagnose-probe","language":"en"}'
+          sleep 3
+          after=$(read_count)
+          echo "pings_before=$before pings_after=$after" | tee -a "$GITHUB_STEP_SUMMARY"
+          echo "pings_before=$before" >> "$GITHUB_ENV"
+          echo "pings_after=$after" >> "$GITHUB_ENV"
+      - name: The live website writes to the database this report reads
+        continue-on-error: true
+        run: test "${pings_after:-0}" -gt "${pings_before:-0}"
       - name: Details for a signed in maintainer
         run: |
           exec > >(tee -a "$GITHUB_STEP_SUMMARY") 2>&1
