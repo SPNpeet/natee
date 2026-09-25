@@ -24,8 +24,22 @@ function changed(a, b) {
 const savedChanges = changed(seed, saved)
 const merged = mergeContent(seed, structuredClone(saved))
 const shownChanges = changed(seed, merged)
-const droppedByUpgrade = savedChanges.filter((k) => !shownChanges.includes(k))
+const savedLeaves = leaves('', saved, new Map()), seedLeaves = leaves('', seed, new Map())
+// ช่องที่มีทั้งสองฝั่งแต่ค่าไม่ตรงกัน คือของที่เจ้าของแก้เองจริง ส่วนช่องที่ขาดไปคือรุ่นข้อมูลเก่ากว่าโค้ดปัจจุบัน
+const ownEdits = [...savedLeaves.keys()].filter((k) => seedLeaves.has(k) && savedLeaves.get(k) !== seedLeaves.get(k))
+const droppedByUpgrade = ownEdits.filter((k) => !shownChanges.includes(k))
 const text = JSON.stringify(saved)
+
+// ถ้าเนื้อหาที่หน้าหลังบ้านโหลดไปแก้ ส่งกลับมาแล้วไม่ผ่านการตรวจ แปลว่าเจ้าของกดบันทึกไม่ได้เลย
+let saveWouldPass = 'unknown'
+try {
+  const { validateContent } = await import('../worker/validate.mjs')
+  validateContent(seed, structuredClone(merged))
+  saveWouldPass = 'yes'
+} catch (error) {
+  saveWouldPass = 'no'
+  console.log('บันทึกไม่ผ่านเพราะ:', error?.message || error)
+}
 
 // หน้าเว็บจริงต้องแสดงเนื้อหาชุดเดียวกับที่รวมค่าตั้งต้นแล้ว ถ้าต่างกันแปลว่าหน้าเว็บไม่ได้อ่านจากฐานข้อมูลนี้
 let liveVsMerged = -1
@@ -38,12 +52,15 @@ if (site) {
 
 const result = {
   saved_changes: savedChanges.length,
+  own_edits: ownEdits.length,
   shown_changes: shownChanges.length,
   dropped_by_upgrade: droppedByUpgrade.length,
+  saved_missing_fields: [...seedLeaves.keys()].filter((k) => !savedLeaves.has(k)).length,
   uploads_in_saved: (text.match(/uploads\//g) || []).length,
   live_vs_merged: liveVsMerged,
+  save_would_pass: saveWouldPass,
 }
 writeFileSync('content-diff.env', Object.entries(result).map(([k, v]) => k + '=' + v).join('\n') + '\n')
 console.log(result)
-console.log('ชื่อฟิลด์ที่ต่างจากค่าตั้งต้น:', savedChanges.join(', ') || 'ไม่มี')
-console.log('ชื่อฟิลด์ที่ถูกตัดออกตอนรวมค่าตั้งต้น:', droppedByUpgrade.join(', ') || 'ไม่มี')
+console.log('ช่องที่เจ้าของแก้เอง:', ownEdits.join(', ') || 'ไม่มี')
+console.log('ช่องที่ถูกตัดออกตอนรวมค่าตั้งต้น:', droppedByUpgrade.join(', ') || 'ไม่มี')

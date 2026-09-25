@@ -61,7 +61,7 @@ jobs:
           CONFIG
       - name: Count rows in every table
         run: |
-          npx wrangler d1 execute natee --remote --config wrangler.customer.jsonc --json --command "SELECT (SELECT COUNT(*) FROM users) AS users, (SELECT COUNT(*) FROM users WHERE active=1) AS users_active, (SELECT COUNT(*) FROM content) AS content_rows, (SELECT IFNULL(MAX(version),0) FROM content) AS content_version, (SELECT IFNULL(LENGTH(data),0) FROM content WHERE id=1) AS content_bytes, (SELECT COUNT(*) FROM revisions) AS revisions, (SELECT COUNT(*) FROM media) AS media_files, (SELECT COUNT(*) FROM inquiries) AS inquiries, (SELECT COUNT(*) FROM sessions) AS sessions, (SELECT COUNT(*) FROM limits WHERE expires > CAST(strftime('%s','now') AS INTEGER)*1000) AS rate_limits_active" > counters.json
+          npx wrangler d1 execute natee --remote --config wrangler.customer.jsonc --json --command "SELECT (SELECT COUNT(*) FROM users) AS users, (SELECT COUNT(*) FROM users WHERE active=1) AS users_active, (SELECT COUNT(*) FROM content) AS content_rows, (SELECT IFNULL(MAX(version),0) FROM content) AS content_version, (SELECT IFNULL(LENGTH(data),0) FROM content WHERE id=1) AS content_bytes, (SELECT COUNT(*) FROM revisions) AS revisions, (SELECT COUNT(*) FROM media) AS media_files, (SELECT COUNT(*) FROM inquiries) AS inquiries, (SELECT COUNT(*) FROM sessions) AS sessions, (SELECT COUNT(*) FROM limits WHERE expires > CAST(strftime('%s','now') AS INTEGER)*1000) AS rate_limits_active, (SELECT COUNT(*) FROM revisions WHERE data LIKE '%uploads/%') AS revisions_with_uploads, (SELECT IFNULL(MAX(LENGTH(data)),0) FROM revisions) AS biggest_revision_bytes" > counters.json
           node -e "const r=require('./counters.json');const row=(Array.isArray(r)?r:[r]).flatMap(x=>x.results||[])[0];require('fs').writeFileSync('counters.env',Object.entries(row).map(([k,v])=>k+'='+v).join('\n')+'\n')"
           cat counters.env >> "$GITHUB_ENV"
       - name: Compare the saved content with the defaults and with the live page
@@ -86,7 +86,7 @@ jobs:
         id: report
         run: |
           node -e "
-          const keys=['users','users_active','content_rows','content_version','content_bytes','revisions','media_files','inquiries','sessions','rate_limits_active','saved_changes','shown_changes','dropped_by_upgrade','uploads_in_saved','live_vs_merged','live_writes_here'];
+          const keys=['users_active','content_version','content_bytes','revisions','revisions_with_uploads','biggest_revision_bytes','media_files','inquiries','rate_limits_active','own_edits','dropped_by_upgrade','saved_missing_fields','uploads_in_saved','live_vs_merged','save_would_pass','live_writes_here'];
           const lines=keys.map(k=>k+' = '+(process.env[k]??'unknown'));
           require('fs').appendFileSync(process.env.GITHUB_OUTPUT,'lines='+JSON.stringify(lines)+'\n');
           require('fs').appendFileSync(process.env.GITHUB_STEP_SUMMARY,lines.join('\n')+'\n');
