@@ -19,7 +19,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: e9f5fddd70ce9bc6af22ec8677d3e607038c01ec
+          ref: d062a74f6e1b1cc9b5499517fa3454e27e04aef8
           persist-credentials: false
       - uses: actions/setup-node@v4
         with:
@@ -45,8 +45,7 @@ jobs:
                 "/en.html",
                 "/knowledge.html",
                 "/knowledge-en.html",
-                "/admin",
-                "/admin/*",
+                "/admin*",
                 "/api/*",
                 "/uploads/*",
                 "/sitemap.xml",
