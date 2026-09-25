@@ -87,6 +87,26 @@ jobs:
       - name: Login is NOT blocked by the rate limiter right now
         continue-on-error: true
         run: test "${rate_limits_active:-x}" -eq 0
+      - name: Compare the saved content with the defaults of this code version
+        run: |
+          npm run build
+          npx wrangler d1 execute natee --remote --config wrangler.customer.jsonc --json --command "SELECT data FROM content WHERE id=1" > saved.json
+          node -e "const r=require('./saved.json');const row=(Array.isArray(r)?r:[r]).flatMap(x=>x.results||[])[0];require('fs').writeFileSync('saved-content.json',row.data)"
+          node scripts/diagnose-content.mjs saved-content.json | tee -a "$GITHUB_STEP_SUMMARY"
+          cat content-diff.env >> "$GITHUB_ENV"
+          cat content-diff.env >> "$GITHUB_STEP_SUMMARY"
+      - name: The saved content differs from the defaults
+        continue-on-error: true
+        run: test "${saved_changes:-x}" -ge 1
+      - name: What the website shows differs from the defaults
+        continue-on-error: true
+        run: test "${shown_changes:-x}" -ge 1
+      - name: No saved field was dropped when the defaults were merged in
+        continue-on-error: true
+        run: test "${dropped_by_upgrade:-x}" -eq 0
+      - name: The saved content points at an uploaded image
+        continue-on-error: true
+        run: test "${uploads_in_saved:-x}" -ge 1
       - name: Details for a signed in maintainer
         run: |
           exec > >(tee -a "$GITHUB_STEP_SUMMARY") 2>&1
