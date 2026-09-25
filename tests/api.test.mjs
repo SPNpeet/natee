@@ -176,3 +176,14 @@ test('aggregate metrics are private and record accepted events',async()=>{
   assert.ok(stats.find(s=>s.event==='call_click').count>=1)
   assert.ok(stats.find(s=>s.event==='form_submit').count>=1)
 })
+
+test('admin address survives a copied link with trailing characters',async()=>{
+  const open=await fetch(base+'/admin/',{redirect:'manual'})
+  assert.equal(open.status,200)
+  for(const path of ['/admin','/admin)','/admin/)','/admin/index','/admin/login','/ADMIN']){
+    const response=await fetch(base+path,{redirect:'manual'})
+    assert.equal(response.status,302,path)
+    assert.equal(new URL(response.headers.get('location'),base).pathname,'/admin/',path)
+  }
+  assert.equal((await fetch(base+'/unknown-page')).status,404)
+})

@@ -139,7 +139,8 @@ check(`ข้อมูลโครงสร้างหน้าอังกฤ�
 check('ข้อมูลโครงสร้างไม่ซ้ำซ้อน', blocks.length === 6, `พบ ${blocks.length} ชุด ควรมี 6 ชุด`)
 
 const data = readFileSync(resolve('src/data.js'), 'utf-8')
-const thKeys = [...data.matchAll(/^\s{4}(\w+):/gm)].map((m) => m[1])
+// นับเฉพาะช่องว่างจริงสี่ตัว ถ้าใช้ \s ตัวขึ้นบรรทัดแบบวินโดวส์จะถูกนับเป็นช่องว่างจนได้คีย์เกินมา
+const thKeys = [...data.matchAll(/^ {4}(\w+):/gm)].map((m) => m[1])
 const half = thKeys.length / 2
 check('มีเนื้อหาทั้งก้อนไทยและก้อนอังกฤษ', data.includes('  th: {') && data.includes('  en: {'))
 check('จำนวนหัวข้อของสองภาษาเท่ากัน', thKeys.slice(0, half).join() === thKeys.slice(half).join(),
@@ -262,7 +263,8 @@ const legacyWrong = Object.entries(legacyPages).filter(([name, target]) =>
   legacyRules.get('/' + name) !== target || legacyRules.get('/' + name + '/') !== target)
 const targetMissing = [...new Set(legacyRules.values())].filter((t) => {
   const [file, hash] = t.split('#')
-  const page = file === '/' ? html : pages[file.slice(1)]
+  const name = file === '/' ? 'index.html' : file.endsWith('/') ? file.slice(1) + 'index.html' : file.slice(1)
+  const page = pages[name] ?? (existsSync(resolve(dist, name)) ? readFileSync(resolve(dist, name), 'utf-8') : undefined)
   return !page || (hash && !page.includes(`id="${hash}"`))
 })
 check('ลิงก์หน้าเก่าบน Google Sites พาไปหน้าใหม่ครบ 6 หน้า', legacyWrong.length === 0, legacyWrong.map(([n]) => n).join(', '))

@@ -253,7 +253,8 @@ async function handle(request,env) {
     headers['Content-Length']=String(bytes.byteLength)
     return new Response(request.method === 'HEAD' ? null : bytes,{status,headers})
   }
-  if (path === '/admin') return Response.redirect(url.origin+'/admin/',302)
+  // ลิงก์หลังบ้านที่คัดลอกจากแชทหรือเอกสารมักติดวงเล็บหรือจุดท้ายลิงก์ ที่อยู่ทุกแบบที่ขึ้นต้นด้วย admin จึงพากลับหน้าหลังบ้านแทนหน้า 404
+  if (path.toLowerCase().startsWith('/admin') && path !== '/admin/' && path !== '/admin/index.html') return Response.redirect(url.origin+'/admin/',302)
   if (path === '/admin/' || path === '/admin/index.html') {
     const response=await env.ASSETS.fetch(new URL('/admin/index.html',url))
     return new Response(response.body,{status:response.status,headers:{...Object.fromEntries(response.headers),...securityHeaders,'Cache-Control':'no-store','X-Robots-Tag':'noindex'}})

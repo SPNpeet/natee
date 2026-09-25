@@ -1,6 +1,8 @@
 name: Diagnose Natee production data (read only)
 # ตรวจสถานะข้อมูลบนบัญชีลูกค้าเมื่อผู้ใช้แจ้งว่าใช้หลังบ้านไม่ได้
 # อ่านอย่างเดียว ไม่แก้ ไม่ลบ และพิมพ์เฉพาะจำนวนกับเวลา ไม่พิมพ์เนื้อหาหรืออีเมลลงใน log สาธารณะ
+# log ของ Actions ต้องล็อกอินจึงจะอ่านได้ คำตอบแต่ละข้อจึงทำเป็นขั้นตอนแยก
+# ชื่อขั้นตอนคือคำถาม ผลสำเร็จคือใช่ ผลล้มเหลวคือไม่ใช่ อ่านได้จากสถานะของ job โดยไม่ต้องเปิด log
 on:
   push:
     branches: [main]
@@ -16,6 +18,9 @@ jobs:
     environment: natee-customer-preview
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: 3c3a30b952642a567008635f095785ca
     steps:
       - uses: actions/checkout@v4
         with:
@@ -52,26 +57,40 @@ jobs:
             "account_id": "3c3a30b952642a567008635f095785ca"
           }
           CONFIG
-      - name: Count rows in every table
-        env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: 3c3a30b952642a567008635f095785ca
+      - name: Read the counters once
         run: |
-          exec > >(tee -a "$GITHUB_STEP_SUMMARY") 2>&1
-          npx wrangler d1 execute natee --remote --config wrangler.customer.jsonc --command "SELECT (SELECT COUNT(*) FROM users) AS users, (SELECT COUNT(*) FROM users WHERE active=1) AS users_active, (SELECT COUNT(*) FROM content) AS content_rows, (SELECT IFNULL(MAX(version),0) FROM content) AS content_version, (SELECT IFNULL(MAX(updated),'-') FROM content) AS content_updated, (SELECT IFNULL(LENGTH(data),0) FROM content WHERE id=1) AS content_bytes, (SELECT IFNULL(LENGTH(html_th),0) FROM content WHERE id=1) AS cached_html_bytes, (SELECT COUNT(*) FROM revisions) AS revisions, (SELECT COUNT(*) FROM media) AS media_files, (SELECT COUNT(*) FROM inquiries) AS inquiries, (SELECT COUNT(*) FROM sessions) AS sessions, (SELECT COUNT(*) FROM limits) AS rate_limits"
-      - name: Show rate limit state and session expiry
-        env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: 3c3a30b952642a567008635f095785ca
+          npx wrangler d1 execute natee --remote --config wrangler.customer.jsonc --json --command "SELECT (SELECT COUNT(*) FROM users) AS users, (SELECT COUNT(*) FROM users WHERE active=1) AS users_active, (SELECT COUNT(*) FROM content) AS content_rows, (SELECT IFNULL(MAX(version),0) FROM content) AS content_version, (SELECT IFNULL(MAX(updated),'-') FROM content) AS content_updated, (SELECT IFNULL(LENGTH(data),0) FROM content WHERE id=1) AS content_bytes, (SELECT COUNT(*) FROM revisions) AS revisions, (SELECT COUNT(*) FROM media) AS media_files, (SELECT COUNT(*) FROM inquiries) AS inquiries, (SELECT COUNT(*) FROM sessions) AS sessions, (SELECT COUNT(*) FROM limits) AS rate_limits, (SELECT COUNT(*) FROM limits WHERE expires > CAST(strftime('%s','now') AS INTEGER)*1000) AS rate_limits_active" > counters.json
+          node -e "const r=require('./counters.json');const row=(Array.isArray(r)?r:[r]).flatMap(x=>x.results||[])[0];require('fs').writeFileSync('counters.env',Object.entries(row).map(([k,v])=>k+'='+v).join('\n')+'\n');console.log(Object.keys(row).join(' '))"
+          cat counters.env >> "$GITHUB_ENV"
+          cat counters.env >> "$GITHUB_STEP_SUMMARY"
+      - name: An admin account exists and is active
+        continue-on-error: true
+        run: test "${users_active:-x}" -ge 1
+      - name: A saved content row exists
+        continue-on-error: true
+        run: test "${content_rows:-x}" -ge 1
+      - name: The owner saved content more than once
+        continue-on-error: true
+        run: test "${content_version:-x}" -ge 2
+      - name: The owner uploaded at least one image
+        continue-on-error: true
+        run: test "${media_files:-x}" -ge 1
+      - name: Older versions are kept in the revision history
+        continue-on-error: true
+        run: test "${revisions:-x}" -ge 1
+      - name: Someone sent an enquiry through the website form
+        continue-on-error: true
+        run: test "${inquiries:-x}" -ge 1
+      - name: A login session is currently open
+        continue-on-error: true
+        run: test "${sessions:-x}" -ge 1
+      - name: Login is NOT blocked by the rate limiter right now
+        continue-on-error: true
+        run: test "${rate_limits_active:-x}" -eq 0
+      - name: Details for a signed in maintainer
         run: |
           exec > >(tee -a "$GITHUB_STEP_SUMMARY") 2>&1
           npx wrangler d1 execute natee --remote --config wrangler.customer.jsonc --command "SELECT count, datetime(expires/1000,'unixepoch') AS expires_utc FROM limits ORDER BY expires DESC LIMIT 10"
           npx wrangler d1 execute natee --remote --config wrangler.customer.jsonc --command "SELECT id AS user_id, role, active, LENGTH(email) AS email_length, SUBSTR(password,1,20) AS hash_format FROM users ORDER BY id"
           npx wrangler d1 execute natee --remote --config wrangler.customer.jsonc --command "SELECT version, updated, LENGTH(data) AS bytes FROM revisions ORDER BY version DESC LIMIT 5"
-      - name: List media keys in KV
-        env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: 3c3a30b952642a567008635f095785ca
-        run: |
-          exec > >(tee -a "$GITHUB_STEP_SUMMARY") 2>&1
           npx wrangler kv key list --namespace-id b6e29331310d402e90aef580a03c16c7 --remote | head -40
