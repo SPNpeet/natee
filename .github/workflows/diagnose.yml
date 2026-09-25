@@ -1,0 +1,73 @@
+name: Diagnose Natee production data (read only)
+# ตรวจสถานะข้อมูลบนบัญชีลูกค้าเมื่อผู้ใช้แจ้งว่าใช้หลังบ้านไม่ได้
+# อ่านอย่างเดียว ไม่แก้ ไม่ลบ และพิมพ์เฉพาะจำนวนกับเวลา ไม่พิมพ์เนื้อหาหรืออีเมลลงใน log สาธารณะ
+on:
+  push:
+    branches: [main]
+    paths: [.github/workflows/diagnose.yml]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: natee-customer-preview
+  cancel-in-progress: false
+jobs:
+  diagnose:
+    environment: natee-customer-preview
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Write read-only customer configuration
+        shell: bash
+        run: |
+          cat > wrangler.customer.jsonc <<'CONFIG'
+          {
+            "$schema": "node_modules/wrangler/config-schema.json",
+            "name": "natee",
+            "main": "worker/index.mjs",
+            "compatibility_date": "2026-09-09",
+            "d1_databases": [
+              {
+                "binding": "DB",
+                "database_name": "natee",
+                "database_id": "db70eea1-2f69-4222-b895-a47288bb155c",
+                "migrations_dir": "worker/migrations"
+              }
+            ],
+            "kv_namespaces": [
+              {
+                "binding": "MEDIA",
+                "id": "b6e29331310d402e90aef580a03c16c7"
+              }
+            ],
+            "vars": { "SITE_URL": "https://xn--22cki0cqma4cdedf2ixczace9c1mmc1fh6g.com" },
+            "account_id": "3c3a30b952642a567008635f095785ca"
+          }
+          CONFIG
+      - name: Count rows in every table
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: 3c3a30b952642a567008635f095785ca
+        run: |
+          npx wrangler d1 execute natee --remote --config wrangler.customer.jsonc --command "SELECT (SELECT COUNT(*) FROM users) AS users, (SELECT COUNT(*) FROM users WHERE active=1) AS users_active, (SELECT COUNT(*) FROM content) AS content_rows, (SELECT IFNULL(MAX(version),0) FROM content) AS content_version, (SELECT IFNULL(MAX(updated),'-') FROM content) AS content_updated, (SELECT IFNULL(LENGTH(data),0) FROM content WHERE id=1) AS content_bytes, (SELECT IFNULL(LENGTH(html_th),0) FROM content WHERE id=1) AS cached_html_bytes, (SELECT COUNT(*) FROM revisions) AS revisions, (SELECT COUNT(*) FROM media) AS media_files, (SELECT COUNT(*) FROM inquiries) AS inquiries, (SELECT COUNT(*) FROM sessions) AS sessions, (SELECT COUNT(*) FROM limits) AS rate_limits"
+      - name: Show rate limit state and session expiry
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: 3c3a30b952642a567008635f095785ca
+        run: |
+          npx wrangler d1 execute natee --remote --config wrangler.customer.jsonc --command "SELECT count, datetime(expires/1000,'unixepoch') AS expires_utc FROM limits ORDER BY expires DESC LIMIT 10"
+          npx wrangler d1 execute natee --remote --config wrangler.customer.jsonc --command "SELECT id AS user_id, role, active, LENGTH(email) AS email_length, SUBSTR(password,1,20) AS hash_format FROM users ORDER BY id"
+          npx wrangler d1 execute natee --remote --config wrangler.customer.jsonc --command "SELECT version, updated, LENGTH(data) AS bytes FROM revisions ORDER BY version DESC LIMIT 5"
+      - name: List media keys in KV
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: 3c3a30b952642a567008635f095785ca
+        run: npx wrangler kv key list --namespace-id b6e29331310d402e90aef580a03c16c7 --remote | head -40
