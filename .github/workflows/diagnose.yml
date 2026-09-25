@@ -1,8 +1,7 @@
 name: Diagnose Natee production data (read only)
 # ตรวจสถานะข้อมูลบนบัญชีลูกค้าเมื่อผู้ใช้แจ้งว่าใช้หลังบ้านไม่ได้
-# อ่านอย่างเดียว ไม่แก้ ไม่ลบ และพิมพ์เฉพาะจำนวนกับเวลา ไม่พิมพ์เนื้อหาหรืออีเมลลงใน log สาธารณะ
-# log ของ Actions ต้องล็อกอินจึงจะอ่านได้ คำตอบแต่ละข้อจึงทำเป็นขั้นตอนแยก
-# ชื่อขั้นตอนคือคำถาม ผลสำเร็จคือใช่ ผลล้มเหลวคือไม่ใช่ อ่านได้จากสถานะของ job โดยไม่ต้องเปิด log
+# อ่านอย่างเดียว ไม่แก้ ไม่ลบ และไม่พิมพ์อีเมลหรือเนื้อหาลงที่สาธารณะ เพราะ repo เป็น public
+# log ของ Actions ต้องล็อกอินจึงจะอ่านได้ ผลจึงถูกส่งออกมาเป็นชื่องานย่อย ซึ่งอ่านได้จากหน้ารายการงาน
 on:
   push:
     branches: [main]
@@ -14,13 +13,16 @@ concurrency:
   group: natee-customer-preview
   cancel-in-progress: false
 jobs:
-  diagnose:
+  collect:
     environment: natee-customer-preview
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
+    outputs:
+      lines: ${{ steps.report.outputs.lines }}
     env:
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
       CLOUDFLARE_ACCOUNT_ID: 3c3a30b952642a567008635f095785ca
+      SITE: https://xn--22cki0cqma4cdedf2ixczace9c1mmc1fh6g.com
     steps:
       - uses: actions/checkout@v4
         with:
@@ -57,76 +59,38 @@ jobs:
             "account_id": "3c3a30b952642a567008635f095785ca"
           }
           CONFIG
-      - name: Read the counters once
+      - name: Count rows in every table
         run: |
-          npx wrangler d1 execute natee --remote --config wrangler.customer.jsonc --json --command "SELECT (SELECT COUNT(*) FROM users) AS users, (SELECT COUNT(*) FROM users WHERE active=1) AS users_active, (SELECT COUNT(*) FROM content) AS content_rows, (SELECT IFNULL(MAX(version),0) FROM content) AS content_version, (SELECT IFNULL(MAX(updated),'-') FROM content) AS content_updated, (SELECT IFNULL(LENGTH(data),0) FROM content WHERE id=1) AS content_bytes, (SELECT COUNT(*) FROM revisions) AS revisions, (SELECT COUNT(*) FROM media) AS media_files, (SELECT COUNT(*) FROM inquiries) AS inquiries, (SELECT COUNT(*) FROM sessions) AS sessions, (SELECT COUNT(*) FROM limits) AS rate_limits, (SELECT COUNT(*) FROM limits WHERE expires > CAST(strftime('%s','now') AS INTEGER)*1000) AS rate_limits_active" > counters.json
-          node -e "const r=require('./counters.json');const row=(Array.isArray(r)?r:[r]).flatMap(x=>x.results||[])[0];require('fs').writeFileSync('counters.env',Object.entries(row).map(([k,v])=>k+'='+v).join('\n')+'\n');console.log(Object.keys(row).join(' '))"
+          npx wrangler d1 execute natee --remote --config wrangler.customer.jsonc --json --command "SELECT (SELECT COUNT(*) FROM users) AS users, (SELECT COUNT(*) FROM users WHERE active=1) AS users_active, (SELECT COUNT(*) FROM content) AS content_rows, (SELECT IFNULL(MAX(version),0) FROM content) AS content_version, (SELECT IFNULL(LENGTH(data),0) FROM content WHERE id=1) AS content_bytes, (SELECT COUNT(*) FROM revisions) AS revisions, (SELECT COUNT(*) FROM media) AS media_files, (SELECT COUNT(*) FROM inquiries) AS inquiries, (SELECT COUNT(*) FROM sessions) AS sessions, (SELECT COUNT(*) FROM limits WHERE expires > CAST(strftime('%s','now') AS INTEGER)*1000) AS rate_limits_active" > counters.json
+          node -e "const r=require('./counters.json');const row=(Array.isArray(r)?r:[r]).flatMap(x=>x.results||[])[0];require('fs').writeFileSync('counters.env',Object.entries(row).map(([k,v])=>k+'='+v).join('\n')+'\n')"
           cat counters.env >> "$GITHUB_ENV"
-          cat counters.env >> "$GITHUB_STEP_SUMMARY"
-      - name: An admin account exists and is active
-        continue-on-error: true
-        run: test "${users_active:-x}" -ge 1
-      - name: A saved content row exists
-        continue-on-error: true
-        run: test "${content_rows:-x}" -ge 1
-      - name: The owner saved content more than once
-        continue-on-error: true
-        run: test "${content_version:-x}" -ge 2
-      - name: The owner uploaded at least one image
-        continue-on-error: true
-        run: test "${media_files:-x}" -ge 1
-      - name: Older versions are kept in the revision history
-        continue-on-error: true
-        run: test "${revisions:-x}" -ge 1
-      - name: Someone sent an enquiry through the website form
-        continue-on-error: true
-        run: test "${inquiries:-x}" -ge 1
-      - name: A login session is currently open
-        continue-on-error: true
-        run: test "${sessions:-x}" -ge 1
-      - name: Login is NOT blocked by the rate limiter right now
-        continue-on-error: true
-        run: test "${rate_limits_active:-x}" -eq 0
-      - name: Compare the saved content with the defaults of this code version
+      - name: Compare the saved content with the defaults and with the live page
         run: |
           npm run build
           npx wrangler d1 execute natee --remote --config wrangler.customer.jsonc --json --command "SELECT data FROM content WHERE id=1" > saved.json
-          node -e "const r=require('./saved.json');const row=(Array.isArray(r)?r:[r]).flatMap(x=>x.results||[])[0];require('fs').writeFileSync('saved-content.json',row.data)"
-          node scripts/diagnose-content.mjs saved-content.json https://xn--22cki0cqma4cdedf2ixczace9c1mmc1fh6g.com | tee -a "$GITHUB_STEP_SUMMARY"
+          node -e "const r=require('./saved.json');const row=(Array.isArray(r)?r:[r]).flatMap(x=>x.results||[])[0];require('fs').writeFileSync('saved-content.json',row?row.data:'{}')"
+          node scripts/diagnose-content.mjs saved-content.json "$SITE"
           cat content-diff.env >> "$GITHUB_ENV"
-          cat content-diff.env >> "$GITHUB_STEP_SUMMARY"
-      - name: The saved content differs from the defaults
-        continue-on-error: true
-        run: test "${saved_changes:-x}" -ge 1
-      - name: What the website shows differs from the defaults
-        continue-on-error: true
-        run: test "${shown_changes:-x}" -ge 1
-      - name: No saved field was dropped when the defaults were merged in
-        continue-on-error: true
-        run: test "${dropped_by_upgrade:-x}" -eq 0
-      - name: The saved content points at an uploaded image
-        continue-on-error: true
-        run: test "${uploads_in_saved:-x}" -ge 1
-      - name: The live page shows exactly the saved content
-        continue-on-error: true
-        run: test "${live_vs_merged:-x}" -eq 0
       - name: Send one analytics ping to the live website and watch this database
         run: |
-          site=https://xn--22cki0cqma4cdedf2ixczace9c1mmc1fh6g.com
           read_count() {
             npx wrangler d1 execute natee --remote --config wrangler.customer.jsonc --json --command "SELECT IFNULL((SELECT count FROM daily_stats WHERE day=date('now') AND event='language_switch' AND place='other' AND language='en'),0) AS pings" > pings.json
             node -e "const r=require('./pings.json');console.log((Array.isArray(r)?r:[r]).flatMap(x=>x.results||[])[0].pings)"
           }
           before=$(read_count)
-          curl --fail --silent --show-error -X POST "$site/api/events" -H "Origin: $site" -H 'Content-Type: application/json' --data '{"name":"language_switch","place":"diagnose-probe","language":"en"}'
+          curl --fail --silent --show-error -X POST "$SITE/api/events" -H "Origin: $SITE" -H 'Content-Type: application/json' --data '{"name":"language_switch","place":"diagnose-probe","language":"en"}'
           sleep 3
           after=$(read_count)
-          echo "pings_before=$before pings_after=$after" | tee -a "$GITHUB_STEP_SUMMARY"
-          echo "pings_before=$before" >> "$GITHUB_ENV"
-          echo "pings_after=$after" >> "$GITHUB_ENV"
-      - name: The live website writes to the database this report reads
-        continue-on-error: true
-        run: test "${pings_after:-0}" -gt "${pings_before:-0}"
+          echo "live_writes_here=$(test "$after" -gt "$before" && echo yes || echo no)" >> "$GITHUB_ENV"
+      - name: Turn the answers into job names
+        id: report
+        run: |
+          node -e "
+          const keys=['users','users_active','content_rows','content_version','content_bytes','revisions','media_files','inquiries','sessions','rate_limits_active','saved_changes','shown_changes','dropped_by_upgrade','uploads_in_saved','live_vs_merged','live_writes_here'];
+          const lines=keys.map(k=>k+' = '+(process.env[k]??'unknown'));
+          require('fs').appendFileSync(process.env.GITHUB_OUTPUT,'lines='+JSON.stringify(lines)+'\n');
+          require('fs').appendFileSync(process.env.GITHUB_STEP_SUMMARY,lines.join('\n')+'\n');
+          console.log(lines.join('\n'))"
       - name: Details for a signed in maintainer
         run: |
           exec > >(tee -a "$GITHUB_STEP_SUMMARY") 2>&1
@@ -134,3 +98,14 @@ jobs:
           npx wrangler d1 execute natee --remote --config wrangler.customer.jsonc --command "SELECT id AS user_id, role, active, LENGTH(email) AS email_length, SUBSTR(password,1,20) AS hash_format FROM users ORDER BY id"
           npx wrangler d1 execute natee --remote --config wrangler.customer.jsonc --command "SELECT version, updated, LENGTH(data) AS bytes FROM revisions ORDER BY version DESC LIMIT 5"
           npx wrangler kv key list --namespace-id b6e29331310d402e90aef580a03c16c7 --remote | head -40
+  answers:
+    needs: collect
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    strategy:
+      fail-fast: false
+      matrix:
+        answer: ${{ fromJSON(needs.collect.outputs.lines) }}
+    name: ${{ matrix.answer }}
+    steps:
+      - run: echo "${{ matrix.answer }}"
