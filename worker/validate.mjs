@@ -14,6 +14,7 @@ function walk(model, input, path = '') {
 
 import { HttpError } from './security.mjs'
 import { isShortMapLink, mapEmbedUrl, mapPoint } from '../src/map.js'
+import { shareMedia } from './content.mjs'
 export function validateContent(seed, value) {
   const out = walk(seed, value)
   if(!/^#[0-9a-f]{6}$/i.test(out.BRAND.color))throw new HttpError(422,'สีเว็บไซต์ไม่ถูกต้อง')
@@ -47,7 +48,10 @@ export function validateContent(seed, value) {
   if (out.I18N.th.videos.length !== out.I18N.en.videos.length) throw new HttpError(422, 'จำนวนคลิปสองภาษาต้องเท่ากัน')
   const knownImages=new Set([...Object.values(seed.ASSETS),...seed.GALLERY,...seed.I18N.th.fleet.map(x=>x.image),...seed.I18N.th.videos.map(x=>x.file+'-poster')])
   const image = v => knownImages.has(v) || /^uploads\/[a-f0-9]{32}\.(?:png|jpg|webp)$/.test(v)
-  const articleImages = Object.values(out.I18N).flatMap(L => [L.knowledge.heroImage, L.knowledge.benefitsImage, L.knowledge.summaryImage, ...L.knowledge.uses.map(x => x.image)])
+  // ที่อยู่หน้าบริการถูก Google เก็บไว้ เพิ่ม ลบ หรือเปลี่ยนชื่อหน้าจากหลังบ้านไม่ได้ แก้ได้เฉพาะเนื้อหา
+  const slugs = seed.I18N.th.servicePages.map(p => p.slug).join()
+  for (const L of Object.values(out.I18N)) if (L.servicePages.map(p => p.slug).join() !== slugs) throw new HttpError(422, 'หน้าบริการแก้ได้เฉพาะเนื้อหา เพิ่ม ลบ หรือเปลี่ยนชื่อหน้าไม่ได้')
+  const articleImages = Object.values(out.I18N).flatMap(L => [L.knowledge.heroImage, L.knowledge.benefitsImage, L.knowledge.summaryImage, ...L.knowledge.uses.map(x => x.image), ...L.servicePages.map(x => x.image)])
   const images = [...Object.values(out.ASSETS), ...out.GALLERY, ...out.I18N.th.fleet.map(x => x.image), ...out.I18N.en.fleet.map(x => x.image), ...articleImages]
   if (images.some(x => !image(x))) throw new HttpError(422, 'กรุณาเลือกรูปจากคลังสื่อ')
   const knownVideos=new Set(seed.I18N.th.videos.map(v=>v.file))
@@ -55,6 +59,7 @@ export function validateContent(seed, value) {
   for (const L of Object.values(out.I18N)) {
     for (const v of L.videos) if (!video(v.file) || (v.poster && !image(v.poster))) throw new HttpError(422, 'ไฟล์คลิปหรือภาพหน้าปกไม่ถูกต้อง')
   }
+  shareMedia(out)
   out.FORM.endpoint = 'api/inquiries'
   out.FORM.accessKey = ''
   return out

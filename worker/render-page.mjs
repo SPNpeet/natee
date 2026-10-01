@@ -1,9 +1,9 @@
 import { imageAsset } from '../src/brand.js'
 import { mapPoint } from '../src/map.js'
+import { PAGES } from '../src/pages.js'
+export { PAGES }
 export const escapeHtml = value => String(value).replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;')
 export const safeJSON = value => JSON.stringify(value).replaceAll('<', '\\u003c')
-// ที่อยู่ของแต่ละหน้าในแต่ละภาษา ใช้ร่วมกันทั้ง canonical hreflang และแผนผังเว็บ
-export const PAGES = { home: { th: '/', en: '/en.html' }, knowledge: { th: '/knowledge.html', en: '/knowledge-en.html' } }
 // วันที่เผยแพร่บทความตายตัว ถ้าใช้วันที่ build Google จะเห็นว่าบทความถูกแก้ทุกครั้งที่ขึ้นเว็บ
 const ARTICLE_DATE = '2026-09-10'
 export function metadata(content, lang, site, page = 'home') {
@@ -11,6 +11,27 @@ export function metadata(content, lang, site, page = 'home') {
   const L = I18N[lang]
   const url = site + PAGES[page][lang]
   const img = value => site + '/' + imageAsset(value)
+  // เบอร์โทรต่อท้ายคำอธิบายจากข้อมูลติดต่อเสมอ เปลี่ยนเบอร์ที่เดียวแล้วผลค้นหาตามทันที
+  // ถ้าต่อแล้วเกิน 160 ตัวอักษร Google จะตัดท้ายทิ้งอยู่ดี จึงไม่ต่อ
+  const withPhone = (summary) => {
+    const line = summary + ' ' + (lang === 'th' ? 'โทร ' : 'Call ') + CONTACT.phone
+    return summary.includes(CONTACT.phone) || line.length > 160 ? summary : line
+  }
+  if (page.startsWith('service:')) {
+    const S = L.servicePages.find((p) => p.slug === page.slice(8))
+    const home = site + PAGES.home[lang]
+    const service = {
+      '@context': 'https://schema.org', '@type': 'Service', name: S.title, serviceType: S.navLabel, description: S.metaDescription,
+      url, image: img(S.image), areaServed: L.areas, inLanguage: lang,
+      provider: { '@type': 'LocalBusiness', name: L.siteName, url: home, telephone: CONTACT.phone, address: { '@type': 'PostalAddress', streetAddress: L.address, addressCountry: 'TH' } },
+    }
+    const breadcrumb = { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [
+      { '@type': 'ListItem', position: 1, name: L.siteName, item: home },
+      { '@type': 'ListItem', position: 2, name: S.navLabel, item: url },
+    ] }
+    const faq = { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: S.faq.map(item => ({ '@type': 'Question', name: item.q, acceptedAnswer: { '@type': 'Answer', text: item.a } })) }
+    return { title: S.metaTitle, description: withPhone(S.metaDescription), url, image: img(S.image), type: 'website', schemas: [service, breadcrumb, faq] }
+  }
   if (page === 'knowledge') {
     const K = L.knowledge
     const home = site + PAGES.home[lang]
@@ -47,9 +68,7 @@ export function metadata(content, lang, site, page = 'home') {
     thumbnailUrl: v.poster ? img(v.poster) : (v.file.startsWith('uploads/') ? img(ASSETS.hero) : site + '/images/' + v.file + '-poster.webp'),
   }))
   const title = SEO[lang].title.trim() || L.heroTitle + ' | ' + L.siteName
-  // เบอร์โทรต่อท้ายคำอธิบายจากข้อมูลติดต่อเสมอ เปลี่ยนเบอร์ที่เดียวแล้วผลค้นหาตามทันที
-  const summary = SEO[lang].description.trim() || L.heroSubtitle
-  const description = summary.includes(CONTACT.phone) ? summary : summary + ' ' + (lang === 'th' ? 'โทร ' : 'Call ') + CONTACT.phone
+  const description = withPhone(SEO[lang].description.trim() || L.heroSubtitle)
   return { title, description, url, image: img(ASSETS.share), type: 'website', schemas: [business, faq, ...videos] }
 }
 export function renderPage(template, render, content, lang, site, page = 'home') {
@@ -68,7 +87,14 @@ export function renderPage(template, render, content, lang, site, page = 'home')
   const alternates = [['th', PAGES[page].th], ['en', PAGES[page].en], ['x-default', PAGES[page].th]].map(([code, path]) => '<link rel="alternate" hreflang="' + code + '" href="' + escapeHtml(site + path) + '" />').join('\n')
   const schemas = m.schemas.map(s => '<script type="application/ld+json">' + safeJSON(s) + '</script>').join('\n')
   html = html.replace('</head>', alternates + '\n' + schemas + '\n</head>')
-  html = html.replace('<div id="root"></div>', '<div id="root">' + render(lang, content, page) + '</div><script id="natee-content" type="application/json">' + safeJSON(content) + '</script>')
+  // หน้าเว็บในเบราว์เซอร์อ่านเฉพาะภาษาของหน้านั้น และของหน้าอื่นใช้แค่ชื่อกับลิงก์ จึงฝังเท่าที่ใช้ หน้าโหลดเร็วขึ้น
+  const L = content.I18N[lang]
+  const pageContent = { ...content, I18N: { [lang]: {
+    ...L,
+    knowledge: page === 'knowledge' ? L.knowledge : { navLabel: L.knowledge.navLabel },
+    servicePages: L.servicePages.map(p => page === 'service:' + p.slug ? p : { slug: p.slug, icon: p.icon, navLabel: p.navLabel }),
+  } } }
+  html = html.replace('<div id="root"></div>', '<div id="root">' + render(lang, content, page) + '</div><script id="natee-content" type="application/json">' + safeJSON(pageContent) + '</script>')
   return html
 }
 export function sitemap(site) {

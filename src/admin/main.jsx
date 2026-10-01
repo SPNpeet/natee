@@ -16,11 +16,13 @@ const labels = {
   capacity:'ความจุ',q:'คำถาม',a:'คำตอบ',file:'คลิปวิดีโอ',poster:'ภาพหน้าปก',caption:'คำบรรยาย',
   highlights:'จุดเด่น',services:'บริการ',fleet:'ประเภทรถ',pricing:'รายการราคา',steps:'ขั้นตอนใช้บริการ',areas:'พื้นที่ให้บริการ',videos:'คลิปผลงาน',faq:'คำถามที่พบบ่อย',nav:'ชื่อเมนู',
   knowledge:'บทความ',navLabel:'ชื่อในเมนู',metaTitle:'ชื่อหน้าบนผลค้นหา',metaDescription:'คำอธิบายบนผลค้นหา',eyebrow:'ป้ายเหนือหัวข้อ',subtitle:'คำโปรย',quote:'คำพูดยกมา',quoteBy:'ที่มาของคำพูด',intro:'ย่อหน้าแรก',heroImage:'รูปหัวบทความ',heroAlt:'คำอธิบายรูปหัวบทความ',heroCaption:'คำบรรยายใต้รูปหัวบทความ',tocTitle:'หัวข้อสารบัญ',groupsTitle:'หัวข้อความสำคัญของน้ำ',groups:'ความสำคัญของน้ำ',usesTitle:'หัวข้อการใช้น้ำ',uses:'การใช้น้ำแต่ละภาคส่วน',benefitsTitle:'หัวข้อความสำคัญของน้ำประปา',benefitsSubtitle:'คำโปรยความสำคัญของน้ำประปา',benefits:'ความสำคัญของน้ำประปา',benefitsImage:'รูปประกอบความสำคัญของน้ำประปา',benefitsAlt:'คำอธิบายรูปความสำคัญของน้ำประปา',benefitsCaption:'คำบรรยายรูปความสำคัญของน้ำประปา',summaryTitle:'หัวข้อสรุป',summaryText:'ข้อความสรุป',summaryImage:'รูปประกอบสรุป',summaryAlt:'คำอธิบายรูปสรุป',summaryCaption:'คำบรรยายรูปสรุป',ctaText:'ข้อความชวนติดต่อ',backLabel:'ข้อความลิงก์กลับหน้าแรก',alt:'คำอธิบายรูป',
+  servicePages:'หน้าบริการ',imageAlt:'คำอธิบายรูป',imageCaption:'คำบรรยายใต้รูป',fitTitle:'หัวข้อ เหมาะกับงานแบบไหน',fits:'งานที่เหมาะ',tipsTitle:'หัวข้อข้อแนะนำ',tips:'ข้อแนะนำ',
+  serviceMore:'ปุ่มดูรายละเอียดบริการ',serviceRelated:'หัวข้อบริการอื่น',serviceFaqTitle:'หัวข้อคำถามในหน้าบริการ',serviceBack:'ลิงก์กลับหน้าแรกในหน้าบริการ',
 }
 const sections = [
   ['stats','สถิติ'],['contact','ข้อมูลร้าน'],['home','หน้าแรก'],['services','บริการ'],['fleet','ประเภทรถ'],['pricing','ราคา'],
   ['steps','ขั้นตอน'],['areas','พื้นที่บริการ'],['gallery','ผลงาน'],['faq','คำถามที่พบบ่อย'],['knowledge','บทความความรู้'],
-  ['texts','ข้อความและปุ่ม'],['seo','ค้นหาและแชร์'],['settings','แบบฟอร์มและรีวิว'],['inbox','ข้อความติดต่อ'],['media','คลังสื่อ'],['history','ประวัติ'],['users','ผู้ดูแล'],['account','บัญชีของฉัน'],
+  ['servicePages','หน้าบริการ'],['texts','ข้อความและปุ่ม'],['seo','ค้นหาและแชร์'],['settings','แบบฟอร์มและรีวิว'],['inbox','ข้อความติดต่อ'],['media','คลังสื่อ'],['history','ประวัติ'],['users','ผู้ดูแล'],['account','บัญชีของฉัน'],
 ]
 const clone = value => structuredClone(value)
 function updateAt(object,path,value) {
@@ -54,6 +56,20 @@ function mirrorMedia(data,path,value){
   const parent=target.slice(0,-1).reduce((o,k)=>o?.[k],data)
   return parent && Object.hasOwn(parent,target.at(-1)) ? updateAt(data,target,value) : data
 }
+// รูปจากมือถือหรือโปสเตอร์มักใหญ่เกินจำเป็น ย่อให้กว้างไม่เกิน 1920 และแปลงเป็น WebP ก่อนส่งขึ้น หน้าเว็บจะโหลดเร็วขึ้น
+// ถ้าย่อแล้วไม่เล็กลง หรือเบราว์เซอร์ทำไม่ได้ ใช้ไฟล์เดิม
+async function shrinkImage(file) {
+  if (!/^image\/(jpeg|png|webp)$/.test(file.type) || typeof createImageBitmap !== 'function') return file
+  const bitmap=await createImageBitmap(file).catch(()=>null)
+  if (!bitmap) return file
+  const scale=Math.min(1,1920/bitmap.width)
+  if (scale===1 && file.size<=600*1024) return file
+  const canvas=document.createElement('canvas')
+  canvas.width=Math.round(bitmap.width*scale);canvas.height=Math.round(bitmap.height*scale)
+  canvas.getContext('2d').drawImage(bitmap,0,0,canvas.width,canvas.height)
+  const blob=await new Promise(resolve=>canvas.toBlob(resolve,'image/webp',0.85))
+  return blob && blob.size<file.size && blob.type==='image/webp' ? new File([blob],file.name.replace(/\.[^.]+$/,'')+'.webp',{type:'image/webp'}) : file
+}
 const icons=['tank','pool','construction','leaf','road','event','truck','clock','shield','check','water','pin','drop','factory']
 function Field({value,path,onChange,media,upload,model}) {
   const key=String(path.at(-1))
@@ -62,21 +78,23 @@ function Field({value,path,onChange,media,upload,model}) {
   const image=imageFields.has(key) || path.includes('GALLERY')
   const video=key === 'file'
   if (Array.isArray(value)) {
+    // หน้าบริการมีที่อยู่ตายตัวที่ Google เก็บไว้ แก้ได้เฉพาะเนื้อหา ไม่ให้เพิ่ม ลบ หรือสลับ
+    const fixed=key==='servicePages'
     return <fieldset className="collection"><legend>{labels[key] || 'รายการ'}</legend>
       {value.map((row,i)=><div className="repeat-row" key={i}>
-        <div className="row-heading"><strong>{typeof row==='object' ? row.name || row.title || row.q || row.caption || 'รายการ '+(i+1) : 'รายการ '+(i+1)}</strong>
-          <div className="row-actions">
+        <div className="row-heading"><strong>{typeof row==='object' ? row.navLabel || row.name || row.title || row.q || row.caption || 'รายการ '+(i+1) : 'รายการ '+(i+1)}</strong>
+          {!fixed && <div className="row-actions">
             <button type="button" disabled={i===0} aria-label={'เลื่อนรายการ '+(i+1)+' ขึ้น'} onClick={()=>{const n=[...value];[n[i-1],n[i]]=[n[i],n[i-1]];onChange(path,n)}}>↑</button>
             <button type="button" disabled={i===value.length-1} aria-label={'เลื่อนรายการ '+(i+1)+' ลง'} onClick={()=>{const n=[...value];[n[i+1],n[i]]=[n[i],n[i+1]];onChange(path,n)}}>↓</button>
             <button type="button" className="danger" onClick={()=>{if(confirm('ลบรายการนี้จากแบบร่าง?'))onChange(path,value.filter((_,j)=>i!==j))}}>ลบรายการ</button>
-          </div>
+          </div>}
         </div>
         <Field value={row} path={[...path,i]} onChange={onChange} media={media} upload={upload} model={model?.[0]} />
       </div>)}
-      <button type="button" onClick={()=>onChange(path,[...value,clone(model?.[0] ?? (typeof value[0]==='object' ? value[0] : ''))])}>+ เพิ่มรายการ</button>
+      {!fixed && <button type="button" onClick={()=>onChange(path,[...value,clone(model?.[0] ?? (typeof value[0]==='object' ? value[0] : ''))])}>+ เพิ่มรายการ</button>}
     </fieldset>
   }
-  if (value && typeof value==='object') return <div className="field-grid">{Object.entries(value).filter(([k])=>!['lang','phoneHref','phone2Href','accessKey','endpoint'].includes(k)).map(([k,v])=><Field key={k} value={v} path={[...path,k]} onChange={onChange} media={media} upload={upload} model={model?.[k]} />)}</div>
+  if (value && typeof value==='object') return <div className="field-grid">{Object.entries(value).filter(([k])=>!['lang','phoneHref','phone2Href','accessKey','endpoint','slug'].includes(k)).map(([k,v])=><Field key={k} value={v} path={[...path,k]} onChange={onChange} media={media} upload={upload} model={model?.[k]} />)}</div>
   if (typeof value==='boolean') return <label className="check-label"><input type="checkbox" checked={value} onChange={event=>onChange(path,event.target.checked)} />{label}</label>
   if (image || video) {
     const options=video ? ['work-video-01','work-video-02','work-video-03','work-video-04'] : bundledImages
@@ -149,10 +167,11 @@ function Admin() {
     setBusy(true);setError('');setMessage('')
     try {await fn()} catch(err){setError(err.message)} finally{setBusy(false)}
   }
-  async function upload(file) {
+  async function upload(original) {
     if(busy)return null
     setBusy(true);setError('')
     try {
+      const file=await shrinkImage(original)
       if(file.size>8*1024*1024)throw new Error('ไฟล์ต้องไม่เกิน 8 MB และรูปต้องไม่เกิน 5 MB')
       const result=await api('media','POST',file)
       setMedia(m=>[result,...m]);setMessage('อัปโหลดแล้ว ไฟล์อาจใช้เวลาหนึ่งนาทีหรือมากกว่ากว่าจะเปิดได้ทุกพื้นที่')
@@ -185,6 +204,7 @@ function Admin() {
         {section==='contact'&&<>{field(['CONTACT'])}{['siteName','tagline','address','hours'].map(key=>field(['I18N',lang,key]))}{field(['ASSETS'])}{field(['BRAND'])}</>}
         {section==='home'&&<>{['heroEyebrow','heroTitle','heroSubtitle','heroNote','aboutTitle','aboutText','aboutQuote','highlights'].map(key=>field(['I18N',lang,key]))}</>}
         {['services','fleet','pricing','steps','areas','faq'].includes(section)&&field(['I18N',lang,section])}
+        {section==='servicePages'&&<><p>หน้าเฉพาะของแต่ละบริการ ช่วยให้คนที่ค้นหาบริการนั้นใน Google เจอร้าน แก้ข้อความและรูปได้ ส่วนที่อยู่ของหน้าคงที่ ไอคอนของหน้าบริการต้องตรงกับไอคอนในเมนูบริการ ปุ่มดูรายละเอียดจึงจะขึ้นในหน้าแรก</p>{field(['I18N',lang,'servicePages'])}</>}
         {section==='knowledge'&&<><p>บทความในหน้าความรู้ รูปเลือกจากคลังสื่อได้ ทุกรูปต้องมีคำอธิบายรูปสำหรับผู้ใช้ที่มองไม่เห็น</p>{field(['I18N',lang,'knowledge'])}</>}
         {section==='gallery'&&<><p>รูปใช้ร่วมกันสองภาษา คลิปต้องมีจำนวนเท่ากันทั้งไทยและอังกฤษ</p>{field(['GALLERY'])}{field(['I18N',lang,'videos'])}</>}
         {section==='texts'&&<>{field(['I18N',lang,'nav'])}{Object.keys(data.I18N[lang]).filter(key=>typeof data.I18N[lang][key]==='string'&&key!=='lang').map(key=>field(['I18N',lang,key]))}</>}

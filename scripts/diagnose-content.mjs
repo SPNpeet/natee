@@ -47,7 +47,10 @@ const site = process.argv[3]
 if (site) {
   const html = await (await fetch(site + '/')).text()
   const block = html.match(/<script id="natee-content" type="application\/json">([\s\S]*?)<\/script>/)
-  if (block) liveVsMerged = changed(merged, JSON.parse(block[1])).length
+  if (block) {
+    const live = JSON.parse(block[1]).I18N.th
+    liveVsMerged = changed({ ...merged, I18N: { th: { ...merged.I18N.th, knowledge: live.knowledge, servicePages: live.servicePages } } }, JSON.parse(block[1])).length
+  }
 }
 
 const result = {

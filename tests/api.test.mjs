@@ -187,3 +187,14 @@ test('admin address survives a copied link with trailing characters',async()=>{
   }
   assert.equal((await fetch(base+'/unknown-page')).status,404)
 })
+
+test('service pages are served by the worker in both languages and unknown ones stay 404',async()=>{
+  for(const [path,lang] of [['/service-pool-filling.html','th'],['/service-songkran-en.html','en']]){
+    const response=await fetch(base+path)
+    assert.equal(response.status,200,path)
+    const html=await response.text()
+    assert.match(html,/data-page="service:/);assert.match(html,new RegExp('<html lang="'+lang+'"'))
+    assert.match(html,/"@type":"Service"/)
+  }
+  assert.equal((await fetch(base+'/service-unknown.html')).status,404)
+})

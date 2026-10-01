@@ -2,10 +2,12 @@ import { StrictMode } from 'react'
 import { createRoot, hydrateRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.jsx'
+import { isPage } from './pages.js'
 
 const root = document.getElementById('root')
 const lang = document.documentElement.lang === 'en' ? 'en' : 'th'
-const page = document.documentElement.dataset.page === 'knowledge' ? 'knowledge' : 'home'
+const requested = document.documentElement.dataset.page
+const page = isPage(requested) ? requested : 'home'
 const content = document.getElementById('natee-content')
 const initialContent = content ? JSON.parse(content.textContent) : undefined
 const tree = (

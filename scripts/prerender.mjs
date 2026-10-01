@@ -3,7 +3,7 @@ import { resolve } from 'node:path'
 import { createHash } from 'node:crypto'
 import { render } from '../server-build/entry-server.js'
 import * as content from '../src/data.js'
-import { renderPage, sitemap } from '../worker/render-page.mjs'
+import { renderPage, sitemap, PAGES } from '../worker/render-page.mjs'
 import { siteConfig } from './site-config.mjs'
 
 const { site, basePath } = siteConfig()
@@ -18,7 +18,7 @@ mkdirSync('server-build', { recursive: true })
 writeFileSync('server-build/seed.json', JSON.stringify(content))
 writeFileSync('server-build/build.json', JSON.stringify({ id: createHash('sha256').update(template).digest('hex') }))
 writeFileSync(resolve(dist, '__shell.html'), template)
-const pages = [['th', 'index.html', 'home'], ['en', 'en.html', 'home'], ['th', 'knowledge.html', 'knowledge'], ['en', 'knowledge-en.html', 'knowledge']]
+const pages = Object.entries(PAGES).flatMap(([page, paths]) => ['th', 'en'].map((lang) => [lang, paths[lang] === '/' ? 'index.html' : paths[lang].slice(1), page]))
 for (const [lang, file, page] of pages) {
   writeFileSync(resolve(dist, file), renderPage(template, render, content, lang, site, page))
   console.log('Prerendered ' + file)

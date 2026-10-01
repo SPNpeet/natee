@@ -8,6 +8,7 @@ import { renderPage, sitemap } from './render-page.mjs'
 import { randomToken, digest, equal, hashPassword, verifyPassword, HttpError, readBody, readJSON } from './security.mjs'
 import { validateContent, mediaType } from './validate.mjs'
 import { isShortMapLink } from '../src/map.js'
+import { pageFromPath } from '../src/pages.js'
 
 // ลิงก์ย่อจากปุ่มแชร์ของ Google Maps ไม่มีพิกัดในตัว ต้องตามไปดูปลายทางก่อน ไม่โหลดเนื้อหาหน้าเว็บ ตามแค่ที่อยู่ที่ถูกส่งต่อ
 async function expandMapLink(link) {
@@ -118,7 +119,7 @@ async function api(request, env, path) {
     await limit(env,'event:'+ip,60,60)
     const body=await readJSON(request)
     if (!['call_click','line_click','video_open','language_switch'].includes(body.name)) throw new HttpError(422,'เหตุการณ์ไม่ถูกต้อง')
-    const places=['header','hero','hero-secondary','cta','pricing','contact','footer','footer-secondary','sticky']
+    const places=['header','hero','hero-secondary','cta','pricing','contact','footer','footer-secondary','sticky','article','service']
     const place=places.includes(body.place)?body.place:'other'
     const language=body.language==='en'?'en':'th'
     await query(env,'INSERT INTO daily_stats(day,event,place,language,count) VALUES (?,?,?,?,1) ON CONFLICT(day,event,place,language) DO UPDATE SET count=count+1',new Date().toISOString().slice(0,10),body.name,place,language).run()
@@ -290,19 +291,20 @@ async function handle(request,env) {
     }
     return new Response(request.method === 'HEAD' ? null : html,{headers:{...securityHeaders,'Content-Type':'text/html; charset=utf-8','Cache-Control':'no-store'}})
   }
-  // หน้าความรู้สร้างจากเนื้อหาชุดเดียวกับหน้าแรก เบอร์โทรหรือพื้นที่ที่แก้ในหลังบ้านจึงตรงกันทุกหน้า
+  // หน้าความรู้และหน้าบริการสร้างจากเนื้อหาชุดเดียวกับหน้าแรก เบอร์โทรหรือพื้นที่ที่แก้ในหลังบ้านจึงตรงกันทุกหน้า
   // ผลที่สร้างแล้วเก็บในแคชของ Cloudflare ผูกกับรุ่นเนื้อหาและรุ่นโค้ด จึงไม่ต้องเพิ่มคอลัมน์ในฐานข้อมูล
   // โฮสต์ที่ไม่มีแคชจะสร้างใหม่ทุกครั้งแทน
-  if (path === '/knowledge.html' || path === '/knowledge-en.html') {
-    const lang=path === '/knowledge-en.html' ? 'en' : 'th'
+  const route=pageFromPath(path)
+  if (route && route.page !== 'home') {
+    const lang=route.lang
     const row=await query(env,'SELECT version,data FROM content WHERE id=1').first()
     const cache=globalThis.caches?.default
-    const key=new Request(url.origin+'/__render/knowledge-'+lang+'-'+(row?.version||0)+'-'+buildInfo.id+'-'+encodeURIComponent(site))
+    const key=new Request(url.origin+'/__render/'+encodeURIComponent(route.page)+'-'+lang+'-'+(row?.version||0)+'-'+buildInfo.id+'-'+encodeURIComponent(site))
     let html=cache ? await (await cache.match(key))?.text() : undefined
     if (!html) {
       const shell=await (await env.ASSETS.fetch(new URL('/__shell.html',url))).text()
       const data=row ? mergeContent(seed,JSON.parse(row.data)) : seed
-      html=renderPage(shell,render,data,lang,site,'knowledge')
+      html=renderPage(shell,render,data,lang,site,route.page)
       if (cache) await cache.put(key,new Response(html,{headers:{'Content-Type':'text/html; charset=utf-8','Cache-Control':'public,max-age=86400'}}))
     }
     return new Response(request.method === 'HEAD' ? null : html,{headers:{...securityHeaders,'Content-Type':'text/html; charset=utf-8','Cache-Control':'no-store'}})

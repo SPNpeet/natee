@@ -7,6 +7,7 @@
 import { readFileSync, existsSync, statSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { siteConfig } from './site-config.mjs'
+import { PAGES, SERVICE_SLUGS } from '../src/pages.js'
 const { site: SITE, basePath } = siteConfig()
 
 const dist = resolve('dist')
@@ -101,7 +102,8 @@ const heavy = clips
 check('ไม่มีคลิปไหนใหญ่เกิน 3 MB', heavy.length === 0, heavy.map((v) => `${v.n} ${v.mb.toFixed(1)} MB`).join(', '))
 
 console.log('\n4. ลิงก์ในทุกหน้าของเว็บ')
-const pageFiles = ['index.html', 'en.html', 'knowledge.html', 'knowledge-en.html']
+const fileOf = (path) => (path === '/' ? 'index.html' : path.slice(1))
+const pageFiles = Object.values(PAGES).flatMap((paths) => [fileOf(paths.th), fileOf(paths.en)])
 const pages = Object.fromEntries(pageFiles.map((f) => [f, readFileSync(resolve(dist, f), 'utf-8')]))
 
 const absolute = pageFiles.flatMap((f) =>
@@ -291,6 +293,31 @@ check('ชื่อหน้าแรกบนผลค้นหาขึ้น�
 const descriptions = pageFiles.map((f) => [f, (pages[f].match(/name="description" content="([^"]*)"/) || [])[1] || ''])
 const longDescriptions = descriptions.filter(([, d]) => d.length < 50 || d.length > 160)
 check('คำอธิบายบนผลค้นหายาว 50–160 ตัวอักษรทุกหน้า', longDescriptions.length === 0, longDescriptions.map(([f, d]) => f + ' ' + d.length).join(', '))
+
+// หน้าบริการแต่ละหน้าต้องเป็นหน้าที่ Google เก็บได้จริง ไม่ใช่หน้าซ้ำของหน้าแรก
+const serviceFiles = SERVICE_SLUGS.flatMap((slug) => ['th', 'en'].map((lang) => [slug, lang, fileOf(PAGES['service:' + slug][lang])]))
+const serviceProblems = serviceFiles.flatMap(([slug, lang, f]) => {
+  const page = pages[f]
+  const issues = []
+  const own = PAGES['service:' + slug]
+  const other = lang === 'th' ? own.en : own.th
+  if ((page.match(/<h1[\s>]/g) || []).length !== 1) issues.push('h1')
+  if (!page.includes('rel="canonical" href="' + SITE + own[lang] + '"')) issues.push('canonical')
+  if (!page.includes('href="' + fileOf(other) + '"')) issues.push('ปุ่มสลับภาษา')
+  if (!sitemapXml.includes(own[lang] + '<')) issues.push('sitemap')
+  const schemaTypes = [...page.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)].map((m) => JSON.parse(m[1])['@type'])
+  if (schemaTypes.join() !== 'Service,BreadcrumbList,FAQPage') issues.push('ข้อมูลโครงสร้าง ' + schemaTypes.join())
+  return issues.map((i) => f + ' ' + i)
+})
+check(`หน้าบริการ ${serviceFiles.length} หน้า มีหัวข้อเดียว canonical ภาษาคู่ sitemap และข้อมูลโครงสร้างครบ`, serviceProblems.length === 0, serviceProblems.join(', '))
+const homeLinksMissing = [['index.html', 'th'], ['en.html', 'en']].flatMap(([f, lang]) =>
+  SERVICE_SLUGS.filter((slug) => !pages[f].includes('href="' + fileOf(PAGES['service:' + slug][lang]) + '"')).map((slug) => f + ' ' + slug))
+check('หน้าแรกทั้งสองภาษามีลิงก์ไปทุกหน้าบริการ', homeLinksMissing.length === 0, homeLinksMissing.join(', '))
+const titles = pageFiles.map((f) => pageTitle(pages[f]))
+const repeatedTitles = titles.filter((title, i) => titles.indexOf(title) !== i)
+const descs = descriptions.map(([, d]) => d)
+const repeatedDescs = descs.filter((d, i) => descs.indexOf(d) !== i)
+check(`ชื่อหน้าและคำอธิบายบนผลค้นหาไม่ซ้ำกันทั้ง ${pageFiles.length} หน้า`, repeatedTitles.length === 0 && repeatedDescs.length === 0, [...repeatedTitles, ...repeatedDescs].join(', '))
 
 console.log('\n9. ขนาดที่ผู้เข้าชมต้องโหลด')
 const biggest = pageFiles

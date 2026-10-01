@@ -2587,6 +2587,123 @@ dialog.natee-lightbox::backdrop { background: #070e19; }
 	margin-top: 4px;
 }
 
+/* หน้าบริการ ใช้โครงเดียวกับหน้าบทความ เพิ่มเฉพาะส่วนที่บทความไม่มี */
+.natee-breadcrumb {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+	margin-bottom: 14px;
+	font-size: 15px;
+	color: var(--natee-muted);
+}
+
+.natee-breadcrumb a {
+	color: var(--natee-brand);
+	text-decoration: none;
+}
+
+.natee-breadcrumb a:hover {
+	text-decoration: underline;
+}
+
+.natee-service-page .natee-article-head .natee-actions {
+	margin-top: 22px;
+}
+
+.natee-check-list,
+.natee-tip-list,
+.natee-related-list {
+	list-style: none;
+	margin: 14px 0 0;
+	padding: 0;
+	display: grid;
+	gap: 10px;
+}
+
+.natee-check-list li {
+	display: flex;
+	gap: 10px;
+	align-items: flex-start;
+	font-size: 17px;
+}
+
+.natee-check-list .natee-icon {
+	color: var(--natee-brand);
+	flex: 0 0 auto;
+	margin-top: 5px;
+}
+
+.natee-tip-list li {
+	padding: 12px 16px;
+	border-left: 3px solid var(--natee-brand);
+	background: var(--natee-bg-soft);
+	border-radius: 0 10px 10px 0;
+	font-size: 16px;
+}
+
+.natee-service-faq {
+	margin-top: 14px;
+	display: grid;
+	gap: 18px;
+}
+
+.natee-service-faq-q {
+	font-size: 18px;
+	font-weight: 600;
+}
+
+.natee-service-faq-a {
+	margin-top: 6px;
+	color: var(--natee-muted);
+}
+
+.natee-related-list {
+	grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+}
+
+.natee-related-list a {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	min-height: 48px;
+	padding: 10px 14px;
+	border: 1px solid var(--natee-line);
+	border-radius: var(--natee-radius);
+	color: var(--natee-ink);
+	font-weight: 600;
+	text-decoration: none;
+}
+
+.natee-related-list a:hover {
+	border-color: var(--natee-brand);
+	color: var(--natee-brand);
+}
+
+.natee-related-list .natee-icon {
+	color: var(--natee-brand);
+	flex: 0 0 auto;
+}
+
+.natee-card-link {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	min-height: 44px;
+	margin-top: 6px;
+	color: var(--natee-brand);
+	font-weight: 600;
+	text-decoration: none;
+}
+
+.natee-card-link:hover {
+	text-decoration: underline;
+}
+
+/* ไอคอนลูกศรของเว็บชี้ซ้ายสำหรับลิงก์กลับ ลิงก์ไปหน้าถัดไปจึงกลับด้าน */
+.natee-card-link .natee-icon {
+	transform: scaleX(-1);
+}
+
 .natee-article-back a {
 	display: inline-flex;
 	align-items: center;

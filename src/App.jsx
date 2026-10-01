@@ -7,6 +7,8 @@ import ContactForm from './ContactForm.jsx'
 import ContactButtons from './ContactButtons.jsx'
 import Knowledge from './Knowledge.jsx'
 import { mapEmbedUrl } from './map.js'
+import ServicePage from './ServicePage.jsx'
+import { pageHref } from './pages.js'
 
 const SECTIONS = ['services', 'fleet', 'pricing', 'areas', 'gallery', 'faq', 'contact']
 
@@ -32,10 +34,11 @@ export default function App({ lang = 'th', content = defaults, page = 'home' }) 
   const homeHref = lang === 'th' ? 'index.html' : 'en.html'
   const knowledgeHref = lang === 'th' ? 'knowledge.html' : 'knowledge-en.html'
 
+  const service = page.startsWith('service:') ? L.servicePages.find((p) => p.slug === page.slice(8)) : null
+  const servicePageFor = (icon) => L.servicePages.find((p) => p.icon === icon)
+
   // สลับภาษาแล้วต้องอยู่หน้าเดิมเสมอ ไม่ใช่เด้งกลับหน้าแรกทุกครั้ง
-  const otherLangHref = home
-    ? (lang === 'th' ? 'en.html' : 'index.html')
-    : (lang === 'th' ? 'knowledge-en.html' : 'knowledge.html')
+  const otherLangHref = pageHref(page, lang === 'th' ? 'en' : 'th')
 
   const media = [
     ...L.videos.map((v, i) => ({
@@ -214,8 +217,8 @@ export default function App({ lang = 'th', content = defaults, page = 'home' }) 
               <li>
                 <a
                   href={knowledgeHref}
-                  className={home ? undefined : 'is-current'}
-                  aria-current={home ? undefined : 'page'}
+                  className={page === 'knowledge' ? 'is-current' : undefined}
+                  aria-current={page === 'knowledge' ? 'page' : undefined}
                   onClick={() => setMenuOpen(false)}
                 >
                   {L.knowledge.navLabel}
@@ -356,6 +359,12 @@ export default function App({ lang = 'th', content = defaults, page = 'home' }) 
                     <div className="natee-card-body">
                       <h3 className="natee-card-title">{item.title}</h3>
                       <p className="natee-card-text">{item.text}</p>
+                      {servicePageFor(item.icon) && (
+                        <a className="natee-card-link" href={pageHref('service:' + servicePageFor(item.icon).slug, lang)}>
+                          <span>{L.serviceMore}</span>
+                          <Icon name="arrow" className="natee-icon natee-icon-inline" />
+                        </a>
+                      )}
                     </div>
                   </li>
                 ))}
@@ -685,6 +694,8 @@ export default function App({ lang = 'th', content = defaults, page = 'home' }) 
             </div>
           </section>
           </>
+        ) : service ? (
+          <ServicePage L={L} CONTACT={CONTACT} service={service} lang={lang} homeHref={homeHref} />
         ) : (
           <Knowledge L={L} CONTACT={CONTACT} homeHref={homeHref} />
         )}

@@ -144,3 +144,38 @@ test('an owner who never touched the search title gets the new keyword title, an
   const owned=structuredClone(seed);owned.SEO.th.title='ชื่อที่เจ้าของตั้งเอง'
   assert.equal(mergeContent(seed,owned).SEO.th.title,'ชื่อที่เจ้าของตั้งเอง')
 })
+test('photos and clips changed on the Thai side also show on the English page',()=>{
+  const saved=structuredClone(seed)
+  saved.I18N.th.fleet[0].image='uploads/0435d5b747510c956a113af78cb0134e.jpg'
+  saved.I18N.th.videos[0].file='uploads/8064e5de46f87d0dd5cefb1d61948748.mp4'
+  saved.I18N.th.knowledge.heroImage='work-03'
+  const shown=mergeContent(seed,saved)
+  assert.equal(shown.I18N.en.fleet[0].image,saved.I18N.th.fleet[0].image)
+  assert.equal(shown.I18N.en.videos[0].file,saved.I18N.th.videos[0].file)
+  assert.equal(shown.I18N.en.knowledge.heroImage,'work-03')
+  assert.notEqual(shown.I18N.en.fleet[0].name,shown.I18N.th.fleet[0].name)
+  const stored=validateContent(seed,structuredClone(saved))
+  assert.equal(stored.I18N.en.fleet[0].image,saved.I18N.th.fleet[0].image)
+})
+test('every service page gets its own address, search text and Service, Breadcrumb and FAQ data',()=>{
+  const slugs=seed.I18N.th.servicePages.map(p=>p.slug)
+  assert.deepEqual(slugs,['tank-filling','pool-filling','songkran','road-washing','garden-watering'])
+  for(const lang of ['th','en'])for(const slug of slugs){
+    const m=metadata(seed,lang,'https://example.test','service:'+slug)
+    assert.equal(m.url,'https://example.test/service-'+slug+(lang==='en'?'-en':'')+'.html')
+    assert.deepEqual(m.schemas.map(s=>s['@type']),['Service','BreadcrumbList','FAQPage'])
+    assert.ok(m.description.length<=160,slug+' '+lang+' '+m.description.length)
+  }
+  const map=sitemap('https://example.test')
+  for(const slug of slugs){assert.match(map,new RegExp('service-'+slug+'\\.html<'));assert.match(map,new RegExp('service-'+slug+'-en\\.html<'))}
+})
+test('the owner can edit service page text but cannot add, remove or rename a page',()=>{
+  const edited=structuredClone(seed);edited.I18N.th.servicePages[1].intro='ข้อความที่เจ้าของร้านเขียนเอง'
+  assert.equal(validateContent(seed,edited).I18N.th.servicePages[1].intro,'ข้อความที่เจ้าของร้านเขียนเอง')
+  const removed=structuredClone(seed);removed.I18N.th.servicePages.pop()
+  assert.throws(()=>validateContent(seed,removed),/หน้าบริการ/)
+  const renamed=structuredClone(seed);renamed.I18N.en.servicePages[0].slug='other'
+  assert.throws(()=>validateContent(seed,renamed),/หน้าบริการ/)
+  const image=structuredClone(seed);image.I18N.th.servicePages[0].image='../secret'
+  assert.throws(()=>validateContent(seed,image))
+})

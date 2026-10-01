@@ -18,6 +18,24 @@ export function upgradeSaved(saved, list = upgrades) {
   }
   return out
 }
+// รูปและคลิปเป็นของชุดเดียวกันทั้งสองภาษา หน้าไทยเป็นต้นฉบับ
+// เจ้าของร้านเคยเปลี่ยนรูปรถเฉพาะฝั่งไทย หน้าอังกฤษจึงค้างรูปเก่า แก้ที่นี่ที่เดียวทั้งตอนแสดงผลและตอนบันทึก
+const SHARED_MEDIA = [['fleet', ['image']], ['videos', ['file', 'poster']], ['servicePages', ['image']]]
+const SHARED_ARTICLE_IMAGES = ['heroImage', 'benefitsImage', 'summaryImage']
+export function shareMedia(content) {
+  const th = content.I18N?.th, en = content.I18N?.en
+  if (!th || !en) return content
+  for (const [list, keys] of SHARED_MEDIA) {
+    if (!Array.isArray(th[list]) || th[list].length !== en[list]?.length) continue
+    th[list].forEach((item, i) => { for (const key of keys) if (key in item) en[list][i][key] = item[key] })
+  }
+  const a = th.knowledge, b = en.knowledge
+  if (a && b) {
+    for (const key of SHARED_ARTICLE_IMAGES) if (key in a) b[key] = a[key]
+    if (a.uses?.length === b.uses?.length) a.uses.forEach((item, i) => { b.uses[i].image = item.image })
+  }
+  return content
+}
 export function mergeContent(model, saved, list = upgrades) {
-  return withDefaults(model, upgradeSaved(saved, list))
+  return shareMedia(withDefaults(model, upgradeSaved(saved, list)))
 }
