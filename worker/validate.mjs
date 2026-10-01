@@ -13,6 +13,7 @@ function walk(model, input, path = '') {
   }
 
 import { HttpError } from './security.mjs'
+import { isShortMapLink, mapEmbedUrl, mapPoint } from '../src/map.js'
 export function validateContent(seed, value) {
   const out = walk(seed, value)
   if(!/^#[0-9a-f]{6}$/i.test(out.BRAND.color))throw new HttpError(422,'สีเว็บไซต์ไม่ถูกต้อง')
@@ -26,6 +27,10 @@ export function validateContent(seed, value) {
     out.CONTACT[key + 'Href'] = 'tel:' + digits
   }
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(out.CONTACT.email)) throw new HttpError(422, 'อีเมลไม่ถูกต้อง')
+  if (isShortMapLink(out.CONTACT.mapEmbed) || !mapPoint(out.CONTACT.mapEmbed) && !/output=embed|\/maps\/embed/.test(out.CONTACT.mapEmbed)) {
+    throw new HttpError(422, 'อ่านตำแหน่งจากลิงก์แผนที่ไม่ได้ กรุณาเปิดร้านใน Google Maps บนคอมพิวเตอร์แล้วคัดลอกลิงก์จากแถบที่อยู่ หรือใส่พิกัด เช่น 18.8509, 98.9881')
+  }
+  out.CONTACT.mapEmbed = mapEmbedUrl(out.CONTACT.mapEmbed, { address: out.I18N.th.address })
   for (const key of ['lineUrl', 'facebookUrl', 'mapUrl', 'mapEmbed']) {
     let url
     try { url = new URL(out.CONTACT[key]) } catch { throw new HttpError(422, 'ลิงก์ไม่ถูกต้อง: ' + key) }

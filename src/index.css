@@ -559,6 +559,26 @@ textarea:focus-visible,
 	object-fit: cover;
 }
 
+/* รูปที่เจ้าของร้านอัปโหลดเองมักเป็นโปสเตอร์ที่มีเบอร์โทรชิดขอบ จึงแสดงเต็มภาพตามสัดส่วนจริง ไม่ตัดขอบ
+   สัดส่วน 16:9 ใช้จองพื้นที่ระหว่างรอโหลดเท่านั้น โหลดเสร็จแล้วใช้สัดส่วนของรูปจริง */
+.natee-hero-image.is-custom,
+.natee-about-image.is-custom,
+.natee-article-img.is-custom {
+	height: auto;
+	max-height: 720px;
+	aspect-ratio: auto 16 / 9;
+	object-fit: contain;
+}
+
+.natee-fleet-media.is-custom {
+	aspect-ratio: auto;
+}
+
+.natee-fleet-media.is-custom .natee-fleet-image {
+	height: auto;
+	aspect-ratio: auto 4 / 3;
+}
+
 .natee-hero-placeholder {
 	aspect-ratio: 4 / 3;
 	display: flex;

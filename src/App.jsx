@@ -6,6 +6,7 @@ import { track } from './track.js'
 import ContactForm from './ContactForm.jsx'
 import ContactButtons from './ContactButtons.jsx'
 import Knowledge from './Knowledge.jsx'
+import { mapEmbedUrl } from './map.js'
 
 const SECTIONS = ['services', 'fleet', 'pricing', 'areas', 'gallery', 'faq', 'contact']
 
@@ -290,7 +291,7 @@ export default function App({ lang = 'th', content = defaults, page = 'home' }) 
 
               <div className="natee-hero-media">
                 <img
-                  className="natee-hero-image"
+                  className={ASSETS.hero.startsWith('uploads/') ? 'natee-hero-image is-custom' : 'natee-hero-image'}
                   src={asset(ASSETS.hero)}
                   srcSet={ASSETS.hero.startsWith('uploads/') ? undefined : `${asset(ASSETS.hero, '-sm.webp')} 560w, ${asset(ASSETS.hero)} 1200w`}
                   sizes="(max-width: 719px) 92vw, (max-width: 999px) 46vw, 560px"
@@ -323,7 +324,7 @@ export default function App({ lang = 'th', content = defaults, page = 'home' }) 
             <div className="natee-container natee-about-inner">
               <div className="natee-about-media">
                 <img
-                  className="natee-about-image"
+                  className={ASSETS.about.startsWith('uploads/') ? 'natee-about-image is-custom' : 'natee-about-image'}
                   src={asset(ASSETS.about)}
                   srcSet={ASSETS.about.startsWith('uploads/') ? undefined : `${asset(ASSETS.about, '-sm.webp')} 560w, ${asset(ASSETS.about)} 960w`}
                   sizes="(max-width: 719px) 92vw, 46vw"
@@ -371,7 +372,7 @@ export default function App({ lang = 'th', content = defaults, page = 'home' }) 
               <div className="natee-fleet-grid">
                 {L.fleet.map((truck) => (
                   <article className="natee-fleet-item" key={truck.name}>
-                    <div className="natee-fleet-media">
+                    <div className={truck.image.startsWith('uploads/') ? 'natee-fleet-media is-custom' : 'natee-fleet-media'}>
                       <img
                         className="natee-fleet-image"
                         src={asset(truck.image)}
@@ -668,7 +669,7 @@ export default function App({ lang = 'th', content = defaults, page = 'home' }) 
 
                   <div className="natee-map">
                     <iframe
-                      src={CONTACT.mapEmbed}
+                      src={mapEmbedUrl(CONTACT.mapEmbed, { address: L.address, lang })}
                       title={`${L.mapTitle} ${L.siteName}`}
                       loading="lazy"
                       referrerPolicy="no-referrer-when-downgrade"

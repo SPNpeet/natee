@@ -2,11 +2,12 @@ import { createRoot } from 'react-dom/client'
 import { useEffect, useState } from 'react'
 import * as seed from '../data.js'
 import { imageAsset } from '../brand.js'
+import { mapEmbedUrl } from '../map.js'
 import './admin.css'
 
 const labels = {
   CONTACT:'ช่องทางติดต่อ', ASSETS:'รูปหลัก', GALLERY:'รูปผลงาน', FORM:'แบบฟอร์มติดต่อ', REVIEWS:'คะแนนรีวิว',
-  phone:'เบอร์โทรหลัก',phone2:'เบอร์โทรสำรอง',email:'อีเมล',lineId:'LINE ID',lineUrl:'ลิงก์ LINE',facebookUrl:'ลิงก์ Facebook',mapUrl:'ลิงก์เปิดเส้นทาง',mapEmbed:'ลิงก์แผนที่ฝัง',
+  phone:'เบอร์โทรหลัก',phone2:'เบอร์โทรสำรอง',email:'อีเมล',lineId:'LINE ID',lineUrl:'ลิงก์ LINE',facebookUrl:'ลิงก์ Facebook',mapUrl:'ลิงก์เปิดเส้นทาง',mapEmbed:'ตำแหน่งร้านบนแผนที่',
   share:'ภาพเมื่อแชร์ลิงก์',BRAND:'สีเว็บไซต์',color:'สีหลักเว็บไซต์',description:'คำอธิบายสำหรับผลค้นหา',logo:'โลโก้',hero:'รูปหน้าแรก',about:'รูปแนะนำร้าน',qr:'คิวอาร์โค้ด LINE',enabled:'เปิดรับข้อความติดต่อ',
   rating:'คะแนนเฉลี่ยจริง (0–5)',count:'จำนวนรีวิวจริง',url:'ลิงก์รีวิว',
   siteName:'ชื่อร้าน',tagline:'คำโปรยร้าน',address:'ที่อยู่',hours:'เวลาทำการ',heroTitle:'หัวข้อหน้าแรก',heroSubtitle:'รายละเอียดหน้าแรก',heroEyebrow:'ข้อความเหนือหัวข้อ',heroNote:'หมายเหตุหน้าแรก',
@@ -33,6 +34,26 @@ const initial = (path) => path.reduce((o,k)=>o?.[k],seed)
 const titleFor = (key,model) => labels[key] || ('ข้อความเดิม: '+String(model ?? '').slice(0,55))
 const imageFields = new Set(['image','logo','hero','about','qr','poster','share','GALLERY','heroImage','benefitsImage','summaryImage'])
 const bundledImages=['og-banner','logo','truck-4wheel','truck-6wheel','line-qr',...Array.from({length:12},(_,i)=>'work-'+String(i+1).padStart(2,'0')),...Array.from({length:4},(_,i)=>'work-video-'+String(i+1).padStart(2,'0')+'-poster')]
+// บอกขนาดที่เหมาะกับแต่ละช่องรูป เจ้าของร้านจะได้ไม่ต้องเดา
+const imageHints={
+  hero:'แสดงเต็มภาพ ไม่ตัดขอบ แนะนำภาพแนวนอน กว้าง 1600 พิกเซลขึ้นไป ไฟล์ไม่เกิน 1 MB',
+  about:'แสดงเต็มภาพ ไม่ตัดขอบ แนะนำภาพแนวนอน กว้าง 1600 พิกเซลขึ้นไป ไฟล์ไม่เกิน 1 MB',
+  image:'แสดงเต็มภาพ ไม่ตัดขอบ แนะนำภาพแนวนอน กว้าง 1200 พิกเซลขึ้นไป',
+  heroImage:'แสดงเต็มภาพ แนะนำภาพแนวนอน กว้าง 1200 พิกเซลขึ้นไป',benefitsImage:'แสดงเต็มภาพ แนะนำภาพแนวนอน กว้าง 1200 พิกเซลขึ้นไป',summaryImage:'แสดงเต็มภาพ แนะนำภาพแนวนอน กว้าง 1200 พิกเซลขึ้นไป',
+  share:'ภาพที่ขึ้นเมื่อแชร์ลิงก์ใน LINE และ Facebook ขนาดที่เหมาะคือ 1200 × 630 พิกเซล',
+  logo:'ภาพสี่เหลี่ยมจัตุรัส พื้นหลังโปร่งใส กว้าง 512 พิกเซลขึ้นไป',qr:'ภาพสี่เหลี่ยมจัตุรัส กว้าง 600 พิกเซลขึ้นไป',
+  poster:'ภาพหน้าปกคลิป แนวตั้ง 9:16 เช่น 1080 × 1920 พิกเซล',
+  GALLERY:'หน้ารวมผลงานแสดงเป็นกรอบ 4:3 เช่น 1600 × 1200 พิกเซล เมื่อกดดูจะเห็นเต็มภาพ',
+}
+// รูปและคลิปใช้ร่วมกันสองภาษา เปลี่ยนในภาษาหนึ่งแล้วอีกภาษาต้องเปลี่ยนตาม ไม่งั้นหน้าอังกฤษยังโชว์รูปเก่า
+const sharedMedia=new Set(['image','file','poster','heroImage','benefitsImage','summaryImage'])
+function mirrorMedia(data,path,value){
+  if(path[0]!=='I18N'||!sharedMedia.has(String(path.at(-1))))return data
+  const other=path[1]==='th'?'en':'th'
+  const target=[ 'I18N',other,...path.slice(2)]
+  const parent=target.slice(0,-1).reduce((o,k)=>o?.[k],data)
+  return parent && Object.hasOwn(parent,target.at(-1)) ? updateAt(data,target,value) : data
+}
 const icons=['tank','pool','construction','leaf','road','event','truck','clock','shield','check','water','pin','drop','factory']
 function Field({value,path,onChange,media,upload,model}) {
   const key=String(path.at(-1))
@@ -66,7 +87,17 @@ function Field({value,path,onChange,media,upload,model}) {
         {[...new Set([...options,...uploads.map(m=>m.path),...(value ? [value] : [])])].map((v,i)=><option key={v} value={v}>{v.startsWith('uploads/') ? 'ไฟล์อัปโหลด '+(i-options.length+1)+' · '+v.slice(-12) : v}</option>)}
       </select>
       {image && value && <img className="field-preview" src={'../'+imageAsset(value)} alt="ภาพที่เลือก" />}
+      {image && <small>{imageHints[path.includes('GALLERY') ? 'GALLERY' : key] || 'แนะนำภาพแนวนอน กว้าง 1200 พิกเซลขึ้นไป'}</small>}
+      {video && <small>ใช้ไฟล์เดียวกันทั้งหน้าไทยและหน้าอังกฤษ เปลี่ยนที่ภาษาไหนก็ได้</small>}
       <label className="upload-label">อัปโหลด{video ? 'คลิปใหม่' : 'รูปใหม่'}<input type="file" accept={video ? 'video/mp4' : 'image/png,image/jpeg,image/webp'} onChange={async event=>{const file=event.target.files[0];if(file){const result=await upload(file);if(result)onChange(path,result.path)}event.target.value=''}} /></label>
+    </div>
+  }
+  if (key==='mapEmbed') {
+    const preview=mapEmbedUrl(value)
+    return <div className="field map-field"><label htmlFor={fieldId}>{label}</label>
+      <textarea id={fieldId} rows={3} value={value} maxLength={6000} onChange={event=>onChange(path,event.target.value)} />
+      <small>เปิดร้านใน Google Maps แล้วคัดลอกลิงก์จากแถบที่อยู่ หรือใส่พิกัด เช่น 18.8509, 98.9881 ระบบแปลงเป็นแผนที่ให้เอง ลิงก์ย่อ maps.app.goo.gl ใช้ได้เมื่อกดบันทึก</small>
+      {preview ? <iframe className="map-preview" src={preview} title="ตัวอย่างแผนที่" loading="lazy" referrerPolicy="no-referrer-when-downgrade" /> : <p className="notice">ยังอ่านตำแหน่งจากข้อความนี้ไม่ได้ ระบบจะลองอีกครั้งตอนกดบันทึก</p>}
     </div>
   }
   if (key==='color')return <div className="field"><label htmlFor={fieldId}>{label}</label><input id={fieldId} type="color" value={value} onChange={event=>onChange(path,event.target.value)}/><small>{value}</small></div>
@@ -128,7 +159,7 @@ function Admin() {
       return result
     }catch(err){setError(err.message);return null}finally{setBusy(false)}
   }
-  const change=(path,value)=>{setData(d=>updateAt(d,path,value));setDirty(true);setMessage('')}
+  const change=(path,value)=>{setData(d=>mirrorMedia(updateAt(d,path,value),path,value));setDirty(true);setMessage('')}
   const field=path=>data && <Field key={path.join('.')} value={path.reduce((o,k)=>o[k],data)} path={path} model={initial(path)} onChange={change} media={media} upload={upload} />
   const save=()=>action(async()=>{const result=await api('content','PUT',{content:data,version});setData(result.content);setVersion(result.version);setDirty(false);setMessage('บันทึกและเผยแพร่เนื้อหาแล้ว · รุ่น '+result.version)})
   if(!ready)return <main className="login"><p role="status">กำลังเชื่อมต่อ…</p></main>

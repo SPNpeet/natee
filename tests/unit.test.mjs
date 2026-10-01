@@ -8,6 +8,7 @@ import { siteConfig } from '../scripts/site-config.mjs'
 import { safeJSON, metadata, sitemap } from '../worker/render-page.mjs'
 import { mergeContent } from '../worker/content.mjs'
 import upgrades from '../worker/content-upgrades.mjs'
+import { mapEmbedUrl, mapPoint } from '../src/map.js'
 test('public content validates and telephone links follow displayed numbers',()=>{
   const input=structuredClone(seed);input.CONTACT.phone='081-234-5678'
   assert.equal(validateContent(seed,input).CONTACT.phoneHref,'tel:0812345678')
@@ -101,4 +102,45 @@ test('knowledge pages get their own address, language pair and article data',()=
   assert.equal(m.url,'https://example.test/knowledge-en.html');assert.equal(m.type,'article')
   assert.deepEqual(m.schemas.map(s=>s['@type']),['Article','BreadcrumbList'])
   assert.match(sitemap('https://example.test'),/knowledge-en\.html<\/loc>/)
+})
+const placeLink='https://www.google.com/maps/place/%E0%B8%98%E0%B8%B2%E0%B8%A3%E0%B8%99%E0%B8%97%E0%B8%B5/@18.8509303,98.9855811,17z/data=!3m1!4b1!4m6!3m5!1s0x30da3b007c7f40af:0x1ecf5df345af3173!8m2!3d18.8509252!4d98.988156!16s%2Fg%2F11z257w2f9'
+test('a Google Maps place link becomes an embeddable map at the place pin',()=>{
+  assert.deepEqual(mapPoint(placeLink),{lat:18.8509252,lng:98.988156,name:'ธารนที'})
+  const src=mapEmbedUrl(placeLink)
+  assert.match(src,/^https:\/\/www\.google\.com\/maps\?/);assert.match(src,/output=embed/)
+  assert.equal(new URL(src).searchParams.get('ll'),'18.8509252,98.988156')
+  assert.equal(mapEmbedUrl(src),src)
+})
+test('map input accepts plain coordinates, share search links and embed code',()=>{
+  assert.equal(new URL(mapEmbedUrl('18.8509, 98.9881')).searchParams.get('q'),'18.8509,98.9881')
+  assert.deepEqual(mapPoint('https://www.google.com/maps/search/18.851037,+98.988660?entry=tts'),{lat:18.851037,lng:98.98866,name:''})
+  assert.equal(mapEmbedUrl('<iframe src="https://www.google.com/maps/embed?pb=!1m18&amp;x=1" width="600"></iframe>'),'https://www.google.com/maps/embed?pb=!1m18&x=1')
+  assert.equal(mapPoint('99.9, 200'),null)
+  assert.match(mapEmbedUrl('https://example.test/not-a-map',{address:'เชียงใหม่'}),/q=%E0%B9%80/)
+})
+test('saving a place link stores an embeddable map and unreadable links are refused',()=>{
+  const data=structuredClone(seed);data.CONTACT.mapEmbed=placeLink
+  assert.match(validateContent(seed,data).CONTACT.mapEmbed,/output=embed/)
+  const short=structuredClone(seed);short.CONTACT.mapEmbed='https://maps.app.goo.gl/abc'
+  assert.throws(()=>validateContent(seed,short),/พิกัด/)
+  const other=structuredClone(seed);other.CONTACT.mapEmbed='https://example.test/map'
+  assert.throws(()=>validateContent(seed,other))
+})
+test('business data carries the map pin, 24 hour opening and the service list',()=>{
+  const data=structuredClone(seed);data.CONTACT.mapEmbed=placeLink
+  const business=metadata(data,'th','https://example.test').schemas[0]
+  assert.deepEqual(business.geo,{'@type':'GeoCoordinates',latitude:18.8509252,longitude:98.988156})
+  assert.equal(business.openingHoursSpecification.opens,'00:00')
+  assert.equal(business.hasOfferCatalog.itemListElement.length,seed.I18N.th.services.length)
+})
+test('search description always ends with the current phone number',()=>{
+  const data=structuredClone(seed);data.CONTACT.phone='081-234-5678'
+  const m=metadata(data,'th','https://example.test')
+  assert.ok(m.description.endsWith('081-234-5678'));assert.ok(m.description.length<=160)
+})
+test('an owner who never touched the search title gets the new keyword title, an owner title stays',()=>{
+  const untouched=structuredClone(seed);untouched.SEO.th.title=''
+  assert.equal(mergeContent(seed,untouched).SEO.th.title,seed.SEO.th.title)
+  const owned=structuredClone(seed);owned.SEO.th.title='ชื่อที่เจ้าของตั้งเอง'
+  assert.equal(mergeContent(seed,owned).SEO.th.title,'ชื่อที่เจ้าของตั้งเอง')
 })

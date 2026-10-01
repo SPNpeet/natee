@@ -12,9 +12,9 @@ import { imageAsset as asset } from './brand.js'
 function ArticleImage({ name, alt, sizes, priority = false }) {
   return (
     <img
-      className="natee-article-img"
+      className={name.startsWith('uploads/') ? 'natee-article-img is-custom' : 'natee-article-img'}
       src={asset(name)}
-      srcSet={`${asset(name, '-sm.webp')} 560w, ${asset(name)} 1100w`}
+      srcSet={name.startsWith('uploads/') ? undefined : `${asset(name, '-sm.webp')} 560w, ${asset(name)} 1100w`}
       sizes={sizes}
       alt={alt}
       width="1100"

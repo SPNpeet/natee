@@ -1,4 +1,4 @@
-// ค่าตั้งต้นรุ่นก่อนหน้าของช่องที่เปลี่ยนตอนรวมหน้าความรู้และพื้นที่ลำพูนเข้ากับระบบหลังบ้าน
+// ค่าตั้งต้นรุ่นก่อนหน้าของช่องที่เคยเปลี่ยน ทั้งตอนรวมหน้าความรู้และพื้นที่ลำพูน และตอนใส่คำค้นสำหรับ Google
 // ถ้าเนื้อหาที่บันทึกไว้ในช่องเหล่านี้ยังตรงกับค่าเดิมทุกตัวอักษร ระบบจะใช้ค่าตั้งต้นรุ่นใหม่แทน
 // แก้ค่าตั้งต้นของช่องที่มีอยู่แล้วเมื่อไร ให้เพิ่มค่าเดิมต่อท้ายรายการนี้ทุกครั้ง
 export default [
@@ -231,5 +231,268 @@ export default [
         "a": "Cash on delivery or bank transfer. Business customers who need an invoice can arrange it with us in advance."
       }
     ]
+  }
+,
+  {
+    "path": [
+      "SEO",
+      "th",
+      "title"
+    ],
+    "from": ""
+  },
+  {
+    "path": [
+      "SEO",
+      "th",
+      "description"
+    ],
+    "from": ""
+  },
+  {
+    "path": [
+      "SEO",
+      "en",
+      "title"
+    ],
+    "from": ""
+  },
+  {
+    "path": [
+      "SEO",
+      "en",
+      "description"
+    ],
+    "from": ""
+  },
+  {
+    "path": [
+      "I18N",
+      "th",
+      "heroSubtitle"
+    ],
+    "from": "บริการส่งน้ำประปาสะอาด เติมแท็งก์น้ำ เติมสระว่ายน้ำ ล้างถนน งานก่อสร้าง รดน้ำต้นไม้และสนามหญ้า รวมถึงงานอีเวนต์และงานเทศกาล ส่งตรงถึงหน้างานทุกพื้นที่ในเชียงใหม่และลำพูน"
+  },
+  {
+    "path": [
+      "I18N",
+      "th",
+      "aboutText"
+    ],
+    "from": "รถส่งน้ำธารนทีเกิดขึ้นจากความตั้งใจที่จะให้บริการน้ำประปาสะอาดและมีคุณภาพแก่ประชาชนในจังหวัดเชียงใหม่และลำพูน ทั้งบ้านพักอาศัย ร้านค้า สถานประกอบการ งานก่อสร้าง พื้นที่ที่ต้องการน้ำสำรองในช่วงน้ำประปาไม่เพียงพอ รวมถึงการเติมสระว่ายน้ำ งานกิจกรรมพิเศษ และพื้นที่ห่างไกลที่ระบบท่อส่งน้ำยังเข้าไม่ถึง เราให้บริการด้วยความใส่ใจ รับผิดชอบ และมีมาตรฐาน"
+  },
+  {
+    "path": [
+      "I18N",
+      "th",
+      "services"
+    ],
+    "from": [
+      {
+        "icon": "tank",
+        "title": "เติมน้ำลงแท็งก์เก็บน้ำ",
+        "text": "น้ำไม่ไหล ท่อประปาแตก หรือน้ำประปาเข้าไม่ถึง เติมน้ำใส่แท็งก์ให้ใช้ได้ทันที ทั้งบ้านพัก หอพัก คอนโด และอาคารสำนักงาน"
+      },
+      {
+        "icon": "pool",
+        "title": "เติมสระว่ายน้ำ",
+        "text": "เติมสระว่ายน้ำบ้าน โรงแรม รีสอร์ท คอนโด บ่อน้ำพุ และบ่อเลี้ยงปลา ด้วยน้ำประปาสะอาดมีมาตรฐาน"
+      },
+      {
+        "icon": "build",
+        "title": "ไซต์งานก่อสร้าง",
+        "text": "ส่งน้ำเป็นเที่ยวหรือรายวันสำหรับงานก่อสร้าง ผสมปูน บดอัดดิน และน้ำใช้ในแคมป์คนงาน"
+      },
+      {
+        "icon": "leaf",
+        "title": "รดน้ำต้นไม้และสนามหญ้า",
+        "text": "รดน้ำสวน สนามหญ้า ต้นไม้ในโครงการและพื้นที่เกษตร โดยเฉพาะช่วงหน้าแล้งที่น้ำไม่เพียงพอ"
+      },
+      {
+        "icon": "road",
+        "title": "ล้างถนนและอาคารสถานที่",
+        "text": "ฉีดล้างถนน ลานจอดรถ อาคาร และพื้นที่หน้างานที่มีฝุ่นดินโคลน ให้กลับมาสะอาดพร้อมใช้"
+      },
+      {
+        "icon": "event",
+        "title": "งานคอนเสิร์ตและงานอีเวนต์",
+        "text": "จัดน้ำสำรองสำหรับงานคอนเสิร์ต งานอีเวนต์ งานเทศกาล และงานสงกรานต์ วางแผนรอบส่งล่วงหน้าได้"
+      },
+      {
+        "icon": "factory",
+        "title": "โรงงานอุตสาหกรรม",
+        "text": "รองรับการใช้น้ำปริมาณมากในโรงงานและสถานประกอบการ ส่งได้ต่อเนื่องตามรอบที่ตกลงกัน"
+      },
+      {
+        "icon": "hotel",
+        "title": "โรงแรม ร้านอาหาร และคาเฟ่",
+        "text": "ส่งน้ำประจำวันให้ธุรกิจบริการ ไม่ให้ขาดน้ำระหว่างเปิดร้าน วางแผนรอบส่งล่วงหน้าได้"
+      }
+    ]
+  },
+  {
+    "path": [
+      "I18N",
+      "th",
+      "fleetTitle"
+    ],
+    "from": "ขนาดรถและบริการของเรา"
+  },
+  {
+    "path": [
+      "I18N",
+      "th",
+      "areasSubtitle"
+    ],
+    "from": "ให้บริการทั่วจังหวัดเชียงใหม่และจังหวัดลำพูน รวมถึงพื้นที่ใกล้เคียง พื้นที่นอกเหนือจากนี้สอบถามเพิ่มเติมได้"
+  },
+  {
+    "path": [
+      "I18N",
+      "th",
+      "galleryAlt"
+    ],
+    "from": "ผลงานจัดส่งน้ำประปา"
+  },
+  {
+    "path": [
+      "I18N",
+      "th",
+      "faq"
+    ],
+    "from": [
+      {
+        "q": "สั่งน้ำแล้วรอนานไหม",
+        "a": "ขึ้นอยู่กับคิวรถและระยะทาง โดยทั่วไปในเขตอำเภอเมืองจัดส่งได้ภายในวันเดียวกัน กรณีเร่งด่วนแจ้งได้ตอนโทร ทีมงานจะจัดคิวให้ก่อน"
+      },
+      {
+        "q": "น้ำที่ส่งเป็นน้ำอะไร ใช้ดื่มได้หรือไม่",
+        "a": "เป็นน้ำประปาสำหรับงานอุปโภค ไม่ได้จำหน่ายเป็นน้ำดื่ม กรุณาแจ้งลักษณะการใช้งานและสอบถามรายละเอียดก่อนสั่ง"
+      },
+      {
+        "q": "คิดค่าบริการอย่างไร",
+        "a": "คิดตามปริมาณน้ำและระยะทางจากจุดรับน้ำถึงหน้างาน แจ้งราคาทั้งหมดให้ทราบก่อนออกรถ ไม่มีค่าใช้จ่ายเพิ่มหน้างาน"
+      },
+      {
+        "q": "รถเข้าซอยแคบได้ไหม",
+        "a": "ได้ กรณีซอยแคบหรือทางเข้าจำกัดจะใช้รถ 4 ล้อแทนรถ 6 ล้อ แจ้งลักษณะทางเข้าตอนสั่งน้ำเพื่อให้จัดรถได้ถูกประเภท"
+      },
+      {
+        "q": "รับส่งน้ำนอกเขตเชียงใหม่และลำพูนหรือไม่",
+        "a": "รับพิจารณาเป็นกรณีไป ขึ้นอยู่กับระยะทางและปริมาณน้ำ โทรสอบถามเพื่อประเมินราคาได้"
+      },
+      {
+        "q": "ชำระเงินอย่างไร",
+        "a": "ชำระเงินสดหน้างานหรือโอนผ่านธนาคาร กรณีลูกค้าองค์กรที่ต้องการวางบิลแจ้งล่วงหน้าได้"
+      }
+    ]
+  },
+  {
+    "path": [
+      "I18N",
+      "en",
+      "services"
+    ],
+    "from": [
+      {
+        "icon": "tank",
+        "title": "Filling water storage tanks",
+        "text": "When the mains stop, a pipe bursts, or the network does not reach you, we fill your tank so you can carry on. Homes, dormitories, condominiums and offices."
+      },
+      {
+        "icon": "pool",
+        "title": "Filling swimming pools",
+        "text": "Pools at homes, hotels, resorts and condominiums, plus fountains and fish ponds, filled with clean tap water."
+      },
+      {
+        "icon": "build",
+        "title": "Construction sites",
+        "text": "Water by the load or by the day for mixing concrete, compacting ground, and daily use in the workers camp."
+      },
+      {
+        "icon": "leaf",
+        "title": "Watering gardens and lawns",
+        "text": "Gardens, lawns, trees in housing projects and farm land, especially through the dry season when water runs short."
+      },
+      {
+        "icon": "road",
+        "title": "Washing roads and buildings",
+        "text": "Roads, car parks, buildings and dusty or muddy work sites washed down and ready to use again."
+      },
+      {
+        "icon": "event",
+        "title": "Concerts and events",
+        "text": "Backup water for concerts, events, festivals and Songkran. We can plan the delivery schedule with you in advance."
+      },
+      {
+        "icon": "factory",
+        "title": "Factories and industry",
+        "text": "Large volumes for factories and industrial premises, delivered on a schedule we agree with you."
+      },
+      {
+        "icon": "hotel",
+        "title": "Hotels, restaurants and cafes",
+        "text": "Daily deliveries for hospitality businesses so you never run dry in the middle of service."
+      }
+    ]
+  },
+  {
+    "path": [
+      "I18N",
+      "en",
+      "fleetTitle"
+    ],
+    "from": "Our trucks"
+  },
+  {
+    "path": [
+      "I18N",
+      "en",
+      "faq"
+    ],
+    "from": [
+      {
+        "q": "How long is the wait after I order?",
+        "a": "It depends on the queue and the distance. Inside Mueang Chiang Mai we can usually deliver the same day. Tell us when you call if it is urgent and we will move you up the queue."
+      },
+      {
+        "q": "What kind of water is it? Can I drink it?",
+        "a": "We deliver tap water for non-drinking uses. It is not sold as drinking water. Tell us your intended use and ask for details before ordering."
+      },
+      {
+        "q": "How is the price worked out?",
+        "a": "By the volume of water and the distance from where we load to your site. We tell you the full price before the truck leaves, with nothing added on arrival."
+      },
+      {
+        "q": "Can your truck get down a narrow lane?",
+        "a": "Yes. Where access is tight we send the four wheel truck instead of the six wheel. Describe the entrance when you order so we send the right vehicle."
+      },
+      {
+        "q": "Do you deliver outside Chiang Mai and Lamphun?",
+        "a": "We consider it case by case, depending on the distance and the volume. Call us and we will work out a price."
+      },
+      {
+        "q": "How do I pay?",
+        "a": "Cash on delivery or bank transfer. Business customers who need an invoice can arrange it with us in advance."
+      }
+    ]
+  },
+  {
+    "path": [
+      "I18N",
+      "th",
+      "knowledge",
+      "metaDescription"
+    ],
+    "from": "รวมความรู้เรื่องน้ำและน้ำประปา ทั้งความสำคัญต่อการดำรงชีวิต การเกษตร ปศุสัตว์ อุตสาหกรรม และชุมชน พร้อมเหตุผลว่าทำไมน้ำประปาที่สะอาดจึงเปลี่ยนคุณภาพชีวิตของคนทั้งหมู่บ้าน"
+  },
+  {
+    "path": [
+      "I18N",
+      "en",
+      "knowledge",
+      "metaDescription"
+    ],
+    "from": "A plain guide to why water and a clean tap water supply matter, for daily life, farming, livestock, industry and whole communities, written by the Natee water truck team in Chiang Mai."
   }
 ]

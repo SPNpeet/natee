@@ -270,6 +270,28 @@ const targetMissing = [...new Set(legacyRules.values())].filter((t) => {
 check('ลิงก์หน้าเก่าบน Google Sites พาไปหน้าใหม่ครบ 6 หน้า', legacyWrong.length === 0, legacyWrong.map(([n]) => n).join(', '))
 check('ทุกปลายทางของลิงก์เก่ามีหน้าและหัวข้ออยู่จริง', targetMissing.length === 0, targetMissing.join(', '))
 
+// ลิงก์หน้าสถานที่ของ Google Maps ฝังไม่ได้ เจ้าของร้านเคยวางลิงก์แบบนี้แล้วกรอบแผนที่ขึ้นไอคอนหน้าเสีย
+const mapFrames = pageFiles.flatMap((f) => [...pages[f].matchAll(/<iframe[^>]*src="([^"]+)"/g)].map((m) => [f, m[1].replaceAll('&amp;', '&')]))
+const mapBroken = mapFrames.filter(([, src]) => src.includes('google.') && !/output=embed|\/maps\/embed/.test(src))
+check('กรอบแผนที่ทุกหน้าใช้ลิงก์ที่ Google ยอมให้ฝัง', mapFrames.length > 0 && mapBroken.length === 0, mapBroken.map(([f]) => f).join(', '))
+
+// รูปที่เจ้าของร้านอัปโหลดเองมักเป็นโปสเตอร์ที่มีเบอร์โทรชิดขอบ ห้ามตัดขอบ
+check('รูปที่อัปโหลดเองแสดงเต็มภาพ ไม่ถูกตัดขอบ',
+  /\.natee-hero-image\.is-custom[^{]*\{[^}]*object-fit:\s*contain/.test(html.replace(/\s+/g, ' ')))
+
+// คำค้นที่เจ้าของร้านให้มา ต้องอยู่ในเนื้อหาที่ Google อ่านได้ ไม่ใช่แค่ในชื่อหน้า
+const visibleText = (page) => page.replace(/<script[\s\S]*?<\/script>|<style[\s\S]*?<\/style>/g, ' ').replace(/<[^>]+>/g, ' ').replace(/\s+/g, '')
+const thText = visibleText(html), enText = visibleText(en).toLowerCase()
+const keywords = ['รถส่งน้ำ', 'รถขายน้ำ', 'ซื้อน้ำ', 'รถน้ำประปาเชียงใหม่', 'เติมสระว่ายน้ำ', 'ล้างถนน', 'รดน้ำต้นไม้', 'รดน้ำสนามหญ้า', 'รถฉีดน้ำ', 'รถบรรทุกน้ำ', 'สงกรานต์', 'ใกล้ฉัน']
+const missingKeywords = keywords.filter((k) => !thText.includes(k))
+check(`คำค้นหลัก ${keywords.length} คำ อยู่ในเนื้อหาหน้าไทย`, missingKeywords.length === 0, missingKeywords.join(', '))
+check('หน้าอังกฤษมีคำว่า water truck', enText.includes('watertruck'))
+const pageTitle = (page) => (page.match(/<title>([^<]*)<\/title>/) || [])[1] || ''
+check('ชื่อหน้าแรกบนผลค้นหาขึ้นต้นด้วย รถน้ำเชียงใหม่', pageTitle(html).startsWith('รถน้ำเชียงใหม่'), pageTitle(html))
+const descriptions = pageFiles.map((f) => [f, (pages[f].match(/name="description" content="([^"]*)"/) || [])[1] || ''])
+const longDescriptions = descriptions.filter(([, d]) => d.length < 50 || d.length > 160)
+check('คำอธิบายบนผลค้นหายาว 50–160 ตัวอักษรทุกหน้า', longDescriptions.length === 0, longDescriptions.map(([f, d]) => f + ' ' + d.length).join(', '))
+
 console.log('\n9. ขนาดที่ผู้เข้าชมต้องโหลด')
 const biggest = pageFiles
   .map((f) => ({ f, kb: Buffer.byteLength(pages[f]) / 1024 }))

@@ -7,6 +7,19 @@ import { render } from '../server-build/entry-server.js'
 import { renderPage, sitemap } from './render-page.mjs'
 import { randomToken, digest, equal, hashPassword, verifyPassword, HttpError, readBody, readJSON } from './security.mjs'
 import { validateContent, mediaType } from './validate.mjs'
+import { isShortMapLink } from '../src/map.js'
+
+// ลิงก์ย่อจากปุ่มแชร์ของ Google Maps ไม่มีพิกัดในตัว ต้องตามไปดูปลายทางก่อน ไม่โหลดเนื้อหาหน้าเว็บ ตามแค่ที่อยู่ที่ถูกส่งต่อ
+async function expandMapLink(link) {
+  let current = link
+  for (let hop = 0; hop < 4 && isShortMapLink(current); hop++) {
+    const response = await fetch(current, { redirect: 'manual' }).catch(() => null)
+    const next = response?.headers.get('Location')
+    if (!next) break
+    current = new URL(next, current).toString()
+  }
+  return current
+}
 
 const securityHeaders = {
   'X-Content-Type-Options': 'nosniff',
@@ -131,6 +144,7 @@ async function api(request, env, path) {
   if (path === '/api/content' && method === 'GET') return json(await currentContent(env))
   if (path === '/api/content' && method === 'PUT') {
     const body = await readJSON(request)
+    if (isShortMapLink(body.content?.CONTACT?.mapEmbed)) body.content.CONTACT.mapEmbed = await expandMapLink(body.content.CONTACT.mapEmbed)
     const data = validateContent(seed,body.content)
     const before = await currentContent(env)
     if (!Number.isInteger(body.version) || body.version !== before.version) throw new HttpError(409,'มีคนแก้ข้อมูลใหม่แล้ว กรุณาโหลดล่าสุดก่อนบันทึก')

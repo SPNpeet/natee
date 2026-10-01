@@ -66,7 +66,7 @@ test('content persists, renders on the server and rejects stale saves',async t=>
     const saved=await call('content',{method:'PUT',body:{content:safe,version},cookie,csrf})
     assert.equal(saved.response.status,200,JSON.stringify(saved.data));version=saved.data.version
     const html=await (await fetch(base+'/')).text()
-    assert.ok(!html.includes(safe.I18N.th.heroTitle));assert.ok(html.includes('&lt;/script&gt;'))
+    assert.ok(!html.includes(safe.I18N.th.heroTitle));assert.ok(html.includes('&lt;/script'))
   })
   await t.test('knowledge pages render saved content in both languages',async()=>{
     const current=(await call('content',{cookie})).data

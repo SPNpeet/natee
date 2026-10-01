@@ -1,4 +1,5 @@
 import { imageAsset } from '../src/brand.js'
+import { mapPoint } from '../src/map.js'
 export const escapeHtml = value => String(value).replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;')
 export const safeJSON = value => JSON.stringify(value).replaceAll('<', '\\u003c')
 // ที่อยู่ของแต่ละหน้าในแต่ละภาษา ใช้ร่วมกันทั้ง canonical hreflang และแผนผังเว็บ
@@ -31,8 +32,13 @@ export function metadata(content, lang, site, page = 'home') {
     telephone: CONTACT.phone, email: CONTACT.email,
     contactPoint: [CONTACT.phone,CONTACT.phone2].map(telephone=>({'@type':'ContactPoint',telephone,contactType:'customer service',availableLanguage:['th','en']})),
     address: { '@type': 'PostalAddress', streetAddress: L.address, addressCountry: 'TH' },
-    areaServed: L.areas, sameAs: [CONTACT.facebookUrl, CONTACT.lineUrl],
+    areaServed: L.areas, sameAs: [CONTACT.facebookUrl, CONTACT.lineUrl, CONTACT.mapUrl].filter(Boolean),
+    hasMap: CONTACT.mapUrl,
+    openingHoursSpecification: { '@type': 'OpeningHoursSpecification', dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'], opens: '00:00', closes: '23:59' },
+    hasOfferCatalog: { '@type': 'OfferCatalog', name: L.servicesTitle, itemListElement: L.services.map(s => ({ '@type': 'Offer', itemOffered: { '@type': 'Service', name: s.title, description: s.text } })) },
   }
+  const point = mapPoint(CONTACT.mapEmbed)
+  if (point) business.geo = { '@type': 'GeoCoordinates', latitude: point.lat, longitude: point.lng }
   if (REVIEWS.count > 0 && REVIEWS.rating > 0) business.aggregateRating = { '@type': 'AggregateRating', ratingValue: REVIEWS.rating, reviewCount: REVIEWS.count }
   const faq = { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: L.faq.map(item => ({ '@type': 'Question', name: item.q, acceptedAnswer: { '@type': 'Answer', text: item.a } })) }
   const videos = L.videos.map(v => ({
@@ -41,7 +47,9 @@ export function metadata(content, lang, site, page = 'home') {
     thumbnailUrl: v.poster ? img(v.poster) : (v.file.startsWith('uploads/') ? img(ASSETS.hero) : site + '/images/' + v.file + '-poster.webp'),
   }))
   const title = SEO[lang].title.trim() || L.heroTitle + ' | ' + L.siteName
-  const description = SEO[lang].description.trim() || L.heroSubtitle + ' ' + CONTACT.phone
+  // เบอร์โทรต่อท้ายคำอธิบายจากข้อมูลติดต่อเสมอ เปลี่ยนเบอร์ที่เดียวแล้วผลค้นหาตามทันที
+  const summary = SEO[lang].description.trim() || L.heroSubtitle
+  const description = summary.includes(CONTACT.phone) ? summary : summary + ' ' + (lang === 'th' ? 'โทร ' : 'Call ') + CONTACT.phone
   return { title, description, url, image: img(ASSETS.share), type: 'website', schemas: [business, faq, ...videos] }
 }
 export function renderPage(template, render, content, lang, site, page = 'home') {

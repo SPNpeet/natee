@@ -43,7 +43,10 @@ export const REVIEWS = {
 }
 
 export const BRAND = { color: '#0f6fbf' }
-export const SEO = { th: { title: '', description: '' }, en: { title: '', description: '' } }
+export const SEO = {
+  th: { title: 'รถน้ำเชียงใหม่ รถส่งน้ำประปา 24 ชม. เชียงใหม่ ลำพูน | ธารนที', description: 'ธารนที รถส่งน้ำ รถขายน้ำประปาเชียงใหม่ ลำพูน 24 ชั่วโมง เติมน้ำแท็งก์ เติมสระว่ายน้ำ ล้างถนน รดน้ำต้นไม้ สนามหญ้า รถน้ำงานสงกรานต์' },
+  en: { title: 'Water Truck Chiang Mai, 24 Hour Water Delivery | Natee', description: 'Natee water truck service in Chiang Mai and Lamphun, 24 hours. Tank filling, swimming pools, road washing, lawn watering, Songkran and events.' },
+}
 
 export const GALLERY = [
   'work-01', 'work-02', 'work-03', 'work-04', 'work-05', 'work-06',
@@ -80,7 +83,7 @@ export const I18N = {
 
     heroEyebrow: 'ส่งด่วน ส่งไว ใส่ใจบริการ',
     heroTitle: 'รถส่งน้ำประปา เชียงใหม่ ลำพูน ราคาถูก บริการ 24 ชั่วโมง',
-    heroSubtitle: 'บริการส่งน้ำประปาสะอาด เติมแท็งก์น้ำ เติมสระว่ายน้ำ ล้างถนน งานก่อสร้าง รดน้ำต้นไม้และสนามหญ้า รวมถึงงานอีเวนต์และงานเทศกาล ส่งตรงถึงหน้างานทุกพื้นที่ในเชียงใหม่และลำพูน',
+    heroSubtitle: 'รถส่งน้ำ รถขายน้ำประปาสะอาด เติมแท็งก์น้ำ เติมสระว่ายน้ำ ล้างถนน งานก่อสร้าง รดน้ำต้นไม้และสนามหญ้า รวมถึงงานอีเวนต์และงานสงกรานต์ ส่งตรงถึงหน้างานทุกพื้นที่ในเชียงใหม่และลำพูน',
     heroNote: 'แจ้งปริมาณน้ำ สถานที่ และเวลาที่ต้องการ ทีมงานประเมินราคาให้ทันที',
 
     highlightsTitle: 'จุดเด่นของบริการ',
@@ -92,23 +95,23 @@ export const I18N = {
     ],
 
     aboutTitle: 'เรื่องน้ำประปาและความสะอาด ไว้ใจให้ ธารนที ดูแล',
-    aboutText: 'รถส่งน้ำธารนทีเกิดขึ้นจากความตั้งใจที่จะให้บริการน้ำประปาสะอาดและมีคุณภาพแก่ประชาชนในจังหวัดเชียงใหม่และลำพูน ทั้งบ้านพักอาศัย ร้านค้า สถานประกอบการ งานก่อสร้าง พื้นที่ที่ต้องการน้ำสำรองในช่วงน้ำประปาไม่เพียงพอ รวมถึงการเติมสระว่ายน้ำ งานกิจกรรมพิเศษ และพื้นที่ห่างไกลที่ระบบท่อส่งน้ำยังเข้าไม่ถึง เราให้บริการด้วยความใส่ใจ รับผิดชอบ และมีมาตรฐาน',
+    aboutText: 'ธารนที รถน้ำประปาเชียงใหม่ เกิดขึ้นจากความตั้งใจที่จะให้บริการน้ำประปาสะอาดและมีคุณภาพแก่ประชาชนในจังหวัดเชียงใหม่และลำพูน ทั้งบ้านพักอาศัย ร้านค้า สถานประกอบการ งานก่อสร้าง พื้นที่ที่ต้องการน้ำสำรองในช่วงน้ำประปาไม่เพียงพอ รวมถึงการเติมสระว่ายน้ำ งานกิจกรรมพิเศษ และพื้นที่ห่างไกลที่ระบบท่อส่งน้ำยังเข้าไม่ถึง เราให้บริการด้วยความใส่ใจ รับผิดชอบ และมีมาตรฐาน',
     aboutQuote: 'น้ำคือชีวิต หากไม่มีน้ำ คนอยู่ไม่ได้',
 
     servicesTitle: 'บริการของเรา',
     servicesSubtitle: 'รับส่งน้ำประปาทุกประเภทงาน ทั้งงานเร่งด่วนและงานประจำ ตลอด 24 ชั่วโมง',
     services: [
-      { icon: 'tank', title: 'เติมน้ำลงแท็งก์เก็บน้ำ', text: 'น้ำไม่ไหล ท่อประปาแตก หรือน้ำประปาเข้าไม่ถึง เติมน้ำใส่แท็งก์ให้ใช้ได้ทันที ทั้งบ้านพัก หอพัก คอนโด และอาคารสำนักงาน' },
+      { icon: 'tank', title: 'เติมน้ำลงแท็งก์เก็บน้ำ', text: 'น้ำไม่ไหล ท่อประปาแตก หรือน้ำประปาเข้าไม่ถึง สั่งซื้อน้ำแล้วรถเติมน้ำใส่แท็งก์ให้ใช้ได้ทันที ทั้งบ้านพัก หอพัก คอนโด และอาคารสำนักงาน' },
       { icon: 'pool', title: 'เติมสระว่ายน้ำ', text: 'เติมสระว่ายน้ำบ้าน โรงแรม รีสอร์ท คอนโด บ่อน้ำพุ และบ่อเลี้ยงปลา ด้วยน้ำประปาสะอาดมีมาตรฐาน' },
       { icon: 'build', title: 'ไซต์งานก่อสร้าง', text: 'ส่งน้ำเป็นเที่ยวหรือรายวันสำหรับงานก่อสร้าง ผสมปูน บดอัดดิน และน้ำใช้ในแคมป์คนงาน' },
-      { icon: 'leaf', title: 'รดน้ำต้นไม้และสนามหญ้า', text: 'รดน้ำสวน สนามหญ้า ต้นไม้ในโครงการและพื้นที่เกษตร โดยเฉพาะช่วงหน้าแล้งที่น้ำไม่เพียงพอ' },
-      { icon: 'road', title: 'ล้างถนนและอาคารสถานที่', text: 'ฉีดล้างถนน ลานจอดรถ อาคาร และพื้นที่หน้างานที่มีฝุ่นดินโคลน ให้กลับมาสะอาดพร้อมใช้' },
-      { icon: 'event', title: 'งานคอนเสิร์ตและงานอีเวนต์', text: 'จัดน้ำสำรองสำหรับงานคอนเสิร์ต งานอีเวนต์ งานเทศกาล และงานสงกรานต์ วางแผนรอบส่งล่วงหน้าได้' },
+      { icon: 'leaf', title: 'รดน้ำต้นไม้และสนามหญ้า', text: 'รดน้ำต้นไม้ รดน้ำสนามหญ้า สวน ต้นไม้ในโครงการและพื้นที่เกษตร โดยเฉพาะช่วงหน้าแล้งที่น้ำไม่เพียงพอ' },
+      { icon: 'road', title: 'รถฉีดน้ำ ล้างถนนและอาคาร', text: 'ฉีดล้างถนน ลานจอดรถ อาคาร และพื้นที่หน้างานที่มีฝุ่นดินโคลน ให้กลับมาสะอาดพร้อมใช้' },
+      { icon: 'event', title: 'รถน้ำงานสงกรานต์และงานอีเวนต์', text: 'รถน้ำสำหรับงานสงกรานต์ งานคอนเสิร์ต งานอีเวนต์ และงานเทศกาล จัดน้ำสำรองและวางแผนรอบส่งล่วงหน้าได้' },
       { icon: 'factory', title: 'โรงงานอุตสาหกรรม', text: 'รองรับการใช้น้ำปริมาณมากในโรงงานและสถานประกอบการ ส่งได้ต่อเนื่องตามรอบที่ตกลงกัน' },
       { icon: 'hotel', title: 'โรงแรม ร้านอาหาร และคาเฟ่', text: 'ส่งน้ำประจำวันให้ธุรกิจบริการ ไม่ให้ขาดน้ำระหว่างเปิดร้าน วางแผนรอบส่งล่วงหน้าได้' },
     ],
 
-    fleetTitle: 'ขนาดรถและบริการของเรา',
+    fleetTitle: 'รถบรรทุกน้ำ 4 ล้อ และ 6 ล้อ',
     fleetSubtitle: 'เลือกขนาดรถให้เหมาะกับปริมาณน้ำและเส้นทางเข้าออกของหน้างาน',
     fleet: [
       { image: 'truck-6wheel', name: 'รถส่งน้ำ 6 ล้อ', capacity: 'ขนาดใหญ่ จุใจ', text: 'เหมาะสำหรับโรงงานอุตสาหกรรม คอนโดมิเนียม สระว่ายน้ำ โรงแรม หรือโครงการก่อสร้างที่ต้องใช้น้ำปริมาณมาก คุ้มค่า ประหยัดเวลา' },
@@ -148,7 +151,7 @@ export const I18N = {
     ],
 
     areasTitle: 'พื้นที่ให้บริการ',
-    areasSubtitle: 'ให้บริการทั่วจังหวัดเชียงใหม่และจังหวัดลำพูน รวมถึงพื้นที่ใกล้เคียง พื้นที่นอกเหนือจากนี้สอบถามเพิ่มเติมได้',
+    areasSubtitle: 'ให้บริการทั่วจังหวัดเชียงใหม่และจังหวัดลำพูน รวมถึงพื้นที่ใกล้เคียง กำลังหารถน้ำใกล้ฉัน ส่งพิกัดหน้างานมาได้เลย พื้นที่นอกเหนือจากนี้สอบถามเพิ่มเติมได้',
     areas: [
       'อำเภอเมืองเชียงใหม่', 'อำเภอสันทราย', 'อำเภอสารภี', 'อำเภอหางดง',
       'อำเภอสันกำแพง', 'อำเภอดอยสะเก็ด', 'อำเภอแม่ริม', 'จังหวัดลำพูน',
@@ -158,7 +161,7 @@ export const I18N = {
     knowledge: {
       navLabel: 'ความรู้',
       metaTitle: 'ความสำคัญของน้ำและน้ำประปา น้ำคือชีวิต | ธารนที',
-      metaDescription: 'รวมความรู้เรื่องน้ำและน้ำประปา ทั้งความสำคัญต่อการดำรงชีวิต การเกษตร ปศุสัตว์ อุตสาหกรรม และชุมชน พร้อมเหตุผลว่าทำไมน้ำประปาที่สะอาดจึงเปลี่ยนคุณภาพชีวิตของคนทั้งหมู่บ้าน',
+      metaDescription: 'ความรู้เรื่องน้ำและน้ำประปา ความสำคัญต่อชีวิต การเกษตร ปศุสัตว์ อุตสาหกรรม และชุมชน จากทีมรถส่งน้ำประปาเชียงใหม่ ธารนที',
       eyebrow: 'บทความน่ารู้',
       title: 'น้ำคือชีวิต ความสำคัญของน้ำและน้ำประปา',
       subtitle: 'เรื่องที่ควรรู้เกี่ยวกับน้ำและระบบน้ำประปา ตั้งแต่การดำรงชีวิตประจำวัน ไปจนถึงการเกษตร ปศุสัตว์ อุตสาหกรรม และการกระจายน้ำให้ทั่วถึงทั้งชุมชน',
@@ -214,7 +217,7 @@ export const I18N = {
 
     galleryTitle: 'ผลงานของเรา',
     gallerySubtitle: 'ตัวอย่างงานจัดส่งน้ำประปาที่ผ่านมา ทั้งงานอีเวนต์ ร้านอาหาร โรงแรม ไซต์ก่อสร้าง และงานล้างสถานที่',
-    galleryAlt: 'ผลงานจัดส่งน้ำประปา',
+    galleryAlt: 'ผลงานรถส่งน้ำประปาเชียงใหม่',
     galleryOpen: 'ดูรูปผลงานขนาดเต็ม',
     videoPlay: 'เล่นคลิป',
     viewerLabel: 'ตัวดูผลงาน รูปและคลิป',
@@ -232,6 +235,9 @@ export const I18N = {
       { q: 'รถเข้าซอยแคบได้ไหม', a: 'ได้ กรณีซอยแคบหรือทางเข้าจำกัดจะใช้รถ 4 ล้อแทนรถ 6 ล้อ แจ้งลักษณะทางเข้าตอนสั่งน้ำเพื่อให้จัดรถได้ถูกประเภท' },
       { q: 'รับส่งน้ำนอกเขตเชียงใหม่และลำพูนหรือไม่', a: 'รับพิจารณาเป็นกรณีไป ขึ้นอยู่กับระยะทางและปริมาณน้ำ โทรสอบถามเพื่อประเมินราคาได้' },
       { q: 'ชำระเงินอย่างไร', a: 'ชำระเงินสดหน้างานหรือโอนผ่านธนาคาร กรณีลูกค้าองค์กรที่ต้องการวางบิลแจ้งล่วงหน้าได้' },
+      { q: 'อยากซื้อน้ำ สั่งรถน้ำในเชียงใหม่ ต้องทำอย่างไร', a: 'โทรหรือทักไลน์ แจ้งปริมาณน้ำ สถานที่ และเวลาที่ต้องการ ทีมงานแจ้งราคาและยืนยันคิวรถ จากนั้นรถขายน้ำจะนำน้ำไปเติมให้ถึงหน้างาน' },
+      { q: 'หารถน้ำใกล้ฉัน ธารนทีไปส่งถึงไหม', a: 'รถส่งน้ำของเราให้บริการทั่วเชียงใหม่และลำพูน ส่งตำแหน่งหรือพิกัดทางไลน์ ทีมงานจะแจ้งเวลาที่รถไปถึงโดยประมาณก่อนออกรถ' },
+      { q: 'มีรถน้ำสำหรับงานสงกรานต์ไหม', a: 'มี รับจัดรถน้ำสำหรับงานสงกรานต์ งานวัด งานเทศกาล และงานอีเวนต์ แนะนำให้จองล่วงหน้าเพื่อจัดคิวรถได้ตรงเวลาที่ต้องการ' },
     ],
 
     ctaTitle: 'ต้องการน้ำด่วนวันนี้',
@@ -327,13 +333,13 @@ export const I18N = {
       { icon: 'pool', title: 'Filling swimming pools', text: 'Pools at homes, hotels, resorts and condominiums, plus fountains and fish ponds, filled with clean tap water.' },
       { icon: 'build', title: 'Construction sites', text: 'Water by the load or by the day for mixing concrete, compacting ground, and daily use in the workers camp.' },
       { icon: 'leaf', title: 'Watering gardens and lawns', text: 'Gardens, lawns, trees in housing projects and farm land, especially through the dry season when water runs short.' },
-      { icon: 'road', title: 'Washing roads and buildings', text: 'Roads, car parks, buildings and dusty or muddy work sites washed down and ready to use again.' },
-      { icon: 'event', title: 'Concerts and events', text: 'Backup water for concerts, events, festivals and Songkran. We can plan the delivery schedule with you in advance.' },
+      { icon: 'road', title: 'Water spray truck for roads and buildings', text: 'Roads, car parks, buildings and dusty or muddy work sites washed down and ready to use again.' },
+      { icon: 'event', title: 'Songkran and events', text: 'Water trucks for Songkran, concerts, events and festivals. We can plan the delivery schedule with you in advance.' },
       { icon: 'factory', title: 'Factories and industry', text: 'Large volumes for factories and industrial premises, delivered on a schedule we agree with you.' },
       { icon: 'hotel', title: 'Hotels, restaurants and cafes', text: 'Daily deliveries for hospitality businesses so you never run dry in the middle of service.' },
     ],
 
-    fleetTitle: 'Our trucks',
+    fleetTitle: 'Our water trucks',
     fleetSubtitle: 'Choose the truck that suits the volume of water and the access to your site.',
     fleet: [
       { image: 'truck-6wheel', name: 'Six wheel water truck', capacity: 'Large capacity', text: 'Best for factories, condominiums, swimming pools, hotels and construction projects that need a lot of water in one trip. Good value and saves time.' },
@@ -383,7 +389,7 @@ export const I18N = {
     knowledge: {
       navLabel: 'Water facts',
       metaTitle: 'Why Water and Tap Water Matter | Natee',
-      metaDescription: 'A plain guide to why water and a clean tap water supply matter, for daily life, farming, livestock, industry and whole communities, written by the Natee water truck team in Chiang Mai.',
+      metaDescription: 'Why water and a clean tap water supply matter for daily life, farming, livestock, industry and communities, from the Natee water truck team in Chiang Mai.',
       eyebrow: 'Good to know',
       title: 'Water is life: why water and tap water matter',
       subtitle: 'What is worth knowing about water and a piped water supply, from everyday household use to farming, livestock, industry, and getting water to every home in a village.',
@@ -457,6 +463,9 @@ export const I18N = {
       { q: 'Can your truck get down a narrow lane?', a: 'Yes. Where access is tight we send the four wheel truck instead of the six wheel. Describe the entrance when you order so we send the right vehicle.' },
       { q: 'Do you deliver outside Chiang Mai and Lamphun?', a: 'We consider it case by case, depending on the distance and the volume. Call us and we will work out a price.' },
       { q: 'How do I pay?', a: 'Cash on delivery or bank transfer. Business customers who need an invoice can arrange it with us in advance.' },
+      { q: 'How do I order a water truck in Chiang Mai?', a: 'Call or message us on LINE with the amount of water, the location and the time you need it. We confirm the price and the truck, then deliver and fill on site.' },
+      { q: 'Is there a water truck near me?', a: 'Our trucks cover the whole of Chiang Mai and Lamphun. Send your location on LINE and we will tell you roughly when the truck can arrive before it leaves.' },
+      { q: 'Do you provide water trucks for Songkran?', a: 'Yes. We supply water trucks for Songkran, temple fairs, festivals and events. Book ahead so we can schedule a truck for the time you need.' },
     ],
 
     ctaTitle: 'Need water today?',
