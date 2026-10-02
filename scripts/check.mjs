@@ -140,7 +140,7 @@ const enBlocks = [...en.matchAll(/<script type="application\/ld\+json">([\s\S]*?
 let enOk = true
 for (const b of enBlocks) { try { JSON.parse(b[1]) } catch { enOk = false } }
 check(`ข้อมูลโครงสร้างหน้าอังกฤษ ${enBlocks.length} ชุด อ่านได้ทุกชุด`, enOk && enBlocks.length >= 2)
-check('ข้อมูลโครงสร้างไม่ซ้ำซ้อน', blocks.length === 6, `พบ ${blocks.length} ชุด ควรมี 6 ชุด`)
+check('ข้อมูลโครงสร้างไม่ซ้ำซ้อน และไม่มี VideoObject ที่ Search Console แจ้งว่าไม่ครบ', blocks.length === 2 && !html.includes('"VideoObject"'), `พบ ${blocks.length} ชุด ควรมี 2 ชุด`)
 
 const data = readFileSync(resolve('src/data.js'), 'utf-8')
 // นับเฉพาะช่องว่างจริงสี่ตัว ถ้าใช้ \s ตัวขึ้นบรรทัดแบบวินโดวส์จะถูกนับเป็นช่องว่างจนได้คีย์เกินมา

@@ -62,14 +62,11 @@ export function metadata(content, lang, site, page = 'home') {
   if (point) business.geo = { '@type': 'GeoCoordinates', latitude: point.lat, longitude: point.lng }
   if (REVIEWS.count > 0 && REVIEWS.rating > 0) business.aggregateRating = { '@type': 'AggregateRating', ratingValue: REVIEWS.rating, reviewCount: REVIEWS.count }
   const faq = { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: L.faq.map(item => ({ '@type': 'Question', name: item.q, acceptedAnswer: { '@type': 'Answer', text: item.a } })) }
-  const videos = L.videos.map(v => ({
-    '@context': 'https://schema.org', '@type': 'VideoObject', name: v.caption, description: v.caption + ' ' + L.siteName,
-    contentUrl: site + '/' + (v.file.startsWith('uploads/') ? v.file : 'videos/' + v.file + '.mp4'),
-    thumbnailUrl: v.poster ? img(v.poster) : (v.file.startsWith('uploads/') ? img(ASSETS.hero) : site + '/images/' + v.file + '-poster.webp'),
-  }))
+  // ไม่ส่งข้อมูล VideoObject ของคลิปผลงาน Search Console แจ้งว่าไม่ครบเพราะไม่มีวันที่อัปโหลด
+  // และหน้านี้ไม่ใช่หน้าดูคลิป Google จึงไม่เก็บคลิปอยู่ดี ส่งไปก็ได้แค่สถานะ has issues
   const title = SEO[lang].title.trim() || L.heroTitle + ' | ' + L.siteName
   const description = withPhone(SEO[lang].description.trim() || L.heroSubtitle)
-  return { title, description, url, image: img(ASSETS.share), type: 'website', schemas: [business, faq, ...videos] }
+  return { title, description, url, image: img(ASSETS.share), type: 'website', schemas: [business, faq] }
 }
 export function renderPage(template, render, content, lang, site, page = 'home') {
   const m = metadata(content, lang, site, page)
