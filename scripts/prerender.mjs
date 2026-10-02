@@ -1,4 +1,4 @@
-import { readFileSync, writeFileSync, mkdirSync } from 'node:fs'
+import { readFileSync, writeFileSync, mkdirSync, readdirSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { createHash } from 'node:crypto'
 import { render } from '../server-build/entry-server.js'
@@ -16,7 +16,11 @@ if (css) {
 }
 mkdirSync('server-build', { recursive: true })
 writeFileSync('server-build/seed.json', JSON.stringify(content))
-writeFileSync('server-build/build.json', JSON.stringify({ id: createHash('sha256').update(template).digest('hex') }))
+// รหัสรุ่นของหน้าที่เก็บแคชไว้ในฐานข้อมูล ต้องเปลี่ยนเมื่อโค้ดที่ใช้สร้างหน้าเปลี่ยน ไม่ใช่แค่เมื่อ HTML หลักเปลี่ยน
+// เคยแก้แค่ข้อมูลโครงสร้างใน render-page.mjs แล้วหน้าแรกบนเว็บจริงยังเป็นของเก่า เพราะรหัสรุ่นไม่ขยับ
+const build = createHash('sha256').update(template).update(readFileSync('server-build/entry-server.js'))
+for (const dir of ['worker', 'src']) for (const file of readdirSync(dir).filter((f) => /\.(m?js|jsx)$/.test(f)).sort()) build.update(file).update(readFileSync(resolve(dir, file)))
+writeFileSync('server-build/build.json', JSON.stringify({ id: build.digest('hex') }))
 writeFileSync(resolve(dist, '__shell.html'), template)
 const pages = Object.entries(PAGES).flatMap(([page, paths]) => ['th', 'en'].map((lang) => [lang, paths[lang] === '/' ? 'index.html' : paths[lang].slice(1), page]))
 for (const [lang, file, page] of pages) {
