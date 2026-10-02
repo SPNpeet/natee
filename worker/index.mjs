@@ -27,7 +27,7 @@ const securityHeaders = {
   'X-Frame-Options': 'DENY',
   'Referrer-Policy': 'strict-origin-when-cross-origin',
   'Permissions-Policy': 'camera=(), microphone=(), geolocation=()',
-  'Content-Security-Policy': "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; media-src 'self' blob:; font-src 'self'; connect-src 'self'; frame-src https://www.google.com https://maps.google.com; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self'",
+  'Content-Security-Policy': "default-src 'self'; script-src 'self' https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; media-src 'self' blob:; font-src 'self'; connect-src 'self' https://cloudflareinsights.com; frame-src https://www.google.com https://maps.google.com; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self'",
 }
 const json = (data, status = 200, headers = {}) => new Response(JSON.stringify(data), { status, headers: { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store', ...securityHeaders, ...headers } })
 const query = (env, sql, ...values) => env.DB.prepare(sql).bind(...values)
@@ -190,6 +190,17 @@ async function api(request, env, path) {
     catch { await query(env,'DELETE FROM media WHERE path=?',uploadPath).run(); throw new HttpError(503,'อัปโหลดไม่สำเร็จหรือโควต้าเต็ม กรุณาลองภายหลัง') }
     return json({path:uploadPath,mime,bytes:bytes.length},201)
   }
+  // รุ่นเล็กของรูปที่อัปโหลดแล้ว หลังบ้านสร้างจากเบราว์เซอร์แล้วส่งตามมา ไม่นับเป็นไฟล์ในคลังสื่อ
+  if (path === '/api/media/variant' && method === 'POST') {
+    await limit(env,'upload:' + active.userId,50,86400)
+    const of=new URL(request.url).searchParams.get('of')||''
+    const match=/^uploads\/([a-f0-9]{32})\.(png|jpg|webp)$/.exec(of)
+    if (!match || !await query(env,'SELECT path FROM media WHERE path=?',of).first()) throw new HttpError(404,'ไม่พบไฟล์ต้นฉบับ')
+    const bytes = await readBody(request,1024*1024)
+    if (mediaType(bytes)[0] !== 'webp') throw new HttpError(422,'รูปรุ่นเล็กต้องเป็น WebP')
+    await env.MEDIA.put('uploads/'+match[1]+'-sm.webp',bytes,{metadata:{mime:'image/webp'}})
+    return json({path:'uploads/'+match[1]+'-sm.webp'},201)
+  }
   if (path === '/api/media' && method === 'DELETE') {
     const body=await readJSON(request)
     const row=await query(env,'SELECT path FROM media WHERE path=?',body.path).first()
@@ -198,6 +209,7 @@ async function api(request, env, path) {
     const history=(await query(env,'SELECT data FROM revisions').all()).results
     if (JSON.stringify(current.content).includes(row.path) || history.some(x=>x.data.includes(row.path))) throw new HttpError(409,'ไฟล์ยังถูกใช้ในหน้าเว็บหรือประวัติการแก้ไข')
     await env.MEDIA.delete(row.path)
+    if (/\.(png|jpg|webp)$/.test(row.path)) await env.MEDIA.delete(row.path.replace(/\.(png|jpg|webp)$/,'-sm.webp'))
     await query(env,'DELETE FROM media WHERE path=?',row.path).run()
     return json({success:true})
   }
@@ -249,13 +261,20 @@ async function handle(request,env) {
   const path=url.pathname
   if (path.startsWith('/api/')) return api(request,env,path)
   if (!['GET','HEAD'].includes(request.method)) throw new HttpError(405,'ไม่รองรับคำขอนี้')
-  if (/^\/uploads\/[a-f0-9]{32}\.(png|jpg|webp|mp4)$/.test(path)) {
-    const key=path.slice(1)
-    const result=await env.MEDIA.getWithMetadata(key,{type:'arrayBuffer'})
+  const small=/^\/uploads\/([a-f0-9]{32})-sm\.webp$/.exec(path)
+  if (small || /^\/uploads\/[a-f0-9]{32}\.(png|jpg|webp|mp4)$/.test(path)) {
+    let key=path.slice(1)
+    let result=await env.MEDIA.getWithMetadata(key,{type:'arrayBuffer'})
+    // รูปที่อัปโหลดก่อนมีรุ่นเล็ก ส่งรูปเต็มไปก่อน แคชสั้นเพื่อให้รุ่นเล็กที่สร้างทีหลังถูกใช้เร็ว
+    let fallback=false
+    if (small && !result.value) {
+      const original=await query(env,"SELECT path FROM media WHERE path IN (?,?,?)",'uploads/'+small[1]+'.jpg','uploads/'+small[1]+'.png','uploads/'+small[1]+'.webp').first()
+      if (original) { key=original.path; result=await env.MEDIA.getWithMetadata(key,{type:'arrayBuffer'}); fallback=true }
+    }
     if (!result.value) return new Response('Media not available yet',{status:404,headers:{'Cache-Control':'no-store',...securityHeaders}})
     let bytes=result.value
     const size=bytes.byteLength
-    const headers={...securityHeaders,'Content-Type':result.metadata.mime,'Cache-Control':'public,max-age=86400,immutable','Accept-Ranges':'bytes'}
+    const headers={...securityHeaders,'Content-Type':result.metadata.mime,'Cache-Control':fallback ? 'public,max-age=600' : 'public,max-age=86400,immutable','Accept-Ranges':'bytes'}
     const range=request.headers.get('Range')
     let status=200
     if (range) {

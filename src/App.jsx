@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import Icon from './icons.jsx'
 import * as defaults from './data.js'
-import { brandCSS, imageAsset as asset } from './brand.js'
+import { brandCSS, imageAsset as asset, imageSrcSet } from './brand.js'
 import { track } from './track.js'
 import ContactForm from './ContactForm.jsx'
 import ContactButtons from './ContactButtons.jsx'
@@ -189,7 +189,7 @@ export default function App({ lang = 'th', content = defaults, page = 'home' }) 
       <header className="natee-header">
         <div className="natee-container natee-header-inner">
           <a className="natee-brand" href={home ? '#natee-hero' : homeHref}>
-            <img className="natee-brand-logo" src={asset(ASSETS.logo)} alt={L.siteName} width="240" height="338" />
+            <img className="natee-brand-logo" src={asset(ASSETS.logo)} alt="" width="240" height="338" />
             <span className="natee-brand-text">
               <span className="natee-brand-name">{L.siteName}</span>
               <span className="natee-brand-tagline">{L.tagline}</span>
@@ -296,7 +296,7 @@ export default function App({ lang = 'th', content = defaults, page = 'home' }) 
                 <img
                   className={ASSETS.hero.startsWith('uploads/') ? 'natee-hero-image is-custom' : 'natee-hero-image'}
                   src={asset(ASSETS.hero)}
-                  srcSet={ASSETS.hero.startsWith('uploads/') ? undefined : `${asset(ASSETS.hero, '-sm.webp')} 560w, ${asset(ASSETS.hero)} 1200w`}
+                  srcSet={imageSrcSet(ASSETS.hero, 1200)}
                   sizes="(max-width: 719px) 92vw, (max-width: 999px) 46vw, 560px"
                   alt={L.heroTitle}
                   width="1200"
@@ -329,7 +329,7 @@ export default function App({ lang = 'th', content = defaults, page = 'home' }) 
                 <img
                   className={ASSETS.about.startsWith('uploads/') ? 'natee-about-image is-custom' : 'natee-about-image'}
                   src={asset(ASSETS.about)}
-                  srcSet={ASSETS.about.startsWith('uploads/') ? undefined : `${asset(ASSETS.about, '-sm.webp')} 560w, ${asset(ASSETS.about)} 960w`}
+                  srcSet={imageSrcSet(ASSETS.about, 960)}
                   sizes="(max-width: 719px) 92vw, 46vw"
                   alt={L.aboutTitle}
                   width="960"
@@ -385,7 +385,7 @@ export default function App({ lang = 'th', content = defaults, page = 'home' }) 
                       <img
                         className="natee-fleet-image"
                         src={asset(truck.image)}
-                        srcSet={truck.image.startsWith('uploads/') ? undefined : `${asset(truck.image, '-sm.webp')} 560w, ${asset(truck.image)} 1200w`}
+                        srcSet={imageSrcSet(truck.image, 1200)}
                         sizes="(max-width: 719px) 92vw, 46vw"
                         alt={truck.name}
                         width="1200"
@@ -514,7 +514,7 @@ export default function App({ lang = 'th', content = defaults, page = 'home' }) 
                       onClick={(event) => { viewerOpener.current = event.currentTarget; setViewer(index); track('video_open', { clip: item.key, language: lang }) }}
                       aria-label={`${L.videoPlay} ${item.alt}`}
                     >
-                      <img className="natee-video-poster" src={item.poster} alt={item.alt} width="432" height="768" loading="lazy" decoding="async" />
+                      <img className="natee-video-poster" src={item.poster} alt="" width="432" height="768" loading="lazy" decoding="async" />
                       <span className="natee-video-play" aria-hidden="true"><Icon name="play" /></span>
                       <span className="natee-video-caption">{item.alt}</span>
                     </button>
@@ -534,7 +534,7 @@ export default function App({ lang = 'th', content = defaults, page = 'home' }) 
                       <img
                         className="natee-gallery-image"
                         src={item.thumb}
-                        srcSet={`${item.thumb} 560w, ${item.src} 1100w`}
+                        srcSet={imageSrcSet(item.key, 1100)}
                         sizes="(max-width: 719px) 45vw, (max-width: 999px) 30vw, 180px"
                         alt={item.alt}
                         width="560"
@@ -704,7 +704,7 @@ export default function App({ lang = 'th', content = defaults, page = 'home' }) 
       <footer className="natee-footer">
         <div className="natee-container natee-footer-grid">
           <div className="natee-footer-col">
-            <img className="natee-footer-logo" src={asset(ASSETS.logo)} alt={L.siteName} width="240" height="338" loading="lazy" />
+            <img className="natee-footer-logo" src={asset(ASSETS.logo)} alt="" width="240" height="338" loading="lazy" />
             <p className="natee-footer-name">{L.siteName}</p>
             <p className="natee-footer-text">{L.tagline}</p>
             <p className="natee-footer-text">{L.address}</p>

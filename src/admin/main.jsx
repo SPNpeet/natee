@@ -58,12 +58,12 @@ function mirrorMedia(data,path,value){
 }
 // รูปจากมือถือหรือโปสเตอร์มักใหญ่เกินจำเป็น ย่อให้กว้างไม่เกิน 1920 และแปลงเป็น WebP ก่อนส่งขึ้น หน้าเว็บจะโหลดเร็วขึ้น
 // ถ้าย่อแล้วไม่เล็กลง หรือเบราว์เซอร์ทำไม่ได้ ใช้ไฟล์เดิม
-async function shrinkImage(file) {
+async function shrinkImage(file,maxWidth=1920,keepSmall=600*1024) {
   if (!/^image\/(jpeg|png|webp)$/.test(file.type) || typeof createImageBitmap !== 'function') return file
   const bitmap=await createImageBitmap(file).catch(()=>null)
   if (!bitmap) return file
-  const scale=Math.min(1,1920/bitmap.width)
-  if (scale===1 && file.size<=600*1024) return file
+  const scale=Math.min(1,maxWidth/bitmap.width)
+  if (scale===1 && file.size<=keepSmall) return file
   const canvas=document.createElement('canvas')
   canvas.width=Math.round(bitmap.width*scale);canvas.height=Math.round(bitmap.height*scale)
   canvas.getContext('2d').drawImage(bitmap,0,0,canvas.width,canvas.height)
@@ -174,6 +174,11 @@ function Admin() {
       const file=await shrinkImage(original)
       if(file.size>8*1024*1024)throw new Error('ไฟล์ต้องไม่เกิน 8 MB และรูปต้องไม่เกิน 5 MB')
       const result=await api('media','POST',file)
+      // รุ่นเล็กกว้าง 960 สำหรับมือถือ ถ้าส่งไม่สำเร็จหน้าเว็บยังใช้รูปเต็มแทนได้ จึงไม่ต้องหยุดงาน
+      if (result.mime.startsWith('image/')) {
+        const small=await shrinkImage(file,960,0)
+        if (small.type==='image/webp' && small!==file) await api('media/variant?of='+encodeURIComponent(result.path),'POST',small).catch(()=>null)
+      }
       setMedia(m=>[result,...m]);setMessage('อัปโหลดแล้ว ไฟล์อาจใช้เวลาหนึ่งนาทีหรือมากกว่ากว่าจะเปิดได้ทุกพื้นที่')
       return result
     }catch(err){setError(err.message);return null}finally{setBusy(false)}

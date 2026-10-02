@@ -1,6 +1,6 @@
 import Icon from './icons.jsx'
 import ContactButtons from './ContactButtons.jsx'
-import { imageAsset as asset } from './brand.js'
+import { imageAsset as asset, imageSrcSet } from './brand.js'
 
 /**
  * หน้าความรู้เรื่องน้ำและน้ำประปา
@@ -14,7 +14,7 @@ function ArticleImage({ name, alt, sizes, priority = false }) {
     <img
       className={name.startsWith('uploads/') ? 'natee-article-img is-custom' : 'natee-article-img'}
       src={asset(name)}
-      srcSet={name.startsWith('uploads/') ? undefined : `${asset(name, '-sm.webp')} 560w, ${asset(name)} 1100w`}
+      srcSet={imageSrcSet(name, 1100)}
       sizes={sizes}
       alt={alt}
       width="1100"

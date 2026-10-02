@@ -1,6 +1,6 @@
 import Icon from './icons.jsx'
 import ContactButtons from './ContactButtons.jsx'
-import { imageAsset as asset } from './brand.js'
+import { imageAsset as asset, imageSrcSet } from './brand.js'
 import { pageHref } from './pages.js'
 
 /**
@@ -33,7 +33,7 @@ export default function ServicePage({ L, CONTACT, service, lang, homeHref }) {
           <img
             className={service.image.startsWith('uploads/') ? 'natee-article-img is-custom' : 'natee-article-img'}
             src={asset(service.image)}
-            srcSet={service.image.startsWith('uploads/') ? undefined : `${asset(service.image, '-sm.webp')} 560w, ${asset(service.image)} 1100w`}
+            srcSet={imageSrcSet(service.image, 1100)}
             sizes="(max-width: 799px) 92vw, 720px"
             alt={service.imageAlt}
             width="1100"

@@ -179,3 +179,10 @@ test('the owner can edit service page text but cannot add, remove or rename a pa
   const image=structuredClone(seed);image.I18N.th.servicePages[0].image='../secret'
   assert.throws(()=>validateContent(seed,image))
 })
+test('image size lists give phones the small file for bundled and uploaded images',async()=>{
+  const { imageSrcSet, imageAsset } = await import('../src/brand.js')
+  assert.equal(imageSrcSet('uploads/'+'a'.repeat(32)+'.jpg',1200),'uploads/'+'a'.repeat(32)+'-sm.webp 960w, uploads/'+'a'.repeat(32)+'.jpg 1920w')
+  assert.equal(imageSrcSet('work-05',1100),'images/work-05-sm.webp 560w, images/work-05.webp 1100w')
+  assert.equal(imageAsset('uploads/'+'b'.repeat(32)+'.png','-sm.webp'),'uploads/'+'b'.repeat(32)+'-sm.webp')
+  assert.equal(imageAsset('uploads/'+'c'.repeat(32)+'.mp4'),'uploads/'+'c'.repeat(32)+'.mp4')
+})

@@ -198,3 +198,24 @@ test('service pages are served by the worker in both languages and unknown ones 
   }
   assert.equal((await fetch(base+'/service-unknown.html')).status,404)
 })
+
+test('uploaded images get a mobile size that falls back to the full image until it exists',async()=>{
+  const logged=await call('login',{method:'POST',body:{email,password}})
+  const cookie=logged.response.headers.get('set-cookie').split(';')[0],csrf=logged.data.csrf
+  const headers={Origin:base,Cookie:cookie,'X-CSRF-Token':csrf}
+  const png=Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jN1kAAAAASUVORK5CYII=','base64')
+  const webp=Buffer.from('UklGRiQAAABXRUJQVlA4IBgAAAAwAQCdASoBAAEAAwA0JaQAA3AA/vuUAAA=','base64')
+  const original=await (await fetch(base+'/api/media',{method:'POST',headers,body:png})).json()
+  const small=original.path.replace('.png','-sm.webp')
+  const before=await fetch(base+'/'+small)
+  assert.equal(before.status,200);assert.equal(before.headers.get('content-type'),'image/png');assert.match(before.headers.get('cache-control'),/max-age=600/)
+  assert.equal((await fetch(base+'/api/media/variant?of='+original.path,{method:'POST',headers:{Origin:base},body:webp})).status,401)
+  assert.equal((await fetch(base+'/api/media/variant?of='+original.path,{method:'POST',headers,body:png})).status,422)
+  assert.equal((await fetch(base+'/api/media/variant?of=uploads/'+'0'.repeat(32)+'.png',{method:'POST',headers,body:webp})).status,404)
+  assert.equal((await fetch(base+'/api/media/variant?of='+original.path,{method:'POST',headers,body:webp})).status,201)
+  const after=await fetch(base+'/'+small)
+  assert.equal(after.status,200);assert.equal(after.headers.get('content-type'),'image/webp')
+  assert.ok(!(await call('media',{cookie})).data.some(m=>m.path===small))
+  assert.equal((await call('media',{method:'DELETE',cookie,csrf,body:{path:original.path}})).response.status,200)
+  assert.equal((await fetch(base+'/'+small)).status,404)
+})
