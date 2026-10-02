@@ -287,6 +287,11 @@ check('รูปที่อัปโหลดเองแสดงเต็ม�
 const visibleText = (page) => page.replace(/<script[\s\S]*?<\/script>|<style[\s\S]*?<\/style>/g, ' ').replace(/<[^>]+>/g, ' ').replace(/\s+/g, '')
 const thText = visibleText(html), enText = visibleText(en).toLowerCase()
 const keywords = ['รถส่งน้ำ', 'รถขายน้ำ', 'ซื้อน้ำ', 'รถน้ำประปาเชียงใหม่', 'เติมสระว่ายน้ำ', 'ล้างถนน', 'รดน้ำต้นไม้', 'รดน้ำสนามหญ้า', 'รถฉีดน้ำ', 'รถบรรทุกน้ำ', 'สงกรานต์', 'ใกล้ฉัน']
+// คำค้นทั้งหมดที่เจ้าของร้านส่งมาทาง LINE ต้องอยู่ที่ใดที่หนึ่งในหน้าภาษาไทยแบบเรียงคำตรงตัว
+const ownerKeywords = ['รถน้ำเชียงใหม่', 'รถส่งน้ำเชียงใหม่', 'รถขายน้ำเชียงใหม่', 'ซื้อน้ำเชียงใหม่', 'เติมน้ำ', 'เติมสระว่ายน้ำ', 'รถบรรทุกน้ำเชียงใหม่', 'ล้างถนน', 'รดน้ำต้นไม้', 'รดน้ำสนามหญ้า', 'รถฉีดน้ำ', 'รถน้ำประปา', 'รถน้ำประปาเชียงใหม่', 'ขายน้ำประปาเชียงใหม่', 'รถน้ำสงกรานต์', 'ใกล้ฉัน']
+const allThai = pageFiles.filter((f) => !f.includes('en.html') && !f.endsWith('-en.html')).map((f) => visibleText(pages[f]) + (pages[f].match(/<title>([^<]*)<\/title>/) || [])[1]).join(' ').replace(/\s+/g, '')
+const ownerMissing = ownerKeywords.filter((k) => !allThai.includes(k))
+check(`คำค้นที่เจ้าของร้านส่งมา ${ownerKeywords.length} คำ อยู่ในหน้าไทยครบ`, ownerMissing.length === 0, ownerMissing.join(', '))
 const missingKeywords = keywords.filter((k) => !thText.includes(k))
 check(`คำค้นหลัก ${keywords.length} คำ อยู่ในเนื้อหาหน้าไทย`, missingKeywords.length === 0, missingKeywords.join(', '))
 check('หน้าอังกฤษมีคำว่า water truck', enText.includes('watertruck'))
