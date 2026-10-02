@@ -70,6 +70,8 @@ const need = [
   'en.html',
   'knowledge.html',
   'knowledge-en.html',
+  // ไฟล์ยืนยันเจ้าของเว็บใน Google Search Console ถ้าหาย สิทธิ์ส่ง sitemap และขอให้ Google เก็บหน้าจะหลุด
+  'google870e15b6491be7e7.html',
   'images/logo.webp',
   'images/icon-32.png',
   'images/icon-180.png',
