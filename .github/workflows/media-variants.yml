@@ -1,0 +1,89 @@
+name: Create mobile sizes for uploaded images
+# รูปที่เจ้าของร้านอัปโหลดก่อนหลังบ้านรู้จักสร้างรุ่นเล็ก ยังไม่มีไฟล์ -sm.webp มือถือจึงโหลดรูปเต็มที่ใหญ่เกินจำเป็น
+# งานนี้สร้างรุ่นเล็กกว้างไม่เกิน 960 พิกเซลให้ทุกรูปในคลังสื่อ เพิ่มไฟล์ใหม่อย่างเดียว ไม่แก้ ไม่ลบรูปต้นฉบับ
+# รันซ้ำได้ ไฟล์รุ่นเล็กเดิมจะถูกเขียนทับด้วยผลเดียวกัน
+on:
+  push:
+    branches: [main]
+    paths: [.github/workflows/media-variants.yml]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: natee-customer-preview
+  cancel-in-progress: false
+jobs:
+  variants:
+    environment: natee-customer-preview
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    outputs:
+      lines: ${{ steps.make.outputs.lines }}
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: 3c3a30b952642a567008635f095785ca
+      SITE: https://xn--22cki0cqma4cdedf2ixczace9c1mmc1fh6g.com
+      NAMESPACE: b6e29331310d402e90aef580a03c16c7
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: sudo apt-get install -y --no-install-recommends imagemagick webp
+      - name: Write customer database configuration
+        shell: bash
+        run: |
+          cat > wrangler.customer.jsonc <<'CONFIG'
+          {
+            "name": "natee",
+            "main": "worker/index.mjs",
+            "compatibility_date": "2026-09-09",
+            "d1_databases": [
+              { "binding": "DB", "database_name": "natee", "database_id": "db70eea1-2f69-4222-b895-a47288bb155c", "migrations_dir": "worker/migrations" }
+            ],
+            "account_id": "3c3a30b952642a567008635f095785ca"
+          }
+          CONFIG
+      - name: Make and store the mobile size of every uploaded image
+        id: make
+        shell: bash
+        run: |
+          set -euo pipefail
+          npx wrangler d1 execute natee --remote --config wrangler.customer.jsonc --json --command "SELECT path FROM media WHERE mime LIKE 'image/%' ORDER BY created" > media.json
+          node -e "const r=require('./media.json');console.log((Array.isArray(r)?r:[r]).flatMap(x=>x.results||[]).map(x=>x.path).join('\n'))" > paths.txt
+          made=0; before=0; after=0
+          mkdir -p work
+          while read -r path; do
+            [ -z "$path" ] && continue
+            small="${path%.*}-sm.webp"
+            curl --fail --silent --show-error "$SITE/$path" -o work/original
+            convert work/original -resize '960x>' -strip work/small.png
+            cwebp -quiet -q 78 work/small.png -o work/small.webp
+            npx wrangler kv key put "$small" --path work/small.webp --namespace-id "$NAMESPACE" --remote --metadata '{"mime":"image/webp"}'
+            made=$((made+1)); before=$((before+$(stat -c%s work/original))); after=$((after+$(stat -c%s work/small.webp)))
+          done < paths.txt
+          lines=$(node -e "console.log(JSON.stringify(['images = '+$made,'original KB = '+Math.round($before/1024),'mobile KB = '+Math.round($after/1024)]))")
+          echo "lines=$lines" >> "$GITHUB_OUTPUT"
+      - name: Check that the live site now serves WebP for every mobile size
+        shell: bash
+        run: |
+          set -euo pipefail
+          while read -r path; do
+            [ -z "$path" ] && continue
+            type=$(curl --silent --output /dev/null --write-out '%{content_type}' "$SITE/${path%.*}-sm.webp")
+            echo "$path -> $type"
+          done < paths.txt
+  answers:
+    needs: variants
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    strategy:
+      matrix:
+        answer: ${{ fromJSON(needs.variants.outputs.lines) }}
+    name: ${{ matrix.answer }}
+    steps:
+      - run: echo "${{ matrix.answer }}"
