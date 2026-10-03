@@ -2,6 +2,8 @@ import Icon from './icons.jsx'
 import ContactButtons from './ContactButtons.jsx'
 import { imageAsset as asset, imageSrcSet } from './brand.js'
 import { pageHref } from './pages.js'
+import Backdrop from './Backdrop.jsx'
+import Phrases from './Phrases.jsx'
 
 /**
  * หน้าบริการแต่ละอย่าง เช่น เติมสระว่ายน้ำ หรือรถน้ำสงกรานต์
@@ -22,7 +24,7 @@ export default function ServicePage({ L, CONTACT, service, lang, homeHref }) {
             <span aria-current="page">{service.navLabel}</span>
           </nav>
           <p className="natee-eyebrow">{service.eyebrow}</p>
-          <h1 className="natee-article-title">{service.title}</h1>
+          <h1 className="natee-article-title"><Phrases text={service.title} /></h1>
           <p className="natee-article-subtitle">{service.subtitle}</p>
           <ContactButtons CONTACT={CONTACT} L={L} place="service" />
         </div>
@@ -30,24 +32,27 @@ export default function ServicePage({ L, CONTACT, service, lang, homeHref }) {
 
       <div className="natee-container natee-narrow natee-article-body">
         <figure className="natee-article-figure natee-article-hero">
-          <img
-            className={service.image.startsWith('uploads/') ? 'natee-article-img is-custom' : 'natee-article-img'}
-            src={asset(service.image)}
-            srcSet={imageSrcSet(service.image, 1100)}
-            sizes="(max-width: 799px) 92vw, 720px"
-            alt={service.imageAlt}
-            width="1100"
-            height="825"
-            fetchPriority="high"
-            decoding="async"
-          />
+          <span className="natee-article-frame natee-frame">
+            <Backdrop name={service.image} />
+            <img
+              className={service.image.startsWith('uploads/') ? 'natee-article-img is-custom' : 'natee-article-img'}
+              src={asset(service.image)}
+              srcSet={imageSrcSet(service.image, 1100)}
+              sizes="(max-width: 799px) 92vw, 720px"
+              alt={service.imageAlt}
+              width="1100"
+              height="825"
+              fetchPriority="high"
+              decoding="async"
+            />
+          </span>
           <figcaption className="natee-article-caption">{service.imageCaption}</figcaption>
         </figure>
 
         <p className="natee-article-intro">{service.intro}</p>
 
         <section className="natee-article-section">
-          <h2 className="natee-article-heading">{service.fitTitle}</h2>
+          <h2 className="natee-article-heading"><Phrases text={service.fitTitle} /></h2>
           <ul className="natee-check-list">
             {service.fits.map((item) => (
               <li key={item}>
@@ -59,7 +64,7 @@ export default function ServicePage({ L, CONTACT, service, lang, homeHref }) {
         </section>
 
         <section className="natee-article-section">
-          <h2 className="natee-article-heading">{L.stepsTitle}</h2>
+          <h2 className="natee-article-heading"><Phrases text={L.stepsTitle} /></h2>
           <ol className="natee-point-list">
             {L.steps.map((step, index) => (
               <li className="natee-point" key={step.title}>
@@ -74,14 +79,14 @@ export default function ServicePage({ L, CONTACT, service, lang, homeHref }) {
         </section>
 
         <section className="natee-article-section">
-          <h2 className="natee-article-heading">{service.tipsTitle}</h2>
+          <h2 className="natee-article-heading"><Phrases text={service.tipsTitle} /></h2>
           <ul className="natee-tip-list">
             {service.tips.map((tip) => <li key={tip}>{tip}</li>)}
           </ul>
         </section>
 
         <section className="natee-article-section">
-          <h2 className="natee-article-heading">{L.serviceFaqTitle}</h2>
+          <h2 className="natee-article-heading"><Phrases text={L.serviceFaqTitle} /></h2>
           <div className="natee-service-faq">
             {service.faq.map((item) => (
               <div className="natee-service-faq-item" key={item.q}>
@@ -93,7 +98,7 @@ export default function ServicePage({ L, CONTACT, service, lang, homeHref }) {
         </section>
 
         <nav className="natee-article-section" aria-label={L.serviceRelated}>
-          <h2 className="natee-article-heading">{L.serviceRelated}</h2>
+          <h2 className="natee-article-heading"><Phrases text={L.serviceRelated} /></h2>
           <ul className="natee-related-list">
             {others.map((p) => (
               <li key={p.slug}>

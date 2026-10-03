@@ -1,6 +1,8 @@
 import Icon from './icons.jsx'
 import ContactButtons from './ContactButtons.jsx'
 import { imageAsset as asset, imageSrcSet } from './brand.js'
+import Backdrop from './Backdrop.jsx'
+import Phrases from './Phrases.jsx'
 
 /**
  * หน้าความรู้เรื่องน้ำและน้ำประปา
@@ -11,18 +13,21 @@ import { imageAsset as asset, imageSrcSet } from './brand.js'
 /** รูปประกอบบทความ ใช้ไฟล์ย่อบนมือถือและไฟล์เต็มบนจอใหญ่ รูปที่อัปโหลดจากหลังบ้านใช้ไฟล์เดียว */
 function ArticleImage({ name, alt, sizes, priority = false }) {
   return (
-    <img
-      className={name.startsWith('uploads/') ? 'natee-article-img is-custom' : 'natee-article-img'}
-      src={asset(name)}
-      srcSet={imageSrcSet(name, 1100)}
-      sizes={sizes}
-      alt={alt}
-      width="1100"
-      height="825"
-      loading={priority ? undefined : 'lazy'}
-      fetchPriority={priority ? 'high' : undefined}
-      decoding="async"
-    />
+    <span className="natee-article-frame natee-frame">
+      <Backdrop name={name} />
+      <img
+        className={name.startsWith('uploads/') ? 'natee-article-img is-custom' : 'natee-article-img'}
+        src={asset(name)}
+        srcSet={imageSrcSet(name, 1100)}
+        sizes={sizes}
+        alt={alt}
+        width="1100"
+        height="825"
+        loading={priority ? undefined : 'lazy'}
+        fetchPriority={priority ? 'high' : undefined}
+        decoding="async"
+      />
+    </span>
   )
 }
 
@@ -50,7 +55,7 @@ export default function Knowledge({ L, CONTACT, homeHref }) {
       <header className="natee-article-head">
         <div className="natee-container natee-narrow">
           <p className="natee-eyebrow">{K.eyebrow}</p>
-          <h1 className="natee-article-title">{K.title}</h1>
+          <h1 className="natee-article-title"><Phrases text={K.title} /></h1>
           <p className="natee-article-subtitle">{K.subtitle}</p>
         </div>
       </header>
@@ -83,7 +88,7 @@ export default function Knowledge({ L, CONTACT, homeHref }) {
         </nav>
 
         <section className="natee-article-section" id="natee-k-groups">
-          <h2 className="natee-article-heading">{K.groupsTitle}</h2>
+          <h2 className="natee-article-heading"><Phrases text={K.groupsTitle} /></h2>
           <ul className="natee-fact-list">
             {K.groups.map((item) => (
               <li className="natee-fact" key={item.title}>
@@ -98,7 +103,7 @@ export default function Knowledge({ L, CONTACT, homeHref }) {
         </section>
 
         <section className="natee-article-section" id="natee-k-uses">
-          <h2 className="natee-article-heading">{K.usesTitle}</h2>
+          <h2 className="natee-article-heading"><Phrases text={K.usesTitle} /></h2>
           <ul className="natee-use-list">
             {K.uses.map((item) => (
               <li className="natee-use" key={item.title}>
@@ -113,7 +118,7 @@ export default function Knowledge({ L, CONTACT, homeHref }) {
         </section>
 
         <section className="natee-article-section" id="natee-k-benefits">
-          <h2 className="natee-article-heading">{K.benefitsTitle}</h2>
+          <h2 className="natee-article-heading"><Phrases text={K.benefitsTitle} /></h2>
           <p className="natee-article-lead">{K.benefitsSubtitle}</p>
           <Figure name={K.benefitsImage} alt={K.benefitsAlt} caption={K.benefitsCaption} />
           <ol className="natee-point-list">
@@ -130,7 +135,7 @@ export default function Knowledge({ L, CONTACT, homeHref }) {
         </section>
 
         <section className="natee-article-section" id="natee-k-summary">
-          <h2 className="natee-article-heading">{K.summaryTitle}</h2>
+          <h2 className="natee-article-heading"><Phrases text={K.summaryTitle} /></h2>
           <Figure name={K.summaryImage} alt={K.summaryAlt} caption={K.summaryCaption} />
           <p className="natee-article-text">{K.summaryText}</p>
         </section>

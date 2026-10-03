@@ -38,9 +38,9 @@ const imageFields = new Set(['image','logo','hero','about','qr','poster','share'
 const bundledImages=['og-banner','logo','truck-4wheel','truck-6wheel','line-qr',...Array.from({length:12},(_,i)=>'work-'+String(i+1).padStart(2,'0')),...Array.from({length:4},(_,i)=>'work-video-'+String(i+1).padStart(2,'0')+'-poster')]
 // บอกขนาดที่เหมาะกับแต่ละช่องรูป เจ้าของร้านจะได้ไม่ต้องเดา
 const imageHints={
-  hero:'แสดงเต็มภาพ ไม่ตัดขอบ แนะนำภาพแนวนอน กว้าง 1600 พิกเซลขึ้นไป ไฟล์ไม่เกิน 1 MB',
-  about:'แสดงเต็มภาพ ไม่ตัดขอบ แนะนำภาพแนวนอน กว้าง 1600 พิกเซลขึ้นไป ไฟล์ไม่เกิน 1 MB',
-  image:'แสดงเต็มภาพ ไม่ตัดขอบ แนะนำภาพแนวนอน กว้าง 1200 พิกเซลขึ้นไป',
+  hero:'กรอบแนวนอน 16:9 ภาพขนาด 1920 × 1080 พิกเซลจะเต็มกรอบพอดี ภาพสัดส่วนอื่นแสดงครบไม่ตัดขอบ ช่องที่เหลือเติมด้วยพื้นหลังเบลอให้เอง ไฟล์ไม่เกิน 1 MB',
+  about:'กรอบแนวนอน 16:9 ภาพขนาด 1920 × 1080 พิกเซลจะเต็มกรอบพอดี ภาพสัดส่วนอื่นแสดงครบไม่ตัดขอบ ช่องที่เหลือเติมด้วยพื้นหลังเบลอให้เอง ไฟล์ไม่เกิน 1 MB',
+  image:'แสดงครบไม่ตัดขอบ แนะนำภาพแนวนอน กว้าง 1200 พิกเซลขึ้นไป ช่องที่เหลือในกรอบเติมด้วยพื้นหลังเบลอให้เอง',
   heroImage:'แสดงเต็มภาพ แนะนำภาพแนวนอน กว้าง 1200 พิกเซลขึ้นไป',benefitsImage:'แสดงเต็มภาพ แนะนำภาพแนวนอน กว้าง 1200 พิกเซลขึ้นไป',summaryImage:'แสดงเต็มภาพ แนะนำภาพแนวนอน กว้าง 1200 พิกเซลขึ้นไป',
   share:'ภาพที่ขึ้นเมื่อแชร์ลิงก์ใน LINE และ Facebook ขนาดที่เหมาะคือ 1200 × 630 พิกเซล',
   logo:'ภาพสี่เหลี่ยมจัตุรัส พื้นหลังโปร่งใส กว้าง 512 พิกเซลขึ้นไป',qr:'ภาพสี่เหลี่ยมจัตุรัส กว้าง 600 พิกเซลขึ้นไป',
@@ -101,7 +101,7 @@ function Field({value,path,onChange,media,upload,model}) {
     const uploads=media.filter(m=>video ? m.mime==='video/mp4' : m.mime.startsWith('image/'))
     return <div className="field media-field"><label htmlFor={fieldId}>{label}</label>
       <select id={fieldId} value={value} onChange={event=>onChange(path,event.target.value)}>
-        <option value="">เลือกไฟล์{key==='poster' ? ' (ว่าง = ใช้ภาพเดิม)' : ''}</option>
+        <option value="">เลือกไฟล์{key==='poster' ? ' (ว่าง = ใช้ภาพจากในคลิป)' : ''}</option>
         {[...new Set([...options,...uploads.map(m=>m.path),...(value ? [value] : [])])].map((v,i)=><option key={v} value={v}>{v.startsWith('uploads/') ? 'ไฟล์อัปโหลด '+(i-options.length+1)+' · '+v.slice(-12) : v}</option>)}
       </select>
       {image && value && <img className="field-preview" src={'../'+imageAsset(value)} alt="ภาพที่เลือก" />}

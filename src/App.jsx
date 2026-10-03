@@ -9,8 +9,13 @@ import Knowledge from './Knowledge.jsx'
 import { mapEmbedUrl } from './map.js'
 import ServicePage from './ServicePage.jsx'
 import { pageHref } from './pages.js'
+import Backdrop from './Backdrop.jsx'
+import Phrases from './Phrases.jsx'
 
 const SECTIONS = ['services', 'fleet', 'pricing', 'areas', 'gallery', 'faq', 'contact']
+
+// ตัวเลขกับคำที่ตามมา เช่น 24 ชั่วโมง หรือ 4 ล้อ ต้องอยู่บรรทัดเดียวกัน ไม่ให้ตัวเลขค้างท้ายบรรทัด
+const keepNumbers = (text) => (typeof text === 'string' ? text.replace(/(\d)\s+(?=\S)/g, '$1\u00a0') : text)
 
 export default function App({ lang = 'th', content = defaults, page = 'home' }) {
   const { I18N, CONTACT, GALLERY, REVIEWS, FORM, ASSETS, BRAND } = content
@@ -44,7 +49,11 @@ export default function App({ lang = 'th', content = defaults, page = 'home' }) 
     ...L.videos.map((v, i) => ({
       type: 'video',
       src: v.file.startsWith('uploads/') ? v.file : `videos/${v.file}.mp4`,
-      poster: v.poster ? asset(v.poster) : (v.file.startsWith('uploads/') ? asset(ASSETS.hero) : `images/${v.file}-poster.webp`),
+      poster: v.poster ? asset(v.poster) : (v.file.startsWith('uploads/') ? undefined : `images/${v.file}-poster.webp`),
+      // ภาพปกที่เจ้าของร้านเลือกเองอาจเป็นโปสเตอร์ ต้องแสดงครบทั้งภาพ ไม่ตัดให้เต็มช่องแนวตั้ง
+      posterWhole: Boolean(v.poster),
+      // คลิปที่อัปโหลดโดยไม่ได้เลือกภาพปก ใช้ภาพจากในคลิปเองแทนการยืมโปสเตอร์ร้านมาบีบใส่ช่องแนวตั้ง
+      clipFrame: !v.poster && v.file.startsWith('uploads/'),
       alt: v.caption,
       key: `v${i}`,
     })),
@@ -260,8 +269,8 @@ export default function App({ lang = 'th', content = defaults, page = 'home' }) 
             <div className="natee-container natee-hero-inner">
               <div className="natee-hero-text">
                 <p className="natee-eyebrow">{L.heroEyebrow}</p>
-                <h1 className="natee-hero-title">{L.heroTitle}</h1>
-                <p className="natee-hero-subtitle">{L.heroSubtitle}</p>
+                <h1 className="natee-hero-title"><Phrases text={L.heroTitle} /></h1>
+                <p className="natee-hero-subtitle">{keepNumbers(L.heroSubtitle)}</p>
 
                 {REVIEWS.count > 0 && (
                   <p className="natee-rating">
@@ -292,12 +301,13 @@ export default function App({ lang = 'th', content = defaults, page = 'home' }) 
                 </p>
               </div>
 
-              <div className="natee-hero-media">
+              <div className="natee-hero-media natee-frame">
+                <Backdrop name={ASSETS.hero} />
                 <img
                   className={ASSETS.hero.startsWith('uploads/') ? 'natee-hero-image is-custom' : 'natee-hero-image'}
                   src={asset(ASSETS.hero)}
                   srcSet={imageSrcSet(ASSETS.hero, 1200)}
-                  sizes="(max-width: 719px) 92vw, (max-width: 999px) 46vw, 560px"
+                  sizes="(max-width: 999px) 92vw, 600px"
                   alt={L.heroTitle}
                   width="1200"
                   height="675"
@@ -315,7 +325,7 @@ export default function App({ lang = 'th', content = defaults, page = 'home' }) 
                 {L.highlights.map((item) => (
                   <li className="natee-highlight" key={item.title}>
                     <span className="natee-highlight-icon"><Icon name={item.icon} /></span>
-                    <h3 className="natee-highlight-title">{item.title}</h3>
+                    <h3 className="natee-highlight-title"><Phrases text={item.title} /></h3>
                     <p className="natee-highlight-text">{item.text}</p>
                   </li>
                 ))}
@@ -325,12 +335,13 @@ export default function App({ lang = 'th', content = defaults, page = 'home' }) 
 
           <section className="natee-section natee-about" id="natee-about">
             <div className="natee-container natee-about-inner">
-              <div className="natee-about-media">
+              <div className="natee-about-media natee-frame">
+                <Backdrop name={ASSETS.about} />
                 <img
                   className={ASSETS.about.startsWith('uploads/') ? 'natee-about-image is-custom' : 'natee-about-image'}
                   src={asset(ASSETS.about)}
                   srcSet={imageSrcSet(ASSETS.about, 960)}
-                  sizes="(max-width: 719px) 92vw, 46vw"
+                  sizes="(max-width: 999px) 92vw, 540px"
                   alt={L.aboutTitle}
                   width="960"
                   height="720"
@@ -339,7 +350,7 @@ export default function App({ lang = 'th', content = defaults, page = 'home' }) 
                 />
               </div>
               <div className="natee-about-body">
-                <h2 className="natee-section-title">{L.aboutTitle}</h2>
+                <h2 className="natee-section-title"><Phrases text={L.aboutTitle} /></h2>
                 <p className="natee-about-text">{L.aboutText}</p>
                 <p className="natee-about-quote">{L.aboutQuote}</p>
               </div>
@@ -349,15 +360,15 @@ export default function App({ lang = 'th', content = defaults, page = 'home' }) 
           <section className="natee-section natee-services" id="natee-services">
             <div className="natee-container">
               <header className="natee-section-head">
-                <h2 className="natee-section-title">{L.servicesTitle}</h2>
-                <p className="natee-section-subtitle">{L.servicesSubtitle}</p>
+                <h2 className="natee-section-title"><Phrases text={L.servicesTitle} /></h2>
+                <p className="natee-section-subtitle">{keepNumbers(L.servicesSubtitle)}</p>
               </header>
               <ul className="natee-card-grid">
                 {L.services.map((item) => (
                   <li className="natee-card" key={item.title}>
                     <div className="natee-card-icon"><Icon name={item.icon} className="natee-icon natee-icon-lg" /></div>
                     <div className="natee-card-body">
-                      <h3 className="natee-card-title">{item.title}</h3>
+                      <h3 className="natee-card-title"><Phrases text={item.title} /></h3>
                       <p className="natee-card-text">{item.text}</p>
                       {servicePageFor(item.icon) && (
                         <a className="natee-card-link" href={pageHref('service:' + servicePageFor(item.icon).slug, lang)}>
@@ -375,15 +386,16 @@ export default function App({ lang = 'th', content = defaults, page = 'home' }) 
           <section className="natee-section natee-fleet" id="natee-fleet">
             <div className="natee-container">
               <header className="natee-section-head">
-                <h2 className="natee-section-title">{L.fleetTitle}</h2>
-                <p className="natee-section-subtitle">{L.fleetSubtitle}</p>
+                <h2 className="natee-section-title"><Phrases text={L.fleetTitle} /></h2>
+                <p className="natee-section-subtitle">{keepNumbers(L.fleetSubtitle)}</p>
               </header>
               <div className="natee-fleet-grid">
                 {L.fleet.map((truck) => (
                   <article className="natee-fleet-item" key={truck.name}>
-                    <div className={truck.image.startsWith('uploads/') ? 'natee-fleet-media is-custom' : 'natee-fleet-media'}>
+                    <div className="natee-fleet-media natee-frame">
+                      <Backdrop name={truck.image} />
                       <img
-                        className="natee-fleet-image"
+                        className={truck.image.startsWith('uploads/') ? 'natee-fleet-image is-custom' : 'natee-fleet-image'}
                         src={asset(truck.image)}
                         srcSet={imageSrcSet(truck.image, 1200)}
                         sizes="(max-width: 719px) 92vw, 46vw"
@@ -395,7 +407,7 @@ export default function App({ lang = 'th', content = defaults, page = 'home' }) 
                       />
                     </div>
                     <div className="natee-fleet-body">
-                      <h3 className="natee-fleet-name">{truck.name}</h3>
+                      <h3 className="natee-fleet-name"><Phrases text={truck.name} /></h3>
                       <p className="natee-fleet-capacity">{truck.capacity}</p>
                       <p className="natee-fleet-text">{truck.text}</p>
                     </div>
@@ -408,8 +420,8 @@ export default function App({ lang = 'th', content = defaults, page = 'home' }) 
           <section className="natee-section natee-pricing" id="natee-pricing">
             <div className="natee-container">
               <header className="natee-section-head">
-                <h2 className="natee-section-title">{L.pricingTitle}</h2>
-                <p className="natee-section-subtitle">{L.pricingSubtitle}</p>
+                <h2 className="natee-section-title"><Phrases text={L.pricingTitle} /></h2>
+                <p className="natee-section-subtitle">{keepNumbers(L.pricingSubtitle)}</p>
               </header>
 
               <div className="natee-price-list">
@@ -467,13 +479,13 @@ export default function App({ lang = 'th', content = defaults, page = 'home' }) 
           <section className="natee-section natee-steps" id="natee-steps">
             <div className="natee-container">
               <header className="natee-section-head">
-                <h2 className="natee-section-title">{L.stepsTitle}</h2>
+                <h2 className="natee-section-title"><Phrases text={L.stepsTitle} /></h2>
               </header>
               <ol className="natee-step-list">
                 {L.steps.map((step, index) => (
                   <li className="natee-step" key={step.title}>
                     <span className="natee-step-number" aria-hidden="true">{index + 1}</span>
-                    <h3 className="natee-step-title">{step.title}</h3>
+                    <h3 className="natee-step-title"><Phrases text={step.title} /></h3>
                     <p className="natee-step-text">{step.text}</p>
                   </li>
                 ))}
@@ -484,8 +496,8 @@ export default function App({ lang = 'th', content = defaults, page = 'home' }) 
           <section className="natee-section natee-areas" id="natee-areas">
             <div className="natee-container">
               <header className="natee-section-head">
-                <h2 className="natee-section-title">{L.areasTitle}</h2>
-                <p className="natee-section-subtitle">{L.areasSubtitle}</p>
+                <h2 className="natee-section-title"><Phrases text={L.areasTitle} /></h2>
+                <p className="natee-section-subtitle">{keepNumbers(L.areasSubtitle)}</p>
               </header>
               <ul className="natee-area-list">
                 {L.areas.map((area) => (
@@ -501,8 +513,8 @@ export default function App({ lang = 'th', content = defaults, page = 'home' }) 
           <section className="natee-section natee-gallery-section" id="natee-gallery">
             <div className="natee-container">
               <header className="natee-section-head">
-                <h2 className="natee-section-title">{L.galleryTitle}</h2>
-                <p className="natee-section-subtitle">{L.gallerySubtitle}</p>
+                <h2 className="natee-section-title"><Phrases text={L.galleryTitle} /></h2>
+                <p className="natee-section-subtitle">{keepNumbers(L.gallerySubtitle)}</p>
               </header>
 
               <ul className="natee-video-row">
@@ -510,11 +522,18 @@ export default function App({ lang = 'th', content = defaults, page = 'home' }) 
                   <li className="natee-video-cell" key={item.key}>
                     <button
                       type="button"
-                      className="natee-media-link natee-video-link"
+                      className="natee-media-link natee-video-link natee-frame"
                       onClick={(event) => { viewerOpener.current = event.currentTarget; setViewer(index); track('video_open', { clip: item.key, language: lang }) }}
                       aria-label={`${L.videoPlay} ${item.alt}`}
                     >
-                      <img className="natee-video-poster" src={item.poster} alt="" width="432" height="768" loading="lazy" decoding="async" />
+                      {item.clipFrame ? (
+                        <video className="natee-video-poster natee-video-frame" src={item.src + '#t=0.5'} preload="metadata" muted playsInline aria-hidden="true" tabIndex={-1} />
+                      ) : (
+                        <>
+                          {item.posterWhole && <Backdrop src={item.poster} />}
+                          <img className={item.posterWhole ? 'natee-video-poster is-custom' : 'natee-video-poster'} src={item.poster} alt="" width="432" height="768" loading="lazy" decoding="async" />
+                        </>
+                      )}
                       <span className="natee-video-play" aria-hidden="true"><Icon name="play" /></span>
                       <span className="natee-video-caption">{item.alt}</span>
                     </button>
@@ -553,7 +572,7 @@ export default function App({ lang = 'th', content = defaults, page = 'home' }) 
           <section className="natee-section natee-faq" id="natee-faq">
             <div className="natee-container natee-narrow">
               <header className="natee-section-head">
-                <h2 className="natee-section-title">{L.faqTitle}</h2>
+                <h2 className="natee-section-title"><Phrases text={L.faqTitle} /></h2>
               </header>
               <div className="natee-faq-list">
                 {L.faq.map((item, index) => (
@@ -590,8 +609,8 @@ export default function App({ lang = 'th', content = defaults, page = 'home' }) 
           <section className="natee-section natee-contact" id="natee-contact">
             <div className="natee-container">
               <header className="natee-section-head">
-                <h2 className="natee-section-title">{L.contactTitle}</h2>
-                <p className="natee-section-subtitle">{L.contactSubtitle}</p>
+                <h2 className="natee-section-title"><Phrases text={L.contactTitle} /></h2>
+                <p className="natee-section-subtitle">{keepNumbers(L.contactSubtitle)}</p>
               </header>
 
               <div className="natee-contact-grid">

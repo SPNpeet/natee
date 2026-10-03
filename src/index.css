@@ -65,6 +65,19 @@ h3 {
 	margin: 0;
 	font-weight: 600;
 	letter-spacing: -0.01em;
+	text-wrap: balance;
+}
+
+/* วลีในหัวข้อเป็นก้อนเดียว ขึ้นบรรทัดใหม่ได้เฉพาะตรงช่องว่าง ดู Phrases.jsx */
+.natee-phrase {
+	display: inline-block;
+	max-width: 100%;
+}
+
+/* กันคำสั้น ๆ หลุดไปค้างบรรทัดสุดท้ายคำเดียว */
+p,
+li {
+	text-wrap: pretty;
 }
 
 p {
@@ -480,12 +493,16 @@ textarea:focus-visible,
 /* ส่วนหัวหน้าแรก */
 .natee-hero {
 	background: linear-gradient(180deg, var(--natee-bg-soft) 0%, #ffffff 100%);
-	padding: 36px 0 44px;
+	padding: 28px 0 40px;
 }
 
 .natee-hero-inner {
 	display: grid;
 	gap: 28px;
+}
+
+.natee-hero-text {
+	min-width: 0;
 }
 
 .natee-eyebrow {
@@ -500,9 +517,10 @@ textarea:focus-visible,
 }
 
 .natee-hero-title {
-	font-size: 30px;
+	font-size: 28px;
 	font-weight: 700;
-	letter-spacing: -0.02em;
+	line-height: 1.4;
+	letter-spacing: -0.01em;
 }
 
 .natee-hero-subtitle {
@@ -542,11 +560,31 @@ textarea:focus-visible,
 	top: 4px;
 }
 
-.natee-hero-media {
-	border-radius: 18px;
+/* กรอบรูปทั้งเว็บใช้สัดส่วนคงที่ เจ้าของร้านเปลี่ยนรูปเป็นอะไร หน้าเว็บก็ยังเป็นระเบียบเท่าเดิม */
+.natee-frame {
+	position: relative;
+	display: block;
 	overflow: hidden;
-	box-shadow: var(--natee-shadow);
-	background: #fff;
+	isolation: isolate;
+	background: var(--natee-bg-soft);
+}
+
+.natee-backdrop {
+	position: absolute;
+	inset: 0;
+	z-index: -1;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	filter: blur(26px) saturate(1.15);
+	transform: scale(1.2);
+}
+
+/* 16:9 ตรงกับโปสเตอร์และภาพปกที่ร้านส่วนใหญ่ใช้ รูปสัดส่วนอื่นยังแสดงครบด้วยพื้นหลังเบลอ */
+.natee-hero-media {
+	aspect-ratio: 16 / 9;
+	border-radius: 20px;
+	box-shadow: 0 2px 4px rgba(15, 28, 46, 0.06), 0 24px 48px -12px rgba(15, 28, 46, 0.22);
 }
 
 .natee-hero-media.is-empty {
@@ -555,28 +593,17 @@ textarea:focus-visible,
 
 .natee-hero-image {
 	width: 100%;
-	aspect-ratio: 4 / 3;
+	height: 100%;
 	object-fit: cover;
 }
 
-/* รูปที่เจ้าของร้านอัปโหลดเองมักเป็นโปสเตอร์ที่มีเบอร์โทรชิดขอบ จึงแสดงเต็มภาพตามสัดส่วนจริง ไม่ตัดขอบ
-   สัดส่วน 16:9 ใช้จองพื้นที่ระหว่างรอโหลดเท่านั้น โหลดเสร็จแล้วใช้สัดส่วนของรูปจริง */
+/* รูปที่เจ้าของร้านอัปโหลดเองมักเป็นโปสเตอร์ที่มีเบอร์โทรชิดขอบ จึงแสดงครบทั้งภาพในกรอบ ไม่ตัดขอบ */
 .natee-hero-image.is-custom,
 .natee-about-image.is-custom,
-.natee-article-img.is-custom {
-	height: auto;
-	max-height: 720px;
-	aspect-ratio: auto 16 / 9;
+.natee-fleet-image.is-custom,
+.natee-article-img.is-custom,
+.natee-video-poster.is-custom {
 	object-fit: contain;
-}
-
-.natee-fleet-media.is-custom {
-	aspect-ratio: auto;
-}
-
-.natee-fleet-media.is-custom .natee-fleet-image {
-	height: auto;
-	aspect-ratio: auto 4 / 3;
 }
 
 .natee-hero-placeholder {
@@ -674,14 +701,14 @@ textarea:focus-visible,
 }
 
 .natee-about-media {
+	aspect-ratio: 16 / 9;
 	border-radius: 18px;
-	overflow: hidden;
 	box-shadow: var(--natee-shadow);
 }
 
 .natee-about-image {
 	width: 100%;
-	aspect-ratio: 4 / 3;
+	height: 100%;
 	object-fit: cover;
 }
 
@@ -770,6 +797,63 @@ textarea:focus-visible,
 	font-size: 16px;
 }
 
+/* มือถือ ไอคอนอยู่ข้างหัวข้อแทนที่จะกินแถวของตัวเอง การ์ดสั้นลงครึ่งหนึ่ง เลื่อนดูทั้งหมดได้ไว */
+@media (max-width: 719px) {
+	.natee-highlight-grid,
+	.natee-card-grid {
+		gap: 10px;
+	}
+
+	.natee-highlight,
+	.natee-card {
+		display: grid;
+		grid-template-columns: 44px minmax(0, 1fr);
+		column-gap: 14px;
+		align-items: start;
+		padding: 16px 16px 16px 18px;
+	}
+
+	.natee-highlight::before {
+		inset: 0 auto 0 0;
+		width: 3px;
+		height: auto;
+	}
+
+	.natee-highlight-icon,
+	.natee-card-icon {
+		width: 44px;
+		height: 44px;
+		margin: 0;
+		border-radius: 12px;
+	}
+
+	.natee-highlight-icon {
+		grid-row: span 2;
+	}
+
+	.natee-highlight-title,
+	.natee-card-title {
+		font-size: 17px;
+		line-height: 1.45;
+		padding-top: 9px;
+	}
+
+	.natee-highlight-text,
+	.natee-card-text {
+		margin-top: 4px;
+		font-size: 15px;
+		line-height: 1.65;
+	}
+
+	.natee-card-body {
+		padding: 0;
+	}
+
+	.natee-card-link {
+		margin-top: 2px;
+	}
+}
+
 /* ประเภทรถ */
 .natee-fleet-grid {
 	display: grid;
@@ -789,8 +873,9 @@ textarea:focus-visible,
 	box-shadow: var(--natee-shadow);
 }
 
+/* 4:3 ตรงกับรูปถ่ายจากมือถือที่ร้านอัปโหลด รูปรถตั้งต้นเป็นภาพตัดพื้นขาวจึงวางบนพื้นขาวได้กลมกลืน */
 .natee-fleet-media {
-	aspect-ratio: 16 / 9;
+	aspect-ratio: 4 / 3;
 	background: #fff;
 	color: var(--natee-brand);
 	display: flex;
@@ -806,7 +891,7 @@ textarea:focus-visible,
 .natee-fleet-image {
 	width: 100%;
 	height: 100%;
-	object-fit: cover;
+	object-fit: contain;
 }
 
 .natee-fleet-body {
@@ -1037,7 +1122,7 @@ textarea:focus-visible,
 /* แกลเลอรี */
 .natee-gallery-grid {
 	display: grid;
-	grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+	grid-template-columns: repeat(2, minmax(0, 1fr));
 	gap: 12px;
 }
 
@@ -1068,6 +1153,11 @@ textarea:focus-visible,
 	height: 100%;
 	object-fit: cover;
 	transition: transform 0.3s ease;
+}
+
+.natee-video-frame {
+	display: block;
+	pointer-events: none;
 }
 
 .natee-video-link:hover .natee-video-poster,
@@ -1356,10 +1446,15 @@ body.natee-no-scroll {
 }
 
 @media (min-width: 720px) {
-	.natee-video-row {
-		grid-template-columns: repeat(4, 1fr);
+	/* คลิปกับรูปใช้เส้นคอลัมน์ชุดเดียวกัน ขอบซ้ายขวาตรงกันทั้งสองแถว */
+	.natee-video-row,
+	.natee-gallery-grid {
+		grid-template-columns: repeat(4, minmax(0, 1fr));
 		gap: 16px;
-		margin-bottom: 20px;
+	}
+
+	.natee-video-row {
+		margin-bottom: 16px;
 	}
 
 	.natee-video-caption {
@@ -1864,38 +1959,17 @@ a.natee-contact-item:hover {
 		flex-direction: column;
 		align-items: flex-start;
 	}
-
-	.natee-price-summary {
-		flex-direction: column;
-		align-items: flex-start;
-		gap: 10px;
-		padding: 16px;
-	}
-
-	.natee-price-side {
-		width: 100%;
-		justify-content: space-between;
-	}
-
-	.natee-price-body {
-		padding-left: 16px;
-		padding-right: 16px;
-	}
-
-	.natee-price-actions .natee-btn {
-		width: 100%;
-		justify-content: center;
-	}
 }
 
 /* จอกลาง */
 @media (min-width: 720px) {
 	.natee-hero {
-		padding: 56px 0 64px;
+		padding: 48px 0 56px;
 	}
 
 	.natee-hero-title {
-		font-size: 40px;
+		font-size: 36px;
+		line-height: 1.32;
 	}
 
 	.natee-section {
@@ -1910,25 +1984,19 @@ a.natee-contact-item:hover {
 		grid-template-columns: repeat(2, minmax(0, 1fr));
 	}
 
+	/* แถวสุดท้ายที่ไม่เต็มจัดไว้กลาง เจ้าของร้านเพิ่มหรือลดบริการได้โดยไม่เหลือช่องโหว่ท้ายตาราง */
 	.natee-card-grid {
-		grid-template-columns: repeat(2, minmax(0, 1fr));
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: center;
+	}
+
+	.natee-card-grid > .natee-card {
+		flex: 0 0 calc((100% - 16px) / 2);
 	}
 
 	.natee-fleet-grid {
 		grid-template-columns: repeat(2, minmax(0, 1fr));
-	}
-
-	.natee-about-inner {
-		grid-template-columns: 0.9fr 1.1fr;
-		gap: 34px;
-	}
-
-	.natee-about-inner.is-single {
-		grid-template-columns: minmax(0, 1fr);
-	}
-
-	.natee-step-list {
-		grid-template-columns: repeat(3, minmax(0, 1fr));
 	}
 
 	.natee-cta-inner {
@@ -2005,21 +2073,37 @@ a.natee-contact-item:hover {
 
 
 
+	/* รูปได้พื้นที่มากกว่าครึ่ง โปสเตอร์ที่มีตัวหนังสือจึงอ่านออก ไม่เล็กลอยอยู่ข้างหัวข้อตัวใหญ่ */
 	.natee-hero-inner {
-		grid-template-columns: 1.05fr 0.95fr;
+		grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
 		align-items: center;
-		gap: 44px;
+		gap: 56px;
 	}
 
 	.natee-hero-title {
-		font-size: 46px;
+		font-size: 42px;
+		line-height: 1.3;
 	}
 
 	.natee-highlight-grid {
 		grid-template-columns: repeat(4, minmax(0, 1fr));
 	}
 
-	.natee-card-grid {
+	.natee-card-grid > .natee-card {
+		flex-basis: calc((100% - 48px) / 4);
+	}
+
+	/* แท็บเล็ตยังแคบเกินจะวางรูปคู่ข้อความหรือขั้นตอนสามช่อง ข้อความจะถูกบีบเป็นก้อน จึงเริ่มแบ่งคอลัมน์ที่จอใหญ่ */
+	.natee-about-inner {
+		grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+		gap: 48px;
+	}
+
+	.natee-about-inner.is-single {
+		grid-template-columns: minmax(0, 1fr);
+	}
+
+	.natee-step-list {
 		grid-template-columns: repeat(3, minmax(0, 1fr));
 	}
 
@@ -2071,11 +2155,11 @@ a.natee-contact-item:hover {
 
 /* จอใหญ่ คุมความสูงแถวคลิปไม่ให้กินพื้นที่มากเกินไป */
 @media (min-width: 1000px) {
-	.natee-video-row {
+	.natee-video-row,
+	.natee-gallery-grid {
 		max-width: 920px;
 		margin-left: auto;
 		margin-right: auto;
-		margin-bottom: 24px;
 	}
 }
 
@@ -2102,6 +2186,30 @@ a.natee-contact-item:hover {
 	gap: 14px;
 	padding: 16px 20px;
 	min-height: 68px;
+}
+
+/* มือถือ ชื่อรถกับป้ายราคาซ้อนกันชิดซ้าย ต้องอยู่หลังกฎด้านบน ไม่งั้นถูกจัดกึ่งกลางจนดูเบี้ยว */
+@media (max-width: 479px) {
+	.natee-price-summary {
+		flex-direction: column;
+		align-items: stretch;
+		gap: 10px;
+		padding: 16px;
+	}
+
+	.natee-price-side {
+		justify-content: space-between;
+	}
+
+	.natee-price-body {
+		padding-left: 16px;
+		padding-right: 16px;
+	}
+
+	.natee-price-actions .natee-btn {
+		width: 100%;
+		justify-content: center;
+	}
 }
 
 .natee-price-card.is-open {
@@ -2382,7 +2490,7 @@ dialog.natee-lightbox::backdrop { background: #070e19; }
 
 @media (max-width: 999px) {
   .natee-header .natee-lang-item { min-height: 44px; }
-  .natee-hero-title { font-size: 28px; font-weight: 600; line-height: 1.5; letter-spacing: normal; }
+  .natee-hero-title { font-weight: 600; letter-spacing: normal; }
   .natee-section-title { line-height: 1.5; letter-spacing: normal; }
 }
 
@@ -2762,14 +2870,16 @@ dialog.natee-lightbox::backdrop { background: #070e19; }
 	margin-bottom: 26px;
 }
 
+.natee-article-frame {
+	aspect-ratio: 16 / 9;
+	border-radius: var(--natee-radius);
+}
+
 .natee-article-img {
 	display: block;
 	width: 100%;
-	height: auto;
-	aspect-ratio: 16 / 9;
+	height: 100%;
 	object-fit: cover;
-	border-radius: var(--natee-radius);
-	background: var(--natee-bg-soft);
 }
 
 .natee-article-caption {
@@ -2792,7 +2902,7 @@ dialog.natee-lightbox::backdrop { background: #070e19; }
 	overflow: hidden;
 }
 
-.natee-use .natee-article-img {
+.natee-use .natee-article-frame {
 	aspect-ratio: 16 / 10;
 	border-radius: 0;
 }
@@ -2818,7 +2928,7 @@ dialog.natee-lightbox::backdrop { background: #070e19; }
 		align-items: center;
 	}
 
-	.natee-use .natee-article-img {
+	.natee-use .natee-article-frame {
 		height: 100%;
 		aspect-ratio: auto;
 		min-height: 160px;
