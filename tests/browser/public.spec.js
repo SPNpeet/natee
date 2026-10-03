@@ -88,14 +88,21 @@ test('all public controls, modal focus, video lifecycle and mobile menu',async({
   await expect(toggle).toHaveAttribute('aria-expanded','false')
   const contactToggle=page.locator('.natee-contact-toggle')
   const contactOptions=page.locator('#natee-contact-options')
+  const services=page.locator('#natee-services')
+  // ปุ่มลอยหลบไปตอนที่ปุ่มโทรชุดบนสุดยังเห็นอยู่ เลื่อนผ่านแล้วต้องกลับมากดได้
+  await page.evaluate(()=>scrollTo({top:0,behavior:'instant'}))
+  await expect(contactToggle).toBeHidden()
+  await services.scrollIntoViewIfNeeded()
+  await expect(contactToggle).toBeVisible()
   await expect(contactOptions).toBeHidden()
   await contactToggle.click();await expect(contactOptions).toBeVisible()
   await page.keyboard.press('Tab');await expect(page.locator('.natee-floating-call')).toBeFocused()
   await page.keyboard.press('Escape');await expect(contactOptions).toBeHidden();await expect(contactToggle).toBeFocused()
-  await contactToggle.click();await page.locator('h1').click();await expect(contactOptions).toBeHidden()
+  await contactToggle.click();await services.locator('h2').click();await expect(contactOptions).toBeHidden()
   await contactToggle.click();await page.locator('.natee-floating-call').click();await expect(contactOptions).toBeHidden()
   await contactToggle.click();await page.locator('.natee-floating-line').click();await expect(contactOptions).toBeHidden()
   await page.setViewportSize({width:1280,height:900})
+  await services.scrollIntoViewIfNeeded()
   await expect(contactToggle).toBeVisible()
   await contactToggle.click();await expect(contactOptions).toBeVisible()
   await contactToggle.click();await expect(contactOptions).toBeHidden()
@@ -152,17 +159,23 @@ test('mobile header, menu and contact visual evidence',async({page},info)=>{
       await page.setViewportSize({width,height:812})
       await page.evaluate(()=>document.fonts.ready)
       await expect(page.locator('.natee-nav-toggle')).toBeVisible()
-      for(const selector of ['.natee-nav-toggle','.natee-lang-item','.natee-contact-toggle']){
+      for(const selector of ['.natee-nav-toggle','.natee-lang-item']){
         for(const item of await page.locator(selector).all()){
           const rect=await item.boundingBox()
           expect(rect.height).toBeGreaterThanOrEqual(44)
         }
       }
       await page.screenshot({path:'test-results/mobile-header-'+info.project.name+'-'+lang+'-'+width+'.png'})
+      // ปุ่มลอยขึ้นมาหลังเลื่อนผ่านปุ่มโทรชุดบนสุด วัดขนาดตอนนั้น
+      await page.locator('#natee-services').scrollIntoViewIfNeeded()
+      await expect(page.locator('.natee-contact-toggle')).toBeVisible()
+      expect((await page.locator('.natee-contact-toggle').boundingBox()).height).toBeGreaterThanOrEqual(44)
+      await page.evaluate(()=>scrollTo({top:0,behavior:'instant'}))
     }
     await page.locator('.natee-nav-toggle').click()
     await page.screenshot({path:'test-results/mobile-menu-'+info.project.name+'-'+lang+'.png'})
     await page.locator('.natee-nav-toggle').click()
+    await page.locator('#natee-services').scrollIntoViewIfNeeded()
     await page.locator('.natee-contact-toggle').click()
     await expect(page.locator('.natee-contact-options')).toBeVisible()
     await page.screenshot({path:'test-results/mobile-contact-'+info.project.name+'-'+lang+'.png'})
