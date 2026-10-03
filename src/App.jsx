@@ -21,6 +21,7 @@ export default function App({ lang = 'th', content = defaults, page = 'home' }) 
   const { I18N, CONTACT, GALLERY, REVIEWS, FORM, ASSETS, BRAND } = content
   const [menuOpen, setMenuOpen] = useState(false)
   const [contactOpen, setContactOpen] = useState(false)
+  const [topActionsVisible, setTopActionsVisible] = useState(true)
   const contactRef = useRef(null)
   const contactToggleRef = useRef(null)
   const [openPrice, setOpenPrice] = useState(0)
@@ -163,6 +164,23 @@ export default function App({ lang = 'th', content = defaults, page = 'home' }) 
       document.removeEventListener('keydown', closeEscape)
     }
   }, [contactOpen])
+
+  // ปุ่มลอยหลบไปตอนที่ปุ่มโทรและไลน์ส่วนบนของหน้ายังเห็นอยู่ จะได้ไม่ทับเนื้อหาซ้อนกันสองชุด
+  // เลื่อนผ่านปุ่มชุดบนเมื่อไหร่ปุ่มลอยขึ้นมาทันที หน้าที่ไม่มีปุ่มชุดบนแสดงปุ่มลอยตลอด
+  useEffect(() => {
+    const top = document.querySelector('.natee-hero .natee-actions, .natee-article-head .natee-actions')
+    if (!top || typeof IntersectionObserver === 'undefined') {
+      setTopActionsVisible(false)
+      return
+    }
+    const observer = new IntersectionObserver(([entry]) => setTopActionsVisible(entry.isIntersecting))
+    observer.observe(top)
+    return () => observer.disconnect()
+  }, [page, lang])
+
+  useEffect(() => {
+    if (topActionsVisible) setContactOpen(false)
+  }, [topActionsVisible])
 
   const swipe = useRef(null)
   const onTouchStart = (e) => { swipe.current = { x: e.touches[0].clientX, y: e.touches[0].clientY } }
@@ -755,7 +773,7 @@ export default function App({ lang = 'th', content = defaults, page = 'home' }) 
         </div>
       </footer>
 
-      <div className="natee-floating-contact" ref={contactRef} role="complementary" aria-label={L.contactTitle}>
+      <div className={topActionsVisible ? 'natee-floating-contact is-tucked' : 'natee-floating-contact'} ref={contactRef} role="complementary" aria-label={L.contactTitle}>
         <button className="natee-contact-toggle" type="button" ref={contactToggleRef}
           aria-expanded={contactOpen} aria-controls="natee-contact-options"
           onClick={() => setContactOpen(open => !open)}>

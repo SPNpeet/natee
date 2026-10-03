@@ -1801,6 +1801,14 @@ a.natee-contact-item:hover {
   right: max(16px, env(safe-area-inset-right));
   bottom: calc(16px + env(safe-area-inset-bottom));
   z-index: 120;
+  transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
+}
+/* หลบไปตอนที่ปุ่มโทรชุดบนสุดของหน้ายังเห็นอยู่ visibility ทำให้กดหรือแท็บไปโดนไม่ได้ระหว่างซ่อน */
+.natee-floating-contact.is-tucked {
+  opacity: 0;
+  transform: translateY(16px);
+  visibility: hidden;
+  pointer-events: none;
 }
 .natee-contact-toggle {
   display: flex;
@@ -2075,9 +2083,14 @@ a.natee-contact-item:hover {
 
 	/* รูปได้พื้นที่มากกว่าครึ่ง โปสเตอร์ที่มีตัวหนังสือจึงอ่านออก ไม่เล็กลอยอยู่ข้างหัวข้อตัวใหญ่ */
 	.natee-hero-inner {
-		grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+		grid-template-columns: minmax(0, 0.86fr) minmax(0, 1.14fr);
 		align-items: center;
-		gap: 56px;
+		gap: 48px;
+	}
+
+	/* จอกว้างกว่ากรอบเนื้อหา รูปยื่นออกไปทางขวาจนเกือบชิดขอบจอ ข้อความฝั่งซ้ายยังตรงแนวกับโลโก้ */
+	.natee-hero-media {
+		margin-right: calc(-1 * clamp(0px, (100vw - var(--natee-max)) / 2 - 28px, 200px));
 	}
 
 	.natee-hero-title {
