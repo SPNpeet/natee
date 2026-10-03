@@ -36,10 +36,11 @@ export const ASSETS = {
  * ใส่ค่าจริงเท่านั้น ห้ามใส่ตัวเลขที่ไม่มีอยู่จริง
  * ถ้า count เป็นศูนย์ ส่วนนี้จะไม่ถูกแสดงและไม่ถูกส่งให้ Google
  */
+// ค่าจริงจากโปรไฟล์ร้านบน Google Maps เมื่อ 3 ต.ค. 2569 เจ้าของร้านอัปเดตได้ในหลังบ้านเมื่อมีรีวิวเพิ่ม
 export const REVIEWS = {
-  rating: 0,
-  count: 0,
-  url: '',
+  rating: 5,
+  count: 5,
+  url: 'https://search.google.com/local/reviews?placeid=ChIJr0B_fAA72jARczGvRfNdzx4',
 }
 
 export const BRAND = { color: '#0f6fbf' }
@@ -381,7 +382,7 @@ export const I18N = {
     formSent: 'ส่งข้อความเรียบร้อยแล้ว ทีมงานจะติดต่อกลับโดยเร็วที่สุด หากเร่งด่วนกรุณาโทรหาเราโดยตรง',
     formError: 'ส่งข้อความไม่สำเร็จ กรุณาโทรหาเราโดยตรงเพื่อความรวดเร็ว',
     formHint: 'ใช้ข้อมูลนี้เพื่อติดต่อกลับเรื่องบริการ เก็บในระบบของร้าน 90 วัน หากต้องการน้ำด่วนวันนี้ กรุณาโทรโดยตรง',
-    reviewsLabel: 'จากรีวิวบน Google',
+    reviewsLabel: 'รีวิวบน Google',
 
     contactTitle: 'ติดต่อสั่งน้ำ',
     contactSubtitle: 'โทรได้เลยเพื่อความรวดเร็วที่สุด หรือทักไลน์เพื่อส่งรายละเอียดงานให้ทีมงาน',
@@ -731,7 +732,7 @@ export const I18N = {
     formSent: 'Thank you. We have received your message and will call you back shortly. For urgent orders please call us directly.',
     formError: 'The message could not be sent. Please call us directly instead.',
     formHint: 'We use these details to respond to your enquiry and keep them for 90 days. Need water today? Please call us directly.',
-    reviewsLabel: 'from reviews on Google',
+    reviewsLabel: 'reviews on Google',
 
     contactTitle: 'Contact us',
     contactSubtitle: 'Call us for the fastest response, or message us on LINE with the details of your job.',

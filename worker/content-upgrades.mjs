@@ -779,5 +779,42 @@ export default [
         "a": "มี รับจัดรถน้ำสำหรับงานสงกรานต์ งานวัด งานเทศกาล และงานอีเวนต์ แนะนำให้จองล่วงหน้าเพื่อจัดคิวรถได้ตรงเวลาที่ต้องการ"
       }
     ]
+  },
+  {
+    "path": [
+      "REVIEWS",
+      "rating"
+    ],
+    "from": 0
+  },
+  {
+    "path": [
+      "REVIEWS",
+      "count"
+    ],
+    "from": 0
+  },
+  {
+    "path": [
+      "REVIEWS",
+      "url"
+    ],
+    "from": ""
+  },
+  {
+    "path": [
+      "I18N",
+      "th",
+      "reviewsLabel"
+    ],
+    "from": "จากรีวิวบน Google"
+  },
+  {
+    "path": [
+      "I18N",
+      "en",
+      "reviewsLabel"
+    ],
+    "from": "from reviews on Google"
   }
 ]
