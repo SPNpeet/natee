@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import Icon from './icons.jsx'
 import * as defaults from './data.js'
 import { brandCSS, imageAsset as asset, imageSrcSet } from './brand.js'
-import { track } from './track.js'
+import { track, setupAds } from './track.js'
 import ContactForm from './ContactForm.jsx'
 import ContactButtons from './ContactButtons.jsx'
 import Knowledge from './Knowledge.jsx'
@@ -78,6 +78,9 @@ export default function App({ lang = 'th', content = defaults, page = 'home' }) 
     dialog.showModal()
     return () => { dialog.close(); viewerOpener.current?.focus({ preventScroll: true }) }
   }, [viewerOpen])
+
+  // แท็กวัดผลโฆษณาโหลดครั้งเดียวต่อหน้า ไม่มีรหัสในเนื้อหาก็ไม่โหลดอะไรเลย
+  useEffect(() => { setupAds(content.ADS) }, [content.ADS])
 
   useEffect(() => () => clearTimeout(toastTimer.current), [])
   useEffect(() => {

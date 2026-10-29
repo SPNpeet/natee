@@ -43,6 +43,16 @@ export const REVIEWS = {
   url: 'https://search.google.com/local/reviews?placeid=ChIJr0B_fAA72jARczGvRfNdzx4',
 }
 
+/**
+ * เครื่องมือวัด Conversion ของ Google Ads
+ * conversionId ว่างเมื่อไร จะไม่โหลดสคริปต์ของ Google และไม่ส่งอะไรออกไปเลย
+ * ป้ายกำกับดูได้ที่ Google Ads หน้าการกระทำที่ถือเป็น Conversion
+ */
+export const ADS = {
+  conversionId: 'AW-18031605732',
+  callLabel: 'A-zkCPiT9a0dEOTvkZZD',
+  lineLabel: 'pe1YCPuT9a0dEOTvkZZD',
+}
 export const BRAND = { color: '#0f6fbf' }
 export const SEO = {
   th: { title: 'รถน้ำเชียงใหม่ รถส่งน้ำประปา 24 ชม. เชียงใหม่ ลำพูน | ธารนที', description: 'ธารนที รถส่งน้ำ รถขายน้ำประปาเชียงใหม่ ลำพูน 24 ชั่วโมง เติมน้ำแท็งก์ เติมสระว่ายน้ำ ล้างถนน รดน้ำต้นไม้ สนามหญ้า รถน้ำงานสงกรานต์' },
