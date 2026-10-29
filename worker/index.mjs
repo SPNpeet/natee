@@ -22,12 +22,14 @@ async function expandMapLink(link) {
   return current
 }
 
+// แท็ก Google ของ Ads โหลดสคริปต์จาก googletagmanager แล้วแจ้งผลกลับไปที่ google กับ doubleclick
+// ขาดโดเมนไหนไป เบราว์เซอร์จะบล็อกเงียบ ๆ แท็กขึ้นในหน้าแต่ไม่มีวันนับผลได้ ด่าน npm run check ดักไว้แล้ว
 const securityHeaders = {
   'X-Content-Type-Options': 'nosniff',
   'X-Frame-Options': 'DENY',
   'Referrer-Policy': 'strict-origin-when-cross-origin',
   'Permissions-Policy': 'camera=(), microphone=(), geolocation=()',
-  'Content-Security-Policy': "default-src 'self'; script-src 'self' https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; media-src 'self' blob:; font-src 'self'; connect-src 'self' https://cloudflareinsights.com; frame-src https://www.google.com https://maps.google.com; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self'",
+  'Content-Security-Policy': "default-src 'self'; script-src 'self' https://static.cloudflareinsights.com https://www.googletagmanager.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://www.googletagmanager.com https://www.google.com https://www.google.co.th https://googleads.g.doubleclick.net https://td.doubleclick.net; media-src 'self' blob:; font-src 'self'; connect-src 'self' https://cloudflareinsights.com https://www.googletagmanager.com https://www.google.com https://www.google.co.th https://googleads.g.doubleclick.net https://td.doubleclick.net; frame-src https://www.google.com https://maps.google.com https://www.googletagmanager.com https://td.doubleclick.net; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self'",
 }
 const json = (data, status = 200, headers = {}) => new Response(JSON.stringify(data), { status, headers: { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store', ...securityHeaders, ...headers } })
 const query = (env, sql, ...values) => env.DB.prepare(sql).bind(...values)

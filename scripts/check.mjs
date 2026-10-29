@@ -333,5 +333,18 @@ const biggest = pageFiles
   .toSorted((a, b) => b.kb - a.kb)[0]
 check(`หน้าที่หนักที่สุด ${biggest.f} รวมสไตล์ ${biggest.kb.toFixed(0)} KB ไม่เกิน 250 KB`, biggest.kb < 250)
 
+console.log('\n10. แท็กวัดผล Conversion')
+// เปิดรหัสใน data.js แล้ว CSP ต้องอนุญาตโดเมนของแท็กคู่กันเสมอ
+// ถ้าขาด เบราว์เซอร์จะบล็อกสคริปต์เงียบ ๆ แท็กขึ้นในหน้าแต่ยอดเป็นศูนย์ตลอดไปโดยไม่มีใครรู้
+const conversionId = (readFileSync(resolve('src/data.js'), 'utf-8').match(/conversionId:\s*'([^']*)'/) || [])[1] || ''
+const csp = (readFileSync(resolve('worker/index.mjs'), 'utf-8').match(/'Content-Security-Policy': "([^"]*)"/) || [])[1] || ''
+const directive = (name) => (csp.match(new RegExp(name + ' ([^;]*)')) || [])[1] || ''
+if (conversionId) {
+  check(`CSP ให้โหลดสคริปต์ของแท็ก ${conversionId} ได้`, directive('script-src').includes('https://www.googletagmanager.com'))
+  check('CSP ให้ส่งผล Conversion กลับไปที่ Google ได้', ['connect-src', 'img-src'].every((d) => directive(d).includes('https://googleads.g.doubleclick.net')))
+} else {
+  check('ไม่ได้เปิดแท็กวัดผล จึงไม่ต้องเปิดโดเมนใดใน CSP', !directive('script-src').includes('googletagmanager'))
+}
+
 console.log(`\nผ่าน ${pass} ข้อ ไม่ผ่าน ${fail} ข้อ`)
 process.exit(fail > 0 ? 1 : 0)
